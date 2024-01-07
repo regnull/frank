@@ -1,4 +1,5 @@
 #include <ezButton.h>
+#include "Adafruit_VL53L1X.h"
 
 // Robot dimensions
 
@@ -44,6 +45,14 @@ const int RR_MOTOR_DIR_PIN_2 = 6;   // Rear Right Motor direction pin 2 to Model
 const int RL_MOTOR_DIR_PIN_1 = 7;   // Rear Left Motor direction pin 1 to Model-Y M_A IN3  (K3)
 const int RL_MOTOR_DIR_PIN_2 = 8;   // Rear Left Motor direction pin 2 to Model-Y M_A IN4 (K3)
 
+// Sensors
+
+const int IRQ_PIN = 44;
+const int XSHUT_PIN = 42;
+
+Adafruit_VL53L1X vl53 = Adafruit_VL53L1X(XSHUT_PIN, IRQ_PIN);
+
+
 enum STATE {
   START,
   WAIT_FOR_READY,
@@ -64,6 +73,7 @@ enum MOVE_STATE {
   RIGHT_SHIFT,  // Shift right one square
   TEST_MOVE,    // Test only, do not use!
   GO_TO_TARGET, // Go into the target square, stop with the dowel over the target. Must be the last command!
+  STOP
 };
 
 // !!!!!!! Speed
@@ -73,13 +83,15 @@ int speed = 100;
 // !!!!!!! Robot moves
 
 const MOVE_STATE moves[] = {
-  GO_IN,       // GO_IN must be the first_command!
-  FORWARD,
-  TURN_LEFT,
-  TURN_RIGHT,
-  RIGHT_SHIFT,
-  LEFT_SHIFT,
-  GO_TO_TARGET // GO_TO_TARGET must be the last command!
+  // GO_IN,       // GO_IN must be the first_command!
+  // FORWARD,
+  TEST_MOVE,
+  STOP,
+  // TURN_LEFT,
+  // TURN_RIGHT,
+  // RIGHT_SHIFT,
+  // LEFT_SHIFT,
+  // GO_TO_TARGET // GO_TO_TARGET must be the last command!
 };
 
 int current_move = 0;
@@ -100,6 +112,9 @@ void setup() {
   pinMode(RED_LED_PIN, OUTPUT);
   pinMode(YELLOW_LED_PIN, OUTPUT);
   pinMode(GREEN_LED_PIN, OUTPUT);
+
+  // Sensors
+  init_sensors();
 }
 
 void loop() {
@@ -214,6 +229,9 @@ void in_motion() {
       break;
     case GO_TO_TARGET:
       move_go_to_target(speed);
+      state = FINISH;
+      break;
+    case STOP:
       state = FINISH;
       break;
   }
@@ -409,14 +427,103 @@ void move_left_shift(int speed) {
 }
 
 void move_test(int speed) {
+  // double min_distance = get_average_distance(5);
+  double goal = 80;
   for(int i = 0; i < 100; i++) {
-    turn_left(speed);
-    delay(10);
+    double d = get_average_distance(10);
+    Serial.print("average distance: ");
+    Serial.print(d);
+    Serial.print(", ");
+    Serial.println(goal);
+    if(d < goal) {
+      break;
+    }
+    go_forward(speed);
+    delay(100);
     stop_motors();
-    delay(20);
+    delay(50);
   }
+  //   turn_left(speed);
+  //   delay(30);
+  //   stop_motors();
+  //   delay(30);
+  //   double d = get_average_distance(5);
+  //   Serial.print(F("Avg distance: "));
+  //   Serial.print(d);
+  //   Serial.print(", ");
+  //   Serial.print(min_distance);
+  //   if(d - min_distance > 5.0) {
+  //     break;
+  //   }
+  //   if(d < min_distance) {
+  //     min_distance = d;
+  //   }
+  // }
 }
 
 long compute_move_time(int distance, int factor, int speed) {
   return long(distance) * long(factor) / long(speed);
+}
+
+// Sensors control
+
+void init_sensors() {
+  Wire.begin();
+  if (! vl53.begin(0x29, &Wire)) {
+    Serial.print(F("Error on init of VL sensor: "));
+    Serial.println(vl53.vl_status);
+    while (1)       delay(10);
+  }
+  Serial.println(F("VL53L1X sensor OK!"));
+
+    Serial.print(F("Sensor ID: 0x"));
+  Serial.println(vl53.sensorID(), HEX);
+
+  if (! vl53.startRanging()) {
+    Serial.print(F("Couldn't start ranging: "));
+    Serial.println(vl53.vl_status);
+    while(true) {
+      delay(10);
+    } 
+  }
+  Serial.println(F("Ranging started"));
+
+  // Valid timing budgets: 15, 20, 33, 50, 100, 200 and 500ms!
+  vl53.setTimingBudget(50);
+  Serial.print(F("Timing budget (ms): "));
+  Serial.println(vl53.getTimingBudget());
+}
+
+int get_distance() {
+  while(true) {
+    if(vl53.dataReady()) {
+      break;
+    }
+    delay(10);
+  }
+  // new measurement for the taking!
+  int distance = vl53.distance();
+  if (distance == -1) {
+    // something went wrong!
+    Serial.print(F("Couldn't get distance: "));
+    Serial.println(vl53.vl_status);
+    return -1;
+  }
+  Serial.print(F("Distance: "));
+  Serial.print(distance);
+  Serial.println(" mm");
+
+  // data is read out, time for another reading!
+  vl53.clearInterrupt();
+  return distance;
+}
+
+double get_average_distance(int n) {
+    double sum = 0.0;
+    for(int j = 0; j < n; j++) {
+      double d = get_distance();
+      sum += d;
+      delay(10);
+    }
+    return sum / double(n);
 }
