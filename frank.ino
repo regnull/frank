@@ -55,15 +55,15 @@ enum STATE {
 STATE state = START;
 
 enum MOVE_STATE {
-  GO_IN,        // Start from the edge of the grid, go into the first square
+  GO_IN,        // Start from the edge of the grid, go into the first square. Must be the first command!
   FORWARD,      // Go forward one square
   BACKWARD,     // Go backward one square
   TURN_LEFT,    // Turn left 90 degrees
   TURN_RIGHT,   // Turn right 90 degrees
   LEFT_SHIFT,   // Shift left one square
   RIGHT_SHIFT,  // Shift right one square
-  GO_TO_TARGET, // Go into the target square, stop with the dowel over the target
-  STOP          // Does nothing, but must be the last command
+  TEST_MOVE,    // Test only, do not use!
+  GO_TO_TARGET, // Go into the target square, stop with the dowel over the target. Must be the last command!
 };
 
 // !!!!!!! Speed
@@ -73,13 +73,13 @@ int speed = 100;
 // !!!!!!! Robot moves
 
 const MOVE_STATE moves[] = {
-  GO_IN, // GO_IN must be the first_command!
+  GO_IN,       // GO_IN must be the first_command!
   FORWARD,
   TURN_LEFT,
   TURN_RIGHT,
   RIGHT_SHIFT,
   LEFT_SHIFT,
-  STOP // STOP must be the last move!
+  GO_TO_TARGET // GO_TO_TARGET must be the last command!
 };
 
 int current_move = 0;
@@ -209,7 +209,11 @@ void in_motion() {
     case RIGHT_SHIFT:
       move_right_shift(speed);
       break;
-    case STOP:
+    case TEST_MOVE:
+      move_test(speed);
+      break;
+    case GO_TO_TARGET:
+      move_go_to_target(speed);
       state = FINISH;
       break;
   }
@@ -355,6 +359,13 @@ void move_into_grid(int speed) {
   delay(move_delay);
 }
 
+void move_go_to_target(int speed) {
+  go_forward(speed);
+  delay(compute_move_time(grid_distance - dowel_to_middle, distance_factor, speed));
+  stop_motors();
+  delay(move_delay);
+}
+
 void move_forward(int speed) {
   go_forward(speed);
   delay(compute_move_time(grid_distance, distance_factor, speed));
@@ -395,6 +406,15 @@ void move_left_shift(int speed) {
   delay(compute_move_time(shift_distance, shift_factor, speed));
   stop_motors();
   delay(move_delay);
+}
+
+void move_test(int speed) {
+  for(int i = 0; i < 100; i++) {
+    turn_left(speed);
+    delay(10);
+    stop_motors();
+    delay(20);
+  }
 }
 
 long compute_move_time(int distance, int factor, int speed) {
