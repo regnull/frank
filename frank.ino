@@ -1,5 +1,6 @@
 #include <ezButton.h>
-#include "Adafruit_VL53L1X.h"
+#include <Wire.h>
+#include <VL53L1X.h>
 
 // Robot dimensions
 
@@ -47,11 +48,17 @@ const int RL_MOTOR_DIR_PIN_2 = 8;   // Rear Left Motor direction pin 2 to Model-
 
 // Sensors
 
-const int IRQ_PIN = 44;
-const int XSHUT_PIN = 42;
+const int R_SENSOR_IRQ_PIN = 44;
+const int R_SENSOR_XSHUT_PIN = 42;
 
-Adafruit_VL53L1X vl53 = Adafruit_VL53L1X(XSHUT_PIN, IRQ_PIN);
+const int L_SENSOR_IRQ_PIN = 36;
+const int L_SENSOR_XSHUT_PIN = 37;
 
+// Adafruit_VL53L1X vl53_r = Adafruit_VL53L1X(R_SENSOR_XSHUT_PIN, R_SENSOR_IRQ_PIN);  // Right sensor
+// Adafruit_VL53L1X vl53_l = Adafruit_VL53L1X(L_SENSOR_XSHUT_PIN, L_SENSOR_IRQ_PIN);  // Left sensor
+
+VL53L1X vl53_r;
+VL53L1X vl53_l;
 
 enum STATE {
   START,
@@ -83,9 +90,21 @@ int speed = 100;
 // !!!!!!! Robot moves
 
 const MOVE_STATE moves[] = {
-  // GO_IN,       // GO_IN must be the first_command!
-  // FORWARD,
-  TEST_MOVE,
+  GO_IN,       // GO_IN must be the first_command!
+  FORWARD,
+  TURN_RIGHT,
+  FORWARD,
+  TURN_LEFT,
+  FORWARD,
+  TURN_LEFT,
+  FORWARD,
+  TURN_RIGHT,
+  FORWARD,
+  TURN_RIGHT,
+  FORWARD,
+  FORWARD,
+  // BACKWARD,
+  // TEST_MOVE,
   STOP,
   // TURN_LEFT,
   // TURN_RIGHT,
@@ -199,15 +218,17 @@ void in_motion() {
   Serial.println("IN_MOTION");
 
   MOVE_STATE next_move = moves[current_move];
-  Serial.print("move: ");
-  Serial.println(next_move);
 
   switch(next_move) {
     case GO_IN:
+      Serial.println("GO_IN");
       move_into_grid(speed);
       break;
     case FORWARD:
+      Serial.println("FORWARD");
       move_forward(speed);
+      adjust_angle();
+      adjust_distance();
       break;  
     case BACKWARD:
       move_backward(speed);
@@ -427,38 +448,25 @@ void move_left_shift(int speed) {
 }
 
 void move_test(int speed) {
-  // double min_distance = get_average_distance(5);
-  double goal = 80;
-  for(int i = 0; i < 100; i++) {
-    double d = get_average_distance(10);
-    Serial.print("average distance: ");
-    Serial.print(d);
-    Serial.print(", ");
-    Serial.println(goal);
-    if(d < goal) {
-      break;
+  double dr = get_distance_r();
+  double dl = get_distance_l();
+
+  while(abs(dr-dl) > 5) {
+    if (dr > dl) {
+      turn_left(speed);
+    } else {
+      turn_right(speed);
     }
-    go_forward(speed);
-    delay(100);
+    Serial.print("distance (r): ");
+    Serial.print(dr);
+    Serial.print(", (l): ");
+    Serial.println(dl);
+    delay(50);
     stop_motors();
     delay(50);
+    dr = get_distance_r();
+    dl = get_distance_l();
   }
-  //   turn_left(speed);
-  //   delay(30);
-  //   stop_motors();
-  //   delay(30);
-  //   double d = get_average_distance(5);
-  //   Serial.print(F("Avg distance: "));
-  //   Serial.print(d);
-  //   Serial.print(", ");
-  //   Serial.print(min_distance);
-  //   if(d - min_distance > 5.0) {
-  //     break;
-  //   }
-  //   if(d < min_distance) {
-  //     min_distance = d;
-  //   }
-  // }
 }
 
 long compute_move_time(int distance, int factor, int speed) {
@@ -468,62 +476,136 @@ long compute_move_time(int distance, int factor, int speed) {
 // Sensors control
 
 void init_sensors() {
+  Serial.println("init sensors");
+
   Wire.begin();
-  if (! vl53.begin(0x29, &Wire)) {
-    Serial.print(F("Error on init of VL sensor: "));
-    Serial.println(vl53.vl_status);
-    while (1)       delay(10);
+  Wire.setClock(400000); // use 400 kHz I2C
+
+  pinMode(L_SENSOR_XSHUT_PIN, OUTPUT);
+  digitalWrite(L_SENSOR_XSHUT_PIN, LOW);
+  pinMode(R_SENSOR_XSHUT_PIN, OUTPUT);
+  digitalWrite(R_SENSOR_XSHUT_PIN, LOW);
+
+  pinMode(L_SENSOR_XSHUT_PIN, INPUT);
+  delay(10);
+  vl53_l.setTimeout(500);
+  if(!vl53_l.init()) {
+    Serial.print("Failed to detect and initialize left sensor");
+    while (1);
   }
-  Serial.println(F("VL53L1X sensor OK!"));
+  vl53_l.setAddress(0x2A);
+  vl53_l.startContinuous(50);
 
-    Serial.print(F("Sensor ID: 0x"));
-  Serial.println(vl53.sensorID(), HEX);
-
-  if (! vl53.startRanging()) {
-    Serial.print(F("Couldn't start ranging: "));
-    Serial.println(vl53.vl_status);
-    while(true) {
-      delay(10);
-    } 
+  pinMode(R_SENSOR_XSHUT_PIN, INPUT);
+  delay(10);
+  vl53_r.setTimeout(500);
+  if(!vl53_r.init()) {
+    Serial.print("Failed to detect and initialize left sensor");
+    while (1);
   }
-  Serial.println(F("Ranging started"));
-
-  // Valid timing budgets: 15, 20, 33, 50, 100, 200 and 500ms!
-  vl53.setTimingBudget(50);
-  Serial.print(F("Timing budget (ms): "));
-  Serial.println(vl53.getTimingBudget());
+  vl53_r.setAddress(0x2B);
+  vl53_r.startContinuous(50);
 }
 
-int get_distance() {
+int get_distance_r() {
   while(true) {
-    if(vl53.dataReady()) {
+    if(vl53_r.dataReady()) {
       break;
     }
     delay(10);
   }
   // new measurement for the taking!
-  int distance = vl53.distance();
+  int distance = vl53_r.read();
   if (distance == -1) {
     // something went wrong!
-    Serial.print(F("Couldn't get distance: "));
-    Serial.println(vl53.vl_status);
+    Serial.println(F("Couldn't get distance (R)"));
     return -1;
   }
-  Serial.print(F("Distance: "));
+  Serial.print(F("Distance (R): "));
   Serial.print(distance);
   Serial.println(" mm");
 
-  // data is read out, time for another reading!
-  vl53.clearInterrupt();
   return distance;
 }
 
-double get_average_distance(int n) {
+double get_average_distance_r(int n) {
     double sum = 0.0;
     for(int j = 0; j < n; j++) {
-      double d = get_distance();
+      double d = get_distance_r();
       sum += d;
       delay(10);
     }
     return sum / double(n);
+}
+
+int get_distance_l() {
+  while(true) {
+    if(vl53_l.dataReady()) {
+      break;
+    }
+    delay(10);
+  }
+  // new measurement for the taking!
+  int distance = vl53_l.read();
+  if (distance == -1) {
+    // something went wrong!
+    Serial.println(F("Couldn't get distance (L)"));
+    return -1;
+  }
+  Serial.print(F("Distance (L): "));
+  Serial.print(distance);
+  Serial.println(" mm");
+
+  return distance;
+}
+
+void adjust_angle() {
+  double dr = get_distance_r();
+  double dl = get_distance_l();
+
+  if(dr > grid_distance || dl > grid_distance) {
+    Serial.println("Cannot adjust angle, too far");
+    return;
+  }
+
+  while(abs(dr-dl) > 5) {
+    if (dr > dl) {
+      turn_left(speed);
+    } else {
+      turn_right(speed);
+    }
+    Serial.print("distance (r): ");
+    Serial.print(dr);
+    Serial.print(", (l): ");
+    Serial.println(dl);
+    delay(50);
+    stop_motors();
+    delay(50);
+    dr = get_distance_r();
+    dl = get_distance_l();
+  }
+}
+
+void adjust_distance() {
+  int target_distance = grid_distance / 2 - dowel_to_middle;
+  double dr = get_distance_r();
+  double dl = get_distance_l();
+  if(dr > grid_distance || dl > grid_distance) {
+    Serial.println("Cannot adjust grid distance, too far");
+    return;
+  }
+  double min_distance = min(dr, dl);
+  while(abs(target_distance - min_distance) > 10) {
+    if(min_distance > target_distance) {
+      go_forward(speed);
+    } else {
+      go_backward(speed);
+    }
+    delay(50);
+    stop_motors();
+    delay(50);
+    dr = get_distance_r();
+    dl = get_distance_l();
+    min_distance = min(dr, dl);
+  } 
 }
