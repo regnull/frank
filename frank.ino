@@ -1,10 +1,18 @@
+#include <math.h>
+#include <stdio.h>
 #include <ezButton.h>
 #include <Wire.h>
 #include <VL53L1X.h>
 
+struct Distance {
+  double left;
+  double right;
+};
+
 // Robot dimensions
 
-const int dowel_to_middle = 130;  // Distance between the dowel and the middle of the robot.
+const int dowel_to_middle = 130;  // Distance between the dowel and the middle of the robot
+const int sensors_base = 100;      // TODO: Update this!
 
 // Motion
 
@@ -70,6 +78,15 @@ enum STATE {
 
 STATE state = START;
 
+int serial_putc(char c, FILE *) {
+  Serial.write(c);
+  return c;
+} 
+
+void printf_begin() {
+  fdevopen(&serial_putc, 0);
+}
+
 enum MOVE_STATE {
   GO_IN,        // Start from the edge of the grid, go into the first square. Must be the first command!
   FORWARD,      // Go forward one square
@@ -117,8 +134,8 @@ int current_move = 0;
 
 void setup() {
   Serial.begin(9600);
-  Serial.println();
-  Serial.println();
+  printf_begin();
+  printf("\n\n");
 
   // Switches
   switchA.setDebounceTime(50);
@@ -528,14 +545,20 @@ int get_distance_r() {
   return distance;
 }
 
-double get_average_distance_r(int n) {
-    double sum = 0.0;
+Distance get_average_distance(int n) {
+    double sum_r = 0.0;
+    double sum_l = 0.0;
     for(int j = 0; j < n; j++) {
-      double d = get_distance_r();
-      sum += d;
+      double dr = get_distance_r();
+      double dl = get_distance_l();
+      sum_r += dr;
+      sum_l += dl;
       delay(10);
     }
-    return sum / double(n);
+    Distance d;
+    d.left = sum_l / double(n);
+    d.right = sum_r / double(n);
+    return d;
 }
 
 int get_distance_l() {
@@ -560,29 +583,22 @@ int get_distance_l() {
 }
 
 void adjust_angle() {
-  double dr = get_distance_r();
-  double dl = get_distance_l();
+  Distance d = get_average_distance(5);
+  double distance_delta = d.right - d.left;
+  double angle = compute_angle(distance_delta);
+  int turn_time = angle * angle_factor / double(speed);
 
-  if(dr > grid_distance || dl > grid_distance) {
-    Serial.println("Cannot adjust angle, too far");
-    return;
-  }
-
-  while(abs(dr-dl) > 5) {
-    if (dr > dl) {
+  while(abs(angle) > 1.0) {
+    if(turn_time > 0) {
       turn_left(speed);
     } else {
       turn_right(speed);
     }
-    Serial.print("distance (r): ");
-    Serial.print(dr);
-    Serial.print(", (l): ");
-    Serial.println(dl);
-    delay(50);
-    stop_motors();
-    delay(50);
-    dr = get_distance_r();
-    dl = get_distance_l();
+    delay(abs(turn_time));
+    d = get_average_distance(5);
+    distance_delta = d.right - d.left;
+    angle = compute_angle(distance_delta);
+    turn_time = angle * angle_factor / double(speed);
   }
 }
 
@@ -608,4 +624,9 @@ void adjust_distance() {
     dl = get_distance_l();
     min_distance = min(dr, dl);
   } 
+}
+
+double compute_angle(double distance_delta) {
+  double angle_rad = atan2(distance_delta, sensors_base);
+  return angle_rad / M_PI * 180.0;
 }
