@@ -584,6 +584,10 @@ int get_distance_l() {
 
 void adjust_angle() {
   Distance d = get_average_distance(5);
+  if(d.left > grid_distance || d.right > grid_distance) {
+    Serial.println("Cannot adjust angle distance, too far");
+    return;
+  }
   double distance_delta = d.right - d.left;
   double angle = compute_angle(distance_delta);
   int turn_time = angle * angle_factor / double(speed);
