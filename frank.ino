@@ -109,8 +109,8 @@ int speed = 100;
 // !!!!!!! Robot moves
 
 const MOVE_STATE moves[] = {
-  GO_IN,       // GO_IN must be the first_command!
-  FORWARD,
+  //GO_IN,       // GO_IN must be the first_command!
+  FNA,
   // TURN_RIGHT,
   // FORWARD,
   // TURN_LEFT,
@@ -227,6 +227,8 @@ void ready() {
   digitalWrite(RED_LED_PIN, LOW);
 
   // TODO: Compute speed here.
+  // Warm up the sensors.
+  Distance d = get_distance();
   delay(1000);
 
   digitalWrite(GREEN_LED_PIN, LOW);
@@ -440,9 +442,10 @@ void move_go_to_target(int speed) {
 
 void move_forward(int speed) {
   // If we can get distance measurement, use it to make sure we don't bump into things.
-  Distance d = get_distance();
+  Distance d = get_average_distance(5);
   double distance = grid_distance;
   if(d.left > 0 && d.right > 0) {
+    Serial.print("distance right: "); Serial.print(d.right); Serial.print(", left "); Serial.println(d.left);
     double dm = min(d.left, d.right) - stop_distance;
     if(dm < distance) {
       Serial.print("obstacle detected at "); Serial.println(dm);
@@ -451,10 +454,18 @@ void move_forward(int speed) {
     if(distance < 0.0) {
       distance = 0.0;
     }
+  } else {
+    Serial.println("failed to get distance");
   }
-  go_forward(speed);
   int time = compute_move_time(distance, distance_factor, speed);
   Serial.print("move time "); Serial.println(time);
+  if(time <= 0) {
+    delay(move_delay);
+    return;
+  }
+
+  go_forward(speed);
+  delay(time);
   stop_motors();
   delay(move_delay);
 }
@@ -571,6 +582,7 @@ Distance get_average_distance(int n) {
       double dl = get_distance_l();
       if(dr <= 0 || dl <= 0) {
         continue;
+        delay(10);
       }
       measurements++;
       sum_r += dr;
@@ -596,6 +608,7 @@ Distance get_distance() {
     double dl = get_distance_l();
     if(dr <= 0 || dl <= 0) {
       Serial.println("failed to get distance");
+      delay(10);
       continue;
     }
     d.left = dl;
