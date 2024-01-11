@@ -12,7 +12,8 @@ struct Distance {
 // Robot dimensions
 
 const int dowel_to_middle = 130;  // Distance between the dowel and the middle of the robot
-const int sensors_base = 83;      // TODO: Update this!
+const int sensors_base = 83;      
+const int separator_width = 35;   // Millimeters.
 
 // Motion
 
@@ -20,7 +21,7 @@ const int grid_distance = 500;    // Grid distance, in millimeters.
 const int distance_factor = 310;  // !!! Adjust this to get the distance right
 const int move_delay = 500;
 const int angle = 90;             // Degrees
-const int angle_factor = 850;     // !!! Adjust this to get the turn angle right
+const int angle_factor = 940;     // !!! Adjust this to get the turn angle right
 const int shift_distance = 500;   // Millimeters
 const int shift_factor = 600;     // !!! Adjust this to get the shift distance right
 
@@ -110,6 +111,8 @@ const MOVE_STATE moves[] = {
   GO_IN,       // GO_IN must be the first_command!
   FORWARD,
   TURN_RIGHT,
+  FORWARD,
+  TURN_LEFT,
   FORWARD,
   TURN_RIGHT,
   FORWARD,
@@ -644,7 +647,7 @@ void adjust_angle() {
 }
 
 void adjust_distance() {
-  int target_distance = grid_distance / 2 - dowel_to_middle;
+  int target_distance = grid_distance / 2 - dowel_to_middle - separator_width / 2;
   double dr = get_distance_r();
   double dl = get_distance_l();
   if(dr > grid_distance || dl > grid_distance) {
