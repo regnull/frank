@@ -24,6 +24,7 @@ const int angle = 90;             // Degrees
 const int angle_factor = 980;     // !!! Adjust this to get the turn angle right
 const int shift_distance = 500;   // Millimeters
 const int shift_factor = 600;     // !!! Adjust this to get the shift distance right
+const int stop_distance = 50;
 
 // LEDs
 
@@ -111,14 +112,14 @@ int speed = 100;
 const MOVE_STATE moves[] = {
   GO_IN,       // GO_IN must be the first_command!
   FORWARD,
-  TURN_RIGHT,
-  FORWARD,
-  TURN_LEFT,
-  FORWARD,
-  TURN_RIGHT,
-  FORWARD,
-  TURN_LEFT,
-  FORWARD,
+  // TURN_RIGHT,
+  // FORWARD,
+  // TURN_LEFT,
+  // FORWARD,
+  // TURN_RIGHT,
+  // FORWARD,
+  // TURN_LEFT,
+  // FORWARD,
   // TURN_RIGHT,
   // FORWARD,
   // TURN_RIGHT,
@@ -432,7 +433,25 @@ void move_go_to_target(int speed) {
 
 void move_forward(int speed) {
   go_forward(speed);
-  delay(compute_move_time(grid_distance, distance_factor, speed));
+  int time = compute_move_time(grid_distance, distance_factor, speed);
+  int time_now = 0;
+  // As we are moving forward, check the distance and stop if we are too close.
+  while(time_now < time) {
+    int dl = get_distance_l();
+    int dr = get_distance_r();
+    Serial.print("time: "); Serial.println(time_now);
+    Serial.print("dl: "); Serial.println(dl);
+    Serial.print("dr: "); Serial.println(dr);
+    if((dl > 0 && dl < stop_distance) || (dr > 0 && dr < stop_distance)) {
+      // We are too close to an obstacle!
+      Serial.print("obstacle is too close, stop");
+      stop_motors();
+      delay(move_delay);
+      return;
+    }
+    delay(5);
+    time_now += 5;
+  }
   stop_motors();
   delay(move_delay);
 }
