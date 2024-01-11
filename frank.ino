@@ -445,6 +445,7 @@ void move_forward(int speed) {
   if(d.left > 0 && d.right > 0) {
     double dm = min(d.left, d.right) - stop_distance;
     if(dm < distance) {
+      Serial.print("obstacle detected at "); Serial.println(dm);
       distance = dm;
     }
     if(distance < 0.0) {
@@ -453,6 +454,7 @@ void move_forward(int speed) {
   }
   go_forward(speed);
   int time = compute_move_time(distance, distance_factor, speed);
+  Serial.print("move time "); Serial.println(time);
   stop_motors();
   delay(move_delay);
 }
@@ -593,6 +595,7 @@ Distance get_distance() {
     double dr = get_distance_r();
     double dl = get_distance_l();
     if(dr <= 0 || dl <= 0) {
+      Serial.println("failed to get distance");
       continue;
     }
     d.left = dl;
@@ -615,10 +618,6 @@ int get_distance_l() {
     Serial.println(F("Couldn't get distance (L)"));
     return -1;
   }
-  Serial.print(F("Distance (L): "));
-  Serial.print(distance);
-  Serial.println(" mm");
-
   return distance;
 }
 
@@ -636,10 +635,6 @@ int get_distance_r() {
     Serial.println(F("Couldn't get distance (R)"));
     return -1;
   }
-  Serial.print(F("Distance (R): "));
-  Serial.print(distance);
-  Serial.println(" mm");
-
   return distance;
 }
 
