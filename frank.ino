@@ -13,15 +13,15 @@ struct Distance {
 
 const int dowel_to_middle = 130;  // Distance between the dowel and the middle of the robot
 const int sensors_base = 83;      
-const int separator_width = 35;   // Millimeters.
+const int separator_width = 36;   // Millimeters.
 
 // Motion
 
 const int grid_distance = 500;    // Grid distance, in millimeters.
-const int distance_factor = 310;  // !!! Adjust this to get the distance right
+const int distance_factor = 330;  // !!! Adjust this to get the distance right
 const int move_delay = 500;
 const int angle = 90;             // Degrees
-const int angle_factor = 940;     // !!! Adjust this to get the turn angle right
+const int angle_factor = 980;     // !!! Adjust this to get the turn angle right
 const int shift_distance = 500;   // Millimeters
 const int shift_factor = 600;     // !!! Adjust this to get the shift distance right
 
