@@ -12,7 +12,7 @@ struct Distance {
 // Robot dimensions
 
 const int dowel_to_middle = 130;  // Distance between the dowel and the middle of the robot
-const int sensors_base = 100;      // TODO: Update this!
+const int sensors_base = 83;      // TODO: Update this!
 
 // Motion
 
@@ -111,15 +111,15 @@ const MOVE_STATE moves[] = {
   FORWARD,
   TURN_RIGHT,
   FORWARD,
-  TURN_LEFT,
-  FORWARD,
-  TURN_LEFT,
-  FORWARD,
   TURN_RIGHT,
   FORWARD,
-  TURN_RIGHT,
+  TURN_LEFT,
   FORWARD,
-  FORWARD,
+  // TURN_RIGHT,
+  // FORWARD,
+  // TURN_RIGHT,
+  // FORWARD,
+  // FORWARD,
   // BACKWARD,
   // TEST_MOVE,
   STOP,
@@ -244,8 +244,8 @@ void in_motion() {
     case FORWARD:
       Serial.println("FORWARD");
       move_forward(speed);
-      adjust_angle();
       adjust_distance();
+      adjust_angle();
       break;  
     case BACKWARD:
       move_backward(speed);
@@ -548,14 +548,26 @@ int get_distance_r() {
 Distance get_average_distance(int n) {
     double sum_r = 0.0;
     double sum_l = 0.0;
-    for(int j = 0; j < n; j++) {
+    int measurements = 0;
+    int attempts = 0;
+    Distance d;
+    while(measurements < n) {
+      attempts++;
+      if(attempts > n * 3) {
+        d.left = -1.0;
+        d.right = -1.0;
+        return d;        
+      }
       double dr = get_distance_r();
       double dl = get_distance_l();
+      if(dr <= 0 || dl <= 0) {
+        continue;
+      }
+      measurements++;
       sum_r += dr;
       sum_l += dl;
       delay(10);
     }
-    Distance d;
     d.left = sum_l / double(n);
     d.right = sum_r / double(n);
     return d;
@@ -585,24 +597,49 @@ int get_distance_l() {
 void adjust_angle() {
   Distance d = get_average_distance(5);
   if(d.left > grid_distance || d.right > grid_distance) {
-    Serial.println("Cannot adjust angle, too far");
+    printf("Cannot adjust angle, too far");
     return;
   }
+  Serial.print("got distances, left: ");
+  Serial.print(d.left);
+  Serial.print(", right: ");
+  Serial.println(d.right);
   double distance_delta = d.right - d.left;
+  Serial.print("distance delta: "); Serial.println(distance_delta);
   double angle = compute_angle(distance_delta);
+  Serial.print("angle: "); Serial.println(angle);
   int turn_time = angle * angle_factor / double(speed);
+  Serial.print("turn time: "); Serial.println(turn_time);
+
+  int attempts = 1;
 
   while(abs(angle) > 1.0) {
+    if(attempts == 10) {
+      break;
+    }
+    attempts++;
     if(turn_time > 0) {
       turn_left(speed);
     } else {
       turn_right(speed);
     }
     delay(abs(turn_time));
+    stop_motors();
     d = get_average_distance(5);
     distance_delta = d.right - d.left;
     angle = compute_angle(distance_delta);
     turn_time = angle * angle_factor / double(speed);
+    Serial.print("got distances, left: ");
+    Serial.print(d.left);
+    Serial.print(", right: ");
+    Serial.println(d.right);
+    Serial.print("distance delta: "); Serial.println(distance_delta);
+    Serial.print("angle: "); Serial.println(angle);
+    Serial.print("turn time: "); Serial.println(turn_time);
+
+  //   printf("distance delta: %f\n", distance_delta);
+  //   printf("angle: %f\n", angle);
+  //   printf("turn time: %d\n", turn_time);
   }
 }
 
