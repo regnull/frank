@@ -9,22 +9,24 @@ struct Distance {
   double right;
 };
 
+const int measure_distance_max_attempts = 5;  // Max attempts to measure distance before giving up.
+
 // Robot dimensions
 
 const int dowel_to_middle = 130;  // Distance between the dowel and the middle of the robot
-const int sensors_base = 83;      
-const int separator_width = 36;   // Millimeters.
+const int sensors_base = 83;      // Distance between the sensors, millimeters.
+const int separator_width = 36;   // Width of the separator, millimeters.
 
 // Motion
 
 const int grid_distance = 500;    // Grid distance, in millimeters.
 const int distance_factor = 330;  // !!! Adjust this to get the distance right
-const int move_delay = 500;
+const int move_delay = 500;       // Delay between moves, milliseconds.
 const int angle = 90;             // Degrees
 const int angle_factor = 980;     // !!! Adjust this to get the turn angle right
 const int shift_distance = 500;   // Millimeters
 const int shift_factor = 600;     // !!! Adjust this to get the shift distance right
-const int stop_distance = 50;
+const int stop_distance = 50;     // Stop if there is an obstacle at this distance
 
 // LEDs
 
@@ -63,9 +65,6 @@ const int R_SENSOR_XSHUT_PIN = 42;
 
 const int L_SENSOR_IRQ_PIN = 36;
 const int L_SENSOR_XSHUT_PIN = 37;
-
-// Adafruit_VL53L1X vl53_r = Adafruit_VL53L1X(R_SENSOR_XSHUT_PIN, R_SENSOR_IRQ_PIN);  // Right sensor
-// Adafruit_VL53L1X vl53_l = Adafruit_VL53L1X(L_SENSOR_XSHUT_PIN, L_SENSOR_IRQ_PIN);  // Left sensor
 
 VL53L1X vl53_r;
 VL53L1X vl53_l;
@@ -182,7 +181,7 @@ void loop() {
 }
 
 void start() {
-  Serial.println("START");
+  Serial.println("!! START");
 
   // All LEDs off.
   digitalWrite(GREEN_LED_PIN, LOW);
@@ -201,7 +200,7 @@ void start() {
 
 void waitForReady() {
   // Wait for the ready switch to be on, turn on the green LED and wait forever.
-  Serial.println("WAIT_FOR_READY");
+  Serial.println("!! WAIT_FOR_READY");
 
   while(true) {
       switchA.loop();
@@ -221,7 +220,7 @@ void waitForReady() {
 }
 
 void ready() {
-  Serial.println("READY");
+  Serial.println("!! READY");
 
   digitalWrite(GREEN_LED_PIN, LOW);
   digitalWrite(YELLOW_LED_PIN, HIGH);
@@ -237,48 +236,56 @@ void ready() {
 }
 
 void in_motion() {
-  Serial.println("IN_MOTION");
+  Serial.println("!! IN_MOTION");
 
   MOVE_STATE next_move = moves[current_move];
 
   switch(next_move) {
     case GO_IN:
-      Serial.println("GO_IN");
+      Serial.println(">> GO_IN");
       move_into_grid(speed);
       break;
     case FORWARD:
-      Serial.println("FORWARD");
+      Serial.println(">> FORWARD");
       move_forward(speed);
       adjust_distance();
       adjust_angle();
       break;  
     case FNA:
-      Serial.println("FNA");
+      Serial.println(">> FNA");
       move_forward(speed);
       break;  
     case BACKWARD:
+      Serial.println(">> BACKWARD");
       move_backward(speed);
       break;
     case TURN_LEFT:
+      Serial.println(">> TURN_LEFT");
       move_turn_left(speed);
       break;
     case TURN_RIGHT:
+      Serial.println(">> TURN_RIGHT");
       move_turn_right(speed);
       break;
     case LEFT_SHIFT:
+      Serial.println(">> LEFT_SHIFT");
       move_left_shift(speed);
       break;
     case RIGHT_SHIFT:
+      Serial.println(">> RIGHT_SHIFT");
       move_right_shift(speed);
       break;
     case TEST_MOVE:
+      Serial.println(">> TEST_MOVE");
       move_test(speed);
       break;
     case GO_TO_TARGET:
+      Serial.println(">> GO_TO_TARGET");
       move_go_to_target(speed);
       state = FINISH;
       break;
     case STOP:
+      Serial.println(">> STOP");
       state = FINISH;
       break;
   }
@@ -287,7 +294,7 @@ void in_motion() {
 }
 
 void finish() {
-  Serial.println("FINISH");
+  Serial.println("!! FINISH");
 
   digitalWrite(GREEN_LED_PIN, HIGH);
   digitalWrite(YELLOW_LED_PIN, HIGH);
@@ -432,26 +439,20 @@ void move_go_to_target(int speed) {
 }
 
 void move_forward(int speed) {
-  go_forward(speed);
-  int time = compute_move_time(grid_distance, distance_factor, speed);
-  int time_now = 0;
-  // As we are moving forward, check the distance and stop if we are too close.
-  while(time_now < time) {
-    int dl = get_distance_l();
-    int dr = get_distance_r();
-    Serial.print("time: "); Serial.println(time_now);
-    Serial.print("dl: "); Serial.println(dl);
-    Serial.print("dr: "); Serial.println(dr);
-    if((dl > 0 && dl < stop_distance) || (dr > 0 && dr < stop_distance)) {
-      // We are too close to an obstacle!
-      Serial.print("obstacle is too close, stop");
-      stop_motors();
-      delay(move_delay);
-      return;
+  // If we can get distance measurement, use it to make sure we don't bump into things.
+  Distance d = get_distance();
+  double distance = grid_distance;
+  if(d.left > 0 && d.right > 0) {
+    double dm = min(d.left, d.right) - stop_distance;
+    if(dm < distance) {
+      distance = dm;
     }
-    delay(5);
-    time_now += 5;
+    if(distance < 0.0) {
+      distance = 0.0;
+    }
   }
+  go_forward(speed);
+  int time = compute_move_time(distance, distance_factor, speed);
   stop_motors();
   delay(move_delay);
 }
@@ -551,27 +552,6 @@ void init_sensors() {
   vl53_r.startContinuous(50);
 }
 
-int get_distance_r() {
-  while(true) {
-    if(vl53_r.dataReady()) {
-      break;
-    }
-    delay(10);
-  }
-  // new measurement for the taking!
-  int distance = vl53_r.read();
-  if (distance == -1) {
-    // something went wrong!
-    Serial.println(F("Couldn't get distance (R)"));
-    return -1;
-  }
-  Serial.print(F("Distance (R): "));
-  Serial.print(distance);
-  Serial.println(" mm");
-
-  return distance;
-}
-
 Distance get_average_distance(int n) {
     double sum_r = 0.0;
     double sum_l = 0.0;
@@ -600,6 +580,27 @@ Distance get_average_distance(int n) {
     return d;
 }
 
+Distance get_distance() {
+  Distance d;
+  int attempts = 0;
+  while(true) {
+    attempts++;
+    if(attempts >= measure_distance_max_attempts) {
+      d.left = -1.0;
+      d.right = -1.0;
+      return d;
+    }
+    double dr = get_distance_r();
+    double dl = get_distance_l();
+    if(dr <= 0 || dl <= 0) {
+      continue;
+    }
+    d.left = dl;
+    d.right = dr;
+    return d;
+  }
+}
+
 int get_distance_l() {
   while(true) {
     if(vl53_l.dataReady()) {
@@ -615,6 +616,27 @@ int get_distance_l() {
     return -1;
   }
   Serial.print(F("Distance (L): "));
+  Serial.print(distance);
+  Serial.println(" mm");
+
+  return distance;
+}
+
+int get_distance_r() {
+  while(true) {
+    if(vl53_r.dataReady()) {
+      break;
+    }
+    delay(10);
+  }
+  // new measurement for the taking!
+  int distance = vl53_r.read();
+  if (distance == -1) {
+    // something went wrong!
+    Serial.println(F("Couldn't get distance (R)"));
+    return -1;
+  }
+  Serial.print(F("Distance (R): "));
   Serial.print(distance);
   Serial.println(" mm");
 
