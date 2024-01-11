@@ -91,6 +91,7 @@ void printf_begin() {
 enum MOVE_STATE {
   GO_IN,        // Start from the edge of the grid, go into the first square. Must be the first command!
   FORWARD,      // Go forward one square
+  FNA,          // Go forward one square, no adjustment.
   BACKWARD,     // Go backward one square
   TURN_LEFT,    // Turn left 90 degrees
   TURN_RIGHT,   // Turn right 90 degrees
@@ -249,6 +250,10 @@ void in_motion() {
       move_forward(speed);
       adjust_distance();
       adjust_angle();
+      break;  
+    case FNA:
+      Serial.println("FNA");
+      move_forward(speed);
       break;  
     case BACKWARD:
       move_backward(speed);
