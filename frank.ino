@@ -110,7 +110,7 @@ int speed = 100;
 
 // !!!!!!! Robot moves
 
-const MOVE_STATE moves[] = {
+const MOVE_STATE moves_a[] = {
   GO_IN,       // GO_IN must be the first_command!
   TURN_LEFT,
   FNA,
@@ -188,7 +188,14 @@ const MOVE_STATE moves[] = {
   // GO_TO_TARGET // GO_TO_TARGET must be the last command!
 };
 
+const MOVE_STATE moves_b[] = {
+  GO_IN,       // GO_IN must be the first_command!
+  GO_TO_TARGET // GO_TO_TARGET must be the last command!
+};
+
 int current_move = 0;
+
+MOVE_STATE *moves;
 
 void setup() {
   Serial.begin(9600);
@@ -284,6 +291,11 @@ void ready() {
   // Warm up the sensors.
   Distance d = get_distance();
   delay(1000);
+
+  if(switchB.getState() == LOW) {
+    moves = moves_a;
+  }
+  moves = moves_b;
 
   digitalWrite(GREEN_LED_PIN, LOW);
   digitalWrite(YELLOW_LED_PIN, LOW);
