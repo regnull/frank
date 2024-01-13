@@ -16,15 +16,15 @@ const int measure_distance_max_attempts = 5;  // Max attempts to measure distanc
 const int dowel_to_middle = 130;  // Distance between the dowel and the middle of the robot
 const int sensors_base = 83;      // Distance between the sensors, millimeters.
 const int separator_width = 36;   // Width of the separator, millimeters.
-const int right_sensor_correction = -4;
+const int right_sensor_correction = 0;
 
 // Motion
 
 const int grid_distance = 500;    // Grid distance, in millimeters.
-const int distance_factor = 260;  // !!! Adjust this to get the distance right
-const int move_delay = 500;       // Delay between moves, milliseconds.
+const int distance_factor = 300;  // !!! Adjust this to get the distance right
+const int move_delay = 5000;       // Delay between moves, milliseconds.
 const int angle = 90;             // Degrees
-const int angle_factor = 780;     // !!! Adjust this to get the turn angle right
+const int angle_factor = 810;     // !!! Adjust this to get the turn angle right
 const int shift_distance = 500;   // Millimeters
 const int shift_factor = 600;     // !!! Adjust this to get the shift distance right
 const int stop_distance = 50;     // Stop if there is an obstacle at this distance
@@ -101,6 +101,7 @@ enum MOVE_STATE {
   RIGHT_SHIFT, RS,  // Shift right one square
   TEST_MOVE,        // Test only, do not use!
   GO_TO_TARGET,     // Go into the target square, stop with the dowel over the target. Must be the last command!
+  DELAY, D,
   STOP, S
 };
 
@@ -112,85 +113,26 @@ int speed = 100;
 
 const MOVE_STATE moves_a[] = {
   GO_IN,       // GO_IN must be the first_command!
-  TURN_LEFT,
+  L,
   FNA,
-  TURN_RIGHT,
-  FORWARD,
-  TURN_RIGHT,
-  FORWARD,
-  TURN_LEFT,
-  FORWARD,
-
-  TURN_RIGHT,
+  R,
+  F,
+  R,
+  F,
+  L,
+  F,
+  L,
   FNA,
-  TURN_LEFT,
+  R,
   FNA,
-  TURN_LEFT,
-  FORWARD,
-  TURN_LEFT,
-  FORWARD,
-  TURN_LEFT,
-  FNA,
-  TURN_RIGHT,
-  FORWARD,
-  BACKWARD,
-  TURN_RIGHT,
-  FNA,
-  FNA,
-  TURN_RIGHT,
-  FORWARD,
-  TURN_LEFT,
-  FNA,
-  TURN_RIGHT,
-  FNA,
-  TURN_RIGHT,
-  GO_TO_TARGET,
-
-  // v2
-  // TURN_RIGHT,
-  // FNA,
-  // FNA,
-  // TURN_RIGHT,
-  // FNA,
-  // TURN_RIGHT,
-  // GO_TO_TARGET,
-
-
-  // v1
-  // TURN_LEFT,
-  // FNA,
-  // TURN_RIGHT,
-  // FORWARD,
-  // TURN_RIGHT,
-  // GO_TO_TARGET,
-
-  // TEST_MOVE,
-  // TURN_RIGHT,
-  // FORWARD,
-  // TURN_LEFT,
-  // FORWARD,
-  // TURN_RIGHT,
-  // FORWARD,
-  // TURN_LEFT,
-  // FORWARD,
-  // TURN_RIGHT,
-  // FORWARD,
-  // TURN_RIGHT,
-  // FORWARD,
-  // FORWARD,
-  // BACKWARD,
-  // TEST_MOVE,
-  // STOP,
-  // TURN_LEFT,
-  // TURN_RIGHT,
-  // RIGHT_SHIFT,
-  // LEFT_SHIFT,
-  // GO_TO_TARGET // GO_TO_TARGET must be the last command!
+  R,
+  GO_TO_TARGET // GO_TO_TARGET must be the last command!
 };
 
 const MOVE_STATE moves_b[] = {
-  GO_IN,       // GO_IN must be the first_command!
-  GO_TO_TARGET // GO_TO_TARGET must be the last command!
+  F, D, R, S,
+  // GO_IN,       // GO_IN must be the first_command!
+  // GO_TO_TARGET // GO_TO_TARGET must be the last command!
 };
 
 int current_move = 0;
@@ -293,9 +235,12 @@ void ready() {
   delay(1000);
 
   if(switchB.getState() == LOW) {
+    Serial.println("using program A");
     moves = moves_a;
+  } else {
+    Serial.println("using program B");
+    moves = moves_b;
   }
-  moves = moves_b;
 
   digitalWrite(GREEN_LED_PIN, LOW);
   digitalWrite(YELLOW_LED_PIN, LOW);
@@ -365,6 +310,11 @@ void in_motion() {
       Serial.println(">> GO_TO_TARGET");
       move_go_to_target(speed);
       state = FINISH;
+      break;
+    case DELAY:
+    case D:
+      Serial.println(">> DELAY");
+      delay(5000);
       break;
     case STOP:
     case S:
@@ -587,13 +537,7 @@ void move_left_shift(int speed) {
 }
 
 void move_test(int speed) {
-  while(true) {
-    Distance d = get_average_distance(10);
-    // double dr = get_distance_r();
-    // double dl = get_distance_l();
-    Serial.print(d.left); Serial.print(" "); Serial.println(d.right);
-    delay(500);
-  }
+  adjust_angle();
 }
 
 long compute_move_time(int distance, int factor, int speed) {
@@ -719,6 +663,9 @@ int get_distance_r() {
     Serial.println(F("Couldn't get distance (R)"));
     return -1;
   }
+  if(distance > 0.0) {
+    distance += right_sensor_correction;
+  }
   return distance;
 }
 
@@ -732,7 +679,7 @@ void adjust_angle() {
   Serial.print(d.left);
   Serial.print(", right: ");
   Serial.println(d.right);
-  double distance_delta = d.right + right_sensor_correction - d.left;
+  double distance_delta = d.right - d.left;
   Serial.print("distance delta: "); Serial.println(distance_delta);
   double angle = compute_angle(distance_delta);
   Serial.print("angle: "); Serial.println(angle);
