@@ -16,7 +16,7 @@ const int measure_distance_max_attempts = 5;  // Max attempts to measure distanc
 const int dowel_to_middle = 130;  // Distance between the dowel and the middle of the robot
 const int sensors_base = 83;      // Distance between the sensors, millimeters.
 const int separator_width = 36;   // Width of the separator, millimeters.
-const int right_sensor_correction = 0;
+const int right_sensor_correction = 8;
 
 // Motion
 
@@ -24,7 +24,7 @@ const int grid_distance = 500;    // Grid distance, in millimeters.
 const int distance_factor = 300;  // !!! Adjust this to get the distance right
 const int move_delay = 500;       // Delay between moves, milliseconds.
 const int angle = 90;             // Degrees
-const int angle_factor = 810;     // !!! Adjust this to get the turn angle right
+const int angle_factor = 850;     // !!! Adjust this to get the turn angle right
 const int shift_distance = 500;   // Millimeters
 const int shift_factor = 600;     // !!! Adjust this to get the shift distance right
 const int stop_distance = 50;     // Stop if there is an obstacle at this distance
@@ -132,7 +132,8 @@ const MOVE_STATE moves_a[] = {
 };
 
 const MOVE_STATE moves_b[] = {
-  INTERACT,
+  INTERACT, S,
+  //INTERACT,
   // GO_IN,       // GO_IN must be the first_command!
   // GO_TO_TARGET // GO_TO_TARGET must be the last command!
 };
@@ -319,6 +320,7 @@ void in_motion() {
       delay(5000);
       break;
     case INTERACT:
+      Serial.println(">> INTERACT");
       move_interact();
       break;
     case STOP:
@@ -539,52 +541,60 @@ void move_test(int speed) {
 }
 
 void move_interact() {
-  if (Serial.available() <= 0) {
-    return;
-  }
   char inChar = 0;
   char command[16];
   static int i = 0; // static ensures the variable retains its value between function calls
 
   while(true) {
     Serial.print("command >>> ");
-    inChar = Serial.read();
 
-    if (inChar != '\n') {
-      command[i++] = inChar;
-
-      // Check if the buffer is full to avoid overflow
-      if (i >= sizeof(command) - 1) {
-        i = 0; // Reset the index if the buffer is full
+    while(true) {
+      if(Serial.available() <= 0) {
+        delay(100);
+        continue;
       }
-    } else {
-      // Process the received string or reset if needed
-      command[i] = '\0'; // Null-terminate the string
-      Serial.print("Received: ");
-      Serial.println(command);
+      inChar = Serial.read();
 
-      if(strcmp(command, "F") == 0) {
-        move_forward(speed);
-      } else if (strcmp(command, "B") == 0) {
-        move_backward(speed);
-      } else if (strcmp(command, "L") == 0) {
-        turn_left(speed);
-      } else if (strcmp(command, "L") == 0) {
-        turn_right(speed);
-      } else if (strcmp(command, "AA") == 0) {
-        adjust_angle();
-      } else if (strcmp(command, "AD") == 0) {
-        adjust_distance();
-      } else if (strcmp(command, "S") == 0) {
-        state = FINISH;
-        return;
+      if (inChar != '\n') {
+        Serial.print(inChar);
+        command[i++] = inChar;
+
+        // Check if the buffer is full to avoid overflow
+        if (i >= sizeof(command) - 1) {
+          i = 0; // Reset the index if the buffer is full
+        }
+      } else {
+        Serial.println();
+        // Process the received string or reset if needed
+        command[i] = '\0'; // Null-terminate the string
+        Serial.print("Received: ");
+        Serial.println(command);
+
+        if(strcmp(command, "F") == 0) {
+          move_forward(speed);
+        } else if (strcmp(command, "B") == 0) {
+          move_backward(speed);
+        } else if (strcmp(command, "L") == 0) {
+          move_turn_left(speed);
+        } else if (strcmp(command, "R") == 0) {
+          move_turn_right(speed);
+        } else if (strcmp(command, "AA") == 0) {
+          adjust_angle();
+        } else if (strcmp(command, "AD") == 0) {
+          adjust_distance();
+        } else if (strcmp(command, "S") == 0) {
+          state = FINISH;
+          return;
+        } else {
+          Serial.println("bad command");
+        }
+
+        // Clear the buffer for the next string
+        memset(command, 0, sizeof(command));
+
+        // Reset the index
+        i = 0;
       }
-
-      // Clear the buffer for the next string
-      memset(command, 0, sizeof(command));
-
-      // Reset the index
-      i = 0;
     }
   }
 }
