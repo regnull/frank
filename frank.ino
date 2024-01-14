@@ -22,7 +22,7 @@ const int right_sensor_correction = 0;
 
 const int grid_distance = 500;    // Grid distance, in millimeters.
 const int distance_factor = 300;  // !!! Adjust this to get the distance right
-const int move_delay = 5000;       // Delay between moves, milliseconds.
+const int move_delay = 500;       // Delay between moves, milliseconds.
 const int angle = 90;             // Degrees
 const int angle_factor = 810;     // !!! Adjust this to get the turn angle right
 const int shift_distance = 500;   // Millimeters
@@ -64,8 +64,8 @@ const int RL_MOTOR_DIR_PIN_2 = 8;   // Rear Left Motor direction pin 2 to Model-
 const int R_SENSOR_IRQ_PIN = 44;
 const int R_SENSOR_XSHUT_PIN = 42;
 
-const int L_SENSOR_IRQ_PIN = 34;
-const int L_SENSOR_XSHUT_PIN = 35;
+const int L_SENSOR_IRQ_PIN = 38;
+const int L_SENSOR_XSHUT_PIN = 40;
 
 VL53L1X vl53_r;
 VL53L1X vl53_l;
@@ -102,6 +102,7 @@ enum MOVE_STATE {
   TEST_MOVE,        // Test only, do not use!
   GO_TO_TARGET,     // Go into the target square, stop with the dowel over the target. Must be the last command!
   DELAY, D,
+  INTERACT,
   STOP, S
 };
 
@@ -112,25 +113,26 @@ int speed = 100;
 // !!!!!!! Robot moves
 
 const MOVE_STATE moves_a[] = {
-  GO_IN,       // GO_IN must be the first_command!
-  L,
-  FNA,
-  R,
-  F,
-  R,
-  F,
-  L,
-  F,
-  L,
-  FNA,
-  R,
-  FNA,
-  R,
-  GO_TO_TARGET // GO_TO_TARGET must be the last command!
+  S,
+  // GO_IN,       // GO_IN must be the first_command!
+  // L,
+  // FNA,
+  // R,
+  // F,
+  // R,
+  // F,
+  // L,
+  // F,
+  // L,
+  // FNA,
+  // R,
+  // FNA,
+  // R,
+  // GO_TO_TARGET // GO_TO_TARGET must be the last command!
 };
 
 const MOVE_STATE moves_b[] = {
-  F, D, R, S,
+  INTERACT,
   // GO_IN,       // GO_IN must be the first_command!
   // GO_TO_TARGET // GO_TO_TARGET must be the last command!
 };
@@ -316,12 +318,17 @@ void in_motion() {
       Serial.println(">> DELAY");
       delay(5000);
       break;
+    case INTERACT:
+      move_interact();
+      break;
     case STOP:
     case S:
       Serial.println(">> STOP");
       state = FINISH;
       break;
   }
+
+  delay(move_delay);
 
   current_move++;
 }
@@ -461,14 +468,12 @@ void move_into_grid(int speed) {
   go_forward(speed);
   delay(compute_move_time(grid_distance - dowel_to_middle, distance_factor, speed));
   stop_motors();
-  delay(move_delay);
 }
 
 void move_go_to_target(int speed) {
   go_forward(speed);
   delay(compute_move_time(grid_distance - dowel_to_middle, distance_factor, speed));
   stop_motors();
-  delay(move_delay);
 }
 
 void move_forward(int speed) {
@@ -491,53 +496,97 @@ void move_forward(int speed) {
   int time = compute_move_time(distance, distance_factor, speed);
   Serial.print("move time "); Serial.println(time);
   if(time <= 0) {
-    delay(move_delay);
     return;
   }
 
   go_forward(speed);
   delay(time);
   stop_motors();
-  delay(move_delay);
 }
 
 void move_backward(int speed) {
   go_backward(speed);
   delay(compute_move_time(grid_distance, distance_factor, speed));
   stop_motors();
-  delay(move_delay);
 }
 
 void move_turn_left(int speed) {
   turn_left(speed);
   delay(compute_move_time(angle, angle_factor, speed));
   stop_motors();
-  delay(move_delay);
 }
 
 void move_turn_right(int speed) {
   turn_right(speed);
   delay(compute_move_time(angle, angle_factor, speed));
   stop_motors();
-  delay(move_delay);
 }
 
 void move_right_shift(int speed) {
   right_shift(speed, speed, speed, speed);  
   delay(compute_move_time(shift_distance, shift_factor, speed));
   stop_motors();
-  delay(move_delay);
 }
 
 void move_left_shift(int speed) {
   left_shift(speed, speed, speed, speed);  
   delay(compute_move_time(shift_distance, shift_factor, speed));
   stop_motors();
-  delay(move_delay);
 }
 
 void move_test(int speed) {
   adjust_angle();
+}
+
+void move_interact() {
+  if (Serial.available() <= 0) {
+    return;
+  }
+  char inChar = 0;
+  char command[16];
+  static int i = 0; // static ensures the variable retains its value between function calls
+
+  while(true) {
+    Serial.print("command >>> ");
+    inChar = Serial.read();
+
+    if (inChar != '\n') {
+      command[i++] = inChar;
+
+      // Check if the buffer is full to avoid overflow
+      if (i >= sizeof(command) - 1) {
+        i = 0; // Reset the index if the buffer is full
+      }
+    } else {
+      // Process the received string or reset if needed
+      command[i] = '\0'; // Null-terminate the string
+      Serial.print("Received: ");
+      Serial.println(command);
+
+      if(strcmp(command, "F") == 0) {
+        move_forward(speed);
+      } else if (strcmp(command, "B") == 0) {
+        move_backward(speed);
+      } else if (strcmp(command, "L") == 0) {
+        turn_left(speed);
+      } else if (strcmp(command, "L") == 0) {
+        turn_right(speed);
+      } else if (strcmp(command, "AA") == 0) {
+        adjust_angle();
+      } else if (strcmp(command, "AD") == 0) {
+        adjust_distance();
+      } else if (strcmp(command, "S") == 0) {
+        state = FINISH;
+        return;
+      }
+
+      // Clear the buffer for the next string
+      memset(command, 0, sizeof(command));
+
+      // Reset the index
+      i = 0;
+    }
+  }
 }
 
 long compute_move_time(int distance, int factor, int speed) {
@@ -561,21 +610,23 @@ void init_sensors() {
   delay(10);
   vl53_l.setTimeout(500);
   if(!vl53_l.init()) {
-    Serial.print("Failed to detect and initialize left sensor");
+    Serial.println("Failed to detect and initialize left sensor");
     while (1);
   }
   vl53_l.setAddress(0x2A);
   vl53_l.startContinuous(50);
+  Serial.println("Left sensor initialized");
 
   pinMode(R_SENSOR_XSHUT_PIN, INPUT);
   delay(10);
   vl53_r.setTimeout(500);
   if(!vl53_r.init()) {
-    Serial.print("Failed to detect and initialize left sensor");
+    Serial.println("Failed to detect and initialize right sensor");
     while (1);
   }
   vl53_r.setAddress(0x2B);
   vl53_r.startContinuous(50);
+  Serial.println("Right sensor initialized");
 }
 
 Distance get_average_distance(int n) {
