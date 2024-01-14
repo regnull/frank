@@ -64,8 +64,8 @@ const int RL_MOTOR_DIR_PIN_2 = 8;   // Rear Left Motor direction pin 2 to Model-
 const int R_SENSOR_IRQ_PIN = 44;
 const int R_SENSOR_XSHUT_PIN = 42;
 
-const int L_SENSOR_IRQ_PIN = 36;
-const int L_SENSOR_XSHUT_PIN = 37;
+const int L_SENSOR_IRQ_PIN = 34;
+const int L_SENSOR_XSHUT_PIN = 35;
 
 VL53L1X vl53_r;
 VL53L1X vl53_l;
@@ -725,7 +725,7 @@ int get_distance_r() {
 void adjust_angle() {
   Distance d = get_average_distance(5);
   if(d.left > grid_distance || d.right > grid_distance) {
-    printf("Cannot adjust angle, too far");
+    printf("Cannot adjust angle, too far\n");
     return;
   }
   Serial.print("got distances, left: ");
