@@ -21,10 +21,10 @@ const int right_sensor_correction = 8;
 // Motion
 
 const int grid_distance = 500;    // Grid distance, in millimeters.
-const int distance_factor = 300;  // !!! Adjust this to get the distance right
+const int distance_factor = 245;  // !!! Adjust this to get the distance right
 const int move_delay = 500;       // Delay between moves, milliseconds.
 const int angle = 90;             // Degrees
-const int angle_factor = 850;     // !!! Adjust this to get the turn angle right
+const int angle_factor = 660;     // !!! Adjust this to get the turn angle right
 const int shift_distance = 500;   // Millimeters
 const int shift_factor = 600;     // !!! Adjust this to get the shift distance right
 const int stop_distance = 50;     // Stop if there is an obstacle at this distance
