@@ -32,6 +32,9 @@ const int forward_measurements = 3;
 const int adjust_angle_measurements = 3;
 const int adjust_distance_measurements = 3;
 
+// !!!!!!!!!!! Activate this if everything else fails.
+const bool safe_mode = false;                 // Safe mode ignores all the sensors.
+
 // Robot dimensions
 
 const int dowel_to_middle = 130;  // Distance between the dowel and the middle of the robot
@@ -48,7 +51,7 @@ const int adjust_angle_horizon = 400;     // Don't adjust angle if farther than 
 const int distance_factor = 245;          // !!! Adjust this to get the distance right
 const int move_delay = 500;               // Delay between moves, milliseconds.
 const int angle = 90;                     // Degrees
-const int angle_factor = 690;             // !!! Adjust this to get the turn angle right
+const int angle_factor = 710;             // !!! Adjust this to get the turn angle right
 const int shift_distance = 500;           // Millimeters
 const int shift_factor = 600;             // !!! Adjust this to get the shift distance right
 const int stop_distance = 50;             // Stop if there is an obstacle at this distance
@@ -211,6 +214,10 @@ void setup() {
   pinMode(RED_LED_PIN, OUTPUT);
   pinMode(YELLOW_LED_PIN, OUTPUT);
   pinMode(GREEN_LED_PIN, OUTPUT);
+
+  if(safe_mode) {
+    return;
+  }
 
   // Sensors
   init_sensors();
@@ -793,9 +800,15 @@ Distance get_distance() {
 
 int get_distance_sensor(int tca, VL53L1X& vl53) {
   tcaselect(tca);
-  vl53.read();
-  if(vl53.ranging_data.range_mm <= 0) {
-    return 9999;
+  for(int i = 0; i < 3; i++) {
+    vl53.read();
+    if(vl53.ranging_data.range_mm > 0) {
+      break;
+    }
+    delay(sensor_timing_budget/1000);
+  }
+  if(vl53.ranging_data.range_mm < 0) {
+    return 999.99;
   }
   return vl53.ranging_data.range_mm;
 }
@@ -817,6 +830,10 @@ int get_distance_r() {
 }
 
 void adjust_angle() {
+  if(save_mode) {
+    return;
+  }
+
   led(true, false, true);
   Distance d = get_average_distance(adjust_angle_measurements);
   if(d.left > adjust_angle_horizon || d.right > adjust_angle_horizon) {
@@ -857,6 +874,10 @@ void adjust_angle() {
 }
 
 void adjust_distance() {
+  if(save_mode) {
+    return;
+  }
+
   led(true, true, false);
   Serial.println("adjusting distance");
   int target_distance = grid_distance / 2 - dowel_to_middle - separator_width / 2;
