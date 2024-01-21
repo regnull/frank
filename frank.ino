@@ -139,17 +139,18 @@ void printf_begin() {
 }
 
 enum MOVE_STATE {
-  GO_IN,            // Start from the edge of the grid, go into the first square. Must be the first command!
-  FORWARD, F,       // Go forward one square
-  ADJUST, A,        // Adjust the position (assuming there is a board in front)
-  FNA,              // Go forward one square, no adjustment.
-  BACKWARD, B,      // Go backward one square
-  TURN_LEFT, L,     // Turn left 90 degrees
-  TURN_RIGHT, R,    // Turn right 90 degrees
-  LEFT_SHIFT, LS,   // Shift left one square
-  RIGHT_SHIFT, RS,  // Shift right one square
-  TEST_MOVE,        // Test only, do not use!
-  GO_TO_TARGET,     // Go into the target square, stop with the dowel over the target. Must be the last command!
+  GO_IN,                   // Start from the edge of the grid, go into the first square. Must be the first command!
+  FORWARD, F,              // Go forward one square
+  ADJUST, A,               // Adjust the position (assuming there is a board in front)
+  FNA,                     // Go forward one square, no adjustment.
+  BACKWARD, B,             // Go backward one square
+  TURN_LEFT, L,            // Turn left 90 degrees
+  TURN_RIGHT, R,           // Turn right 90 degrees
+  LEFT_SHIFT, LS,          // Shift left one square
+  RIGHT_SHIFT, RS,         // Shift right one square
+  TEST_MOVE,               // Test only, do not use!
+  FORWARD_TO_TARGET, FT,   // Go into the target square, stop with the dowel over the target. Must be the last command!
+  BACKWARD_TO_TARGET, BT,  // Move back from the center of the square so that the dowel is in the center 
   DELAY, D,
   INTERACT,
   STOP, S
@@ -162,27 +163,18 @@ int speed = 100;
 // !!!!!!! Robot moves
 
 const MOVE_STATE moves_a[] = {
+  // GO_IN
   TEST_MOVE,
+  // FORWARD_TO_TARGET
+  // BACkWARD_TO_TARGET
   STOP, // !!! DO NOT DELETE THIS !!!
-  // GO_IN,       // GO_IN must be the first_command!
-  // L,
-  // FNA,
-  // R,
-  // F,
-  // R,
-  // F,
-  // L,
-  // F,
-  // L,
-  // FNA,
-  // R,
-  // FNA,
-  // R,
-  // GO_TO_TARGET // GO_TO_TARGET must be the last command!
 };
 
 const MOVE_STATE moves_b[] = {
+  // GO_IN
   INTERACT,
+  // FORWARD_TO_TARGET
+  // BACkWARD_TO_TARGET
   STOP, // !!! DO NOT DELETE THIS !!!
 };
 
@@ -382,9 +374,15 @@ void in_motion() {
       Serial.println(">> TEST_MOVE");
       move_test(speed);
       break;
-    case GO_TO_TARGET:
-      Serial.println(">> GO_TO_TARGET");
-      move_go_to_target(speed);
+    case FORWARD_TO_TARGET:
+    case FT:
+      Serial.println(">> FORWARD_TO_TARGET");
+      move_forward_to_target(speed);
+      state = FINISH;
+      break;
+    case BACKWARD_TO_TARGET:
+      Serial.println(">> BACKWARD_TO_TARGET");
+      move_backward_to_target(speed);
       state = FINISH;
       break;
     case DELAY:
@@ -545,9 +543,15 @@ void move_into_grid(int speed) {
   stop_motors();
 }
 
-void move_go_to_target(int speed) {
+void move_forward_to_target(int speed) {
   go_forward(speed);
   delay(compute_move_time(grid_distance - dowel_to_middle, distance_factor, speed));
+  stop_motors();
+}
+
+void move_backward_to_target(int speed) {
+  go_backward(speed);
+  delay(compute_move_time(dowel_to_middle, distance_factor, speed));
   stop_motors();
 }
 
@@ -799,20 +803,17 @@ int get_distance_r() {
 
 void adjust_angle() {
   Distance d = get_average_distance(adjust_angle_measurements);
-  if(d.left > grid_distance || d.right > grid_distance) {
+  if(d.left > adjust_angle_horizon || d.right > adjust_angle_horizon) {
     printf("Cannot adjust angle, too far\n");
     return;
   }
-  Serial.print("got distances, left: ");
-  Serial.print(d.left);
-  Serial.print(", right: ");
-  Serial.println(d.right);
+  printf("got distance left: %s, right: %s\n", fd(d.left, buf1), fd(d.right, buf2));
   double distance_delta = d.right - d.left;
-  Serial.print("distance delta: "); Serial.println(distance_delta);
+  printf("distance delta: %s\n", fd(distance_delta, buf1));
   double angle = compute_angle(distance_delta);
-  Serial.print("angle: "); Serial.println(angle);
+  printf("angle: %s\n", fd(angle, buf1));
   int turn_time = angle * angle_factor / double(speed);
-  Serial.print("turn time: "); Serial.println(turn_time);
+  printf("turn time: %s\n", fd(turn_time, buf1));
 
   int attempts = 1;
 
@@ -832,13 +833,10 @@ void adjust_angle() {
     distance_delta = d.right - d.left;
     angle = compute_angle(distance_delta);
     turn_time = angle * angle_factor / double(speed);
-    Serial.print("got distances, left: ");
-    Serial.print(d.left);
-    Serial.print(", right: ");
-    Serial.println(d.right);
-    Serial.print("distance delta: "); Serial.println(distance_delta);
-    Serial.print("angle: "); Serial.println(angle);
-    Serial.print("turn time: "); Serial.println(turn_time);
+    printf("got distance left: %s, right: %s\n", fd(d.left, buf1), fd(d.right, buf2));
+    printf("distance delta: %s\n", fd(distance_delta, buf1));
+    printf("angle: %s\n", fd(angle, buf1));
+    printf("turn time: %s\n", fd(turn_time, buf1));
   }
 }
 
@@ -849,7 +847,7 @@ void adjust_distance() {
   for(int i = 0; i < 5; i++) {
     Distance d = get_average_distance(adjust_distance_measurements);
     print_distance(d);
-    if(d.right > grid_distance || d.left > grid_distance) {
+    if(d.right > adjust_distance_horizon || d.left > adjust_distance_horizon) {
       Serial.println("Cannot adjust grid distance, too far");
       return;
     }
