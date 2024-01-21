@@ -45,10 +45,10 @@ const int right_sensor_correction = 0;
 const int grid_distance = 500;            // Grid distance, in millimeters.
 const int adjust_distance_horizon = 400;  // Don't adjust distance if farther than that 
 const int adjust_angle_horizon = 400;     // Don't adjust angle if farther than that 
-const int distance_factor = 255;          // !!! Adjust this to get the distance right
+const int distance_factor = 245;          // !!! Adjust this to get the distance right
 const int move_delay = 500;               // Delay between moves, milliseconds.
 const int angle = 90;                     // Degrees
-const int angle_factor = 660;             // !!! Adjust this to get the turn angle right
+const int angle_factor = 690;             // !!! Adjust this to get the turn angle right
 const int shift_distance = 500;           // Millimeters
 const int shift_factor = 600;             // !!! Adjust this to get the shift distance right
 const int stop_distance = 50;             // Stop if there is an obstacle at this distance
@@ -163,8 +163,18 @@ int speed = 100;
 // !!!!!!! Robot moves
 
 const MOVE_STATE moves_a[] = {
-  // GO_IN
-  TEST_MOVE,
+  GO_IN,
+  L,
+  F,
+  R,
+  F,
+  R,
+  F,
+  L,
+  F,
+  L,
+  A,
+  BT,
   // FORWARD_TO_TARGET
   // BACkWARD_TO_TARGET
   STOP, // !!! DO NOT DELETE THIS !!!
@@ -332,6 +342,7 @@ void in_motion() {
     case F:
       Serial.println(">> FORWARD");
       move_forward(speed);
+      delay(100);  // Give it some time to read distance.
       adjust_distance();
       adjust_angle();
       break;
@@ -381,6 +392,7 @@ void in_motion() {
       state = FINISH;
       break;
     case BACKWARD_TO_TARGET:
+    case BT:
       Serial.println(">> BACKWARD_TO_TARGET");
       move_backward_to_target(speed);
       state = FINISH;
@@ -556,6 +568,7 @@ void move_backward_to_target(int speed) {
 }
 
 void move_forward(int speed) {
+  led(true, false, false);
   // If we can get distance measurement, use it to make sure we don't bump into things.
   Distance d = get_average_distance(forward_measurements);
   print_distance(d);
@@ -589,12 +602,14 @@ void move_backward(int speed) {
 }
 
 void move_turn_left(int speed) {
+  led(false, true, false);
   turn_left(speed);
   delay(compute_move_time(angle, angle_factor, speed));
   stop_motors();
 }
 
 void move_turn_right(int speed) {
+  led(false, false, true);
   turn_right(speed);
   delay(compute_move_time(angle, angle_factor, speed));
   stop_motors();
@@ -802,6 +817,7 @@ int get_distance_r() {
 }
 
 void adjust_angle() {
+  led(true, false, true);
   Distance d = get_average_distance(adjust_angle_measurements);
   if(d.left > adjust_angle_horizon || d.right > adjust_angle_horizon) {
     printf("Cannot adjust angle, too far\n");
@@ -841,6 +857,7 @@ void adjust_angle() {
 }
 
 void adjust_distance() {
+  led(true, true, false);
   Serial.println("adjusting distance");
   int target_distance = grid_distance / 2 - dowel_to_middle - separator_width / 2;
   Serial.print("target distance: "); Serial.println(target_distance);
@@ -913,4 +930,10 @@ Accel get_accel() {
   a.y = event.acceleration.y;
   a.z = event.acceleration.z;
   return a;
+}
+
+void led(bool red, bool yellow, bool green) {
+  digitalWrite(GREEN_LED_PIN, green ? HIGH : LOW);
+  digitalWrite(YELLOW_LED_PIN, yellow? HIGH : LOW);
+  digitalWrite(RED_LED_PIN, red ? HIGH : LOW);
 }
