@@ -2,15 +2,35 @@
 #include <stdio.h>
 #include <ezButton.h>
 #include <Wire.h>
-#include "Adafruit_VL53L1X.h"
-
+#include <VL53L1X.h>
+#include <Adafruit_LIS2MDL.h>
+#include <Adafruit_LSM303_Accel.h>
+#include <Adafruit_Sensor.h>
 
 struct Distance {
   double left;
   double right;
 };
 
+struct Accel {
+  double x;
+  double y;
+  double z;
+};
+
+char buf1[32];
+char buf2[32];
+char buf3[32];
+char buf4[32];
+
+char* fd(double x, char* buf) {
+  return dtostrf(x, 8, 2, buf);
+}
+
 const int measure_distance_max_attempts = 5;  // Max attempts to measure distance before giving up.
+const int forward_measurements = 3;
+const int adjust_angle_measurements = 3;
+const int adjust_distance_measurements = 3;
 
 // Robot dimensions
 
@@ -22,14 +42,16 @@ const int right_sensor_correction = 0;
 
 // Motion
 
-const int grid_distance = 500;    // Grid distance, in millimeters.
-const int distance_factor = 240;  // !!! Adjust this to get the distance right
-const int move_delay = 500;       // Delay between moves, milliseconds.
-const int angle = 90;             // Degrees
-const int angle_factor = 660;     // !!! Adjust this to get the turn angle right
-const int shift_distance = 500;   // Millimeters
-const int shift_factor = 600;     // !!! Adjust this to get the shift distance right
-const int stop_distance = 50;     // Stop if there is an obstacle at this distance
+const int grid_distance = 500;            // Grid distance, in millimeters.
+const int adjust_distance_horizon = 400;  // Don't adjust distance if farther than that 
+const int adjust_angle_horizon = 400;     // Don't adjust angle if farther than that 
+const int distance_factor = 255;          // !!! Adjust this to get the distance right
+const int move_delay = 500;               // Delay between moves, milliseconds.
+const int angle = 90;                     // Degrees
+const int angle_factor = 660;             // !!! Adjust this to get the turn angle right
+const int shift_distance = 500;           // Millimeters
+const int shift_factor = 600;             // !!! Adjust this to get the shift distance right
+const int stop_distance = 50;             // Stop if there is an obstacle at this distance
 
 // LEDs
 
@@ -69,8 +91,11 @@ const int R_SENSOR_XSHUT_PIN = 42;
 const int L_SENSOR_IRQ_PIN = 38;
 const int L_SENSOR_XSHUT_PIN = 40;
 
-Adafruit_VL53L1X vl53_l = Adafruit_VL53L1X(L_SENSOR_XSHUT_PIN, L_SENSOR_IRQ_PIN);
-Adafruit_VL53L1X vl53_r = Adafruit_VL53L1X(R_SENSOR_XSHUT_PIN, R_SENSOR_IRQ_PIN);
+const uint32_t sensor_timeout = 500;         // Milliseconds
+const uint32_t sensor_timing_budget = 50000; // Microseconds
+
+VL53L1X vl53_l;
+VL53L1X vl53_r;
 
 // I2C multiplexor
 
@@ -83,6 +108,16 @@ void tcaselect(uint8_t i) {
   Wire.write(1 << i);
   Wire.endTransmission();  
 }
+
+// Magnetometer
+
+const int32_t MAG_SENSOR_ID = 1001;
+Adafruit_LIS2MDL mag = Adafruit_LIS2MDL(MAG_SENSOR_ID);
+
+// Accelerometer
+
+const int32_t ACCEL_SENSOR_ID = 1002;
+Adafruit_LSM303_Accel_Unified accel = Adafruit_LSM303_Accel_Unified(ACCEL_SENSOR_ID);
 
 enum STATE {
   START,
@@ -127,9 +162,7 @@ int speed = 100;
 // !!!!!!! Robot moves
 
 const MOVE_STATE moves_a[] = {
-  F,
-  D,
-  L,
+  TEST_MOVE,
   STOP, // !!! DO NOT DELETE THIS !!!
   // GO_IN,       // GO_IN must be the first_command!
   // L,
@@ -157,6 +190,9 @@ int current_move = 0;
 
 MOVE_STATE *moves;
 
+bool mag_available = false;
+bool accel_available = false;
+
 void setup() {
   Serial.begin(115200);
   printf_begin();
@@ -176,6 +212,23 @@ void setup() {
 
   // Sensors
   init_sensors();
+
+  // Magnetometer
+  tcaselect(0);
+  if(!mag.begin())
+  {
+    printf("Ooops, no LIS2MDL detected ... Check your wiring!\n");
+  }
+  mag_available = true;
+
+  // Accelerometer
+  tcaselect(0);
+  if (!accel.begin()) {
+    printf("Ooops, no LSM303 detected ... Check your wiring!\n");
+  } else {
+    accel.setRange(LSM303_RANGE_2G);
+  }
+  accel_available = true;
 }
 
 void loop() {
@@ -196,13 +249,13 @@ void loop() {
       finish();
       break;
     default:
-      Serial.println("Unknown state!");
+      printf("Unknown state!\n");
       delay(1000);
   }
 }
 
 void start() {
-  Serial.println("!! START");
+  printf("!! START\n");
 
   // All LEDs off.
   digitalWrite(GREEN_LED_PIN, LOW);
@@ -221,7 +274,7 @@ void start() {
 
 void waitForReady() {
   // Wait for the ready switch to be on, turn on the green LED and wait forever.
-  Serial.println("!! WAIT_FOR_READY");
+  printf("!! WAIT_FOR_READY\n");
 
   while(true) {
       switchA.loop();
@@ -241,7 +294,7 @@ void waitForReady() {
 }
 
 void ready() {
-  Serial.println("!! READY");
+  printf("!! READY\n");
 
   digitalWrite(GREEN_LED_PIN, LOW);
   digitalWrite(YELLOW_LED_PIN, HIGH);
@@ -249,8 +302,8 @@ void ready() {
 
   // TODO: Compute speed here.
   // Warm up the sensors.
-  // Distance d = get_distance();
-  // delay(1000);
+  Distance d = get_distance();
+  delay(1000);
 
   if(switchB.getState() == LOW) {
     Serial.println("using program A");
@@ -270,6 +323,11 @@ void in_motion() {
   Serial.println("!! IN_MOTION");
 
   MOVE_STATE next_move = moves[current_move];
+
+  if(switchA.getState() == LOW) {
+    state = FINISH;
+    return;
+  }
 
   switch(next_move) {
     case GO_IN:
@@ -351,7 +409,7 @@ void in_motion() {
 }
 
 void finish() {
-  Serial.println("!! FINISH");
+  printf("!! FINISH\n");
 
   digitalWrite(GREEN_LED_PIN, HIGH);
   digitalWrite(YELLOW_LED_PIN, HIGH);
@@ -495,7 +553,8 @@ void move_go_to_target(int speed) {
 
 void move_forward(int speed) {
   // If we can get distance measurement, use it to make sure we don't bump into things.
-  Distance d = get_average_distance(5);
+  Distance d = get_average_distance(forward_measurements);
+  print_distance(d);
   double distance = grid_distance;
   if(d.left > 0 && d.right > 0) {
     Serial.print("distance right: "); Serial.print(d.right); Serial.print(", left "); Serial.println(d.left);
@@ -551,8 +610,14 @@ void move_left_shift(int speed) {
 
 void move_test(int speed) {
   while(true) {
-    Distance d = get_average_distance(10);
+    Distance d = get_average_distance(3);
     print_distance(d);
+
+    double heading = get_heading();
+    printf("heading: %s\n", fd(heading, buf1));
+
+    Accel a = get_accel();
+    printf("accel x: %s, y: %s, z: %s\n", fd(a.x, buf1), fd(a.y, buf2), fd(a.z, buf3));
     delay(1000);
   }
   return;
@@ -623,29 +688,17 @@ long compute_move_time(int distance, int factor, int speed) {
 
 // Sensors control
 
-bool init_sensor(int tca, Adafruit_VL53L1X& vl53) {
+bool init_sensor(int tca, VL53L1X& vl53) {
   tcaselect(tca);
-  if (! vl53.begin(0x29, &Wire)) {
-    Serial.print(F("Error on init of VL sensor: "));
-    Serial.println(vl53.vl_status);
+  vl53.setTimeout(sensor_timeout);
+  if (!vl53.init())
+  {
+    Serial.print(F("Error on init of VL sensor"));
     return false;
   }
-  Serial.println(F("VL53L1X sensor OK!"));
-
-  Serial.print(F("Sensor ID: 0x"));
-  Serial.println(vl53.sensorID(), HEX);
-
-  if (! vl53.startRanging()) {
-    Serial.print(F("Couldn't start ranging: "));
-    Serial.println(vl53.vl_status);
-    return false;
-  }
-  Serial.println(F("Ranging started"));
-
-  vl53.setTimingBudget(50);
-  Serial.print(F("Timing budget (ms): "));
-  Serial.println(vl53.getTimingBudget());
-  return true;
+  vl53.setDistanceMode(VL53L1X::Short);
+  vl53.setMeasurementTimingBudget(sensor_timing_budget);
+  vl53.startContinuous(sensor_timing_budget/1000);
 }
 
 void init_sensors() {
@@ -684,7 +737,7 @@ Distance get_average_distance(int n) {
     }
     Distance d1 = get_distance();
     if(d1.right < 0 || d1.left < 0) {
-      delay(100);
+      delay(10);
       continue;
     }
     measurements++;
@@ -719,28 +772,18 @@ Distance get_distance() {
   }
 }
 
-int get_distance_sensor(int tca, Adafruit_VL53L1X& vl53) {
-  int distance = -1;
+int get_distance_sensor(int tca, VL53L1X& vl53) {
   tcaselect(tca);
-  if (vl53.dataReady()) {
-    // new measurement for the taking!
-    distance = vl53.distance();
-    if (distance == -1) {
-      // something went wrong!
-      Serial.print(F("Couldn't get distance: "));
-      Serial.println(vl53.vl_status);
-      return distance;
-    }
-
-    // data is read out, time for another reading!
-    vl53.clearInterrupt();
+  vl53.read();
+  if(vl53.ranging_data.range_mm <= 0) {
+    return 9999;
   }
-  return distance;
+  return vl53.ranging_data.range_mm;
 }
 
 int get_distance_l() {
   int d = get_distance_sensor(0, vl53_l);
-  if(d < 0) {
+  if(d <= 0) {
     return d;
   }
   return d + left_sensor_correction;
@@ -748,14 +791,14 @@ int get_distance_l() {
 
 int get_distance_r() {
   int d = get_distance_sensor(1, vl53_r);
-  if(d < 0) {
+  if(d <= 0) {
     return d;
   }
   return d + right_sensor_correction;
 }
 
 void adjust_angle() {
-  Distance d = get_average_distance(5);
+  Distance d = get_average_distance(adjust_angle_measurements);
   if(d.left > grid_distance || d.right > grid_distance) {
     printf("Cannot adjust angle, too far\n");
     return;
@@ -785,7 +828,7 @@ void adjust_angle() {
     }
     delay(abs(turn_time));
     stop_motors();
-    d = get_average_distance(5);
+    d = get_average_distance(adjust_angle_measurements);
     distance_delta = d.right - d.left;
     angle = compute_angle(distance_delta);
     turn_time = angle * angle_factor / double(speed);
@@ -796,33 +839,36 @@ void adjust_angle() {
     Serial.print("distance delta: "); Serial.println(distance_delta);
     Serial.print("angle: "); Serial.println(angle);
     Serial.print("turn time: "); Serial.println(turn_time);
-
-  //   printf("distance delta: %f\n", distance_delta);
-  //   printf("angle: %f\n", angle);
-  //   printf("turn time: %d\n", turn_time);
   }
 }
 
 void adjust_distance() {
+  Serial.println("adjusting distance");
   int target_distance = grid_distance / 2 - dowel_to_middle - separator_width / 2;
-  Distance d = get_average_distance(3);
-  if(d.right > grid_distance || d.left > grid_distance) {
-    Serial.println("Cannot adjust grid distance, too far");
-    return;
-  }
-  double min_distance = min(d.right, d.left);
-  while(abs(target_distance - min_distance) > 10) {
-    if(min_distance > target_distance) {
+  Serial.print("target distance: "); Serial.println(target_distance);
+  for(int i = 0; i < 5; i++) {
+    Distance d = get_average_distance(adjust_distance_measurements);
+    print_distance(d);
+    if(d.right > grid_distance || d.left > grid_distance) {
+      Serial.println("Cannot adjust grid distance, too far");
+      return;
+    }
+    double min_distance = min(d.right, d.left);
+    double distance = min_distance - target_distance;
+    Serial.print("distance to go: "); Serial.println(distance);
+    if(abs(distance - target_distance) < 5) {
+      Serial.println("reached target distance");
+      return;
+    }
+    long time = compute_move_time(distance, distance_factor, speed);
+    if(time > 0) {
       go_forward(speed);
     } else {
       go_backward(speed);
     }
-    delay(50);
+    delay(abs(time));
     stop_motors();
-    delay(50);
-    d = get_average_distance(3);
-    min_distance = min(d.right, d.left);
-  } 
+  }
 }
 
 double compute_angle(double distance_delta) {
@@ -831,17 +877,42 @@ double compute_angle(double distance_delta) {
 }
 
 void print_distance(const Distance& d) {
-  Serial.print(F("distance left: "));
-  if(d.left < 0) {
-    Serial.print(F("<ndef>"));
-  } else {
-    Serial.print(d.left);
+  printf("distance left: %s, right: %s\n", fd(d.left, buf1), fd(d.right,  buf2));
+}
+
+double get_heading() {
+  if(!mag_available) {
+    return 0.0;
   }
-  Serial.print(F(", right: "));
-  if(d.right < 0) {
-    Serial.print(F("<ndef>"));
-  } else {
-    Serial.print(d.right);
+  tcaselect(0);
+  sensors_event_t event;
+  mag.getEvent(&event);
+
+  // Calculate the angle of the vector y,x
+  double heading = (atan2(event.magnetic.y,event.magnetic.x) * 180) / M_PI;
+
+  // Normalize to 0-360
+  if (heading < 0)
+  {
+    heading = 360 + heading;
   }
-  Serial.println();
+  return heading;
+}
+
+Accel get_accel() {
+  if(!accel_available) {
+    Accel a;
+    a.x = 0.0;
+    a.y = 0.0;
+    a.z = 0.0;
+    return a;
+  }
+  tcaselect(0);
+  sensors_event_t event;
+  accel.getEvent(&event);
+  Accel a;
+  a.x = event.acceleration.x;
+  a.y = event.acceleration.y;
+  a.z = event.acceleration.z;
+  return a;
 }
