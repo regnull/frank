@@ -49,7 +49,9 @@ const int grid_distance = 500;            // Grid distance, in millimeters.
 const int adjust_distance_horizon = 400;  // Don't adjust distance if farther than that 
 const int adjust_angle_horizon = 400;     // Don't adjust angle if farther than that 
 const int distance_factor = 245;          // !!! Adjust this to get the distance right
-const int move_delay = 500;               // Delay between moves, milliseconds.
+const int min_move_delay = 100;
+const int max_move_delay = 2000;
+const int msec_per_move = 1600;           // Approx. milliseconds per move.
 const int angle = 90;                     // Degrees
 const int angle_factor = 710;             // !!! Adjust this to get the turn angle right
 const int shift_distance = 500;           // Millimeters
@@ -158,9 +160,12 @@ enum MOVE_STATE {
   STOP, S
 };
 
-// !!!!!!! Speed
-
 int speed = 100;
+
+// !!!!! Change this!
+int time_goal = 60;
+
+int move_delay = 500;  // Calculated from time_goal and moves.
 
 // !!!!!!! Robot moves
 
@@ -168,25 +173,20 @@ const MOVE_STATE moves_a[] = {
   GO_IN,
   L,
   F,
-  R,
-  A,
-  L,
+  R, A, L,
   F,
   R,
-  F, A, 
+  F, A,
   R,
   F,
   L,
-  F, A, 
-  R,
-  A,
-  R,
-  R,
+  F, A,
+  R, A,
+  R, R,
   F,
-  R,
+  F, R,
   F,
-  L,
-  A,
+  R, A,
   BT,
   // FORWARD_TO_TARGET
   // BACkWARD_TO_TARGET
@@ -319,10 +319,11 @@ void ready() {
   digitalWrite(YELLOW_LED_PIN, HIGH);
   digitalWrite(RED_LED_PIN, LOW);
 
-  // TODO: Compute speed here.
+  //compute_move_delay();
+
   // Warm up the sensors.
   Distance d = get_distance();
-  delay(1000);
+  // delay(500);
 
   if(switchB.getState() == LOW) {
     Serial.println("using program A");
@@ -948,8 +949,27 @@ Accel get_accel() {
   return a;
 }
 
+void compute_move_delay() {
+  int count = 0;
+  MOVE_STATE* m = moves;
+  while(*m != STOP && *m != S) {
+    m++;
+  }
+  double time_diff = double(time_goal) - double(msec_per_move) * count;
+  if(time_diff < 0) {
+    move_delay = min_move_delay;
+  } else {
+    move_delay = int(time_diff / double(count));
+    if(move_delay > max_move_delay) {
+      move_delay = max_move_delay;
+    }
+  }
+  printf("got move delay: %d msec\n");
+}
+
 void led(bool red, bool yellow, bool green) {
   digitalWrite(GREEN_LED_PIN, green ? HIGH : LOW);
   digitalWrite(YELLOW_LED_PIN, yellow? HIGH : LOW);
   digitalWrite(RED_LED_PIN, red ? HIGH : LOW);
 }
+
