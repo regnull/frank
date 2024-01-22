@@ -145,7 +145,6 @@ enum MOVE_STATE {
   GO_IN,                   // Start from the edge of the grid, go into the first square. Must be the first command!
   FORWARD, F,              // Go forward one square
   ADJUST, A,               // Adjust the position (assuming there is a board in front)
-  FNA,                     // Go forward one square, no adjustment.
   BACKWARD, B,             // Go backward one square
   TURN_LEFT, L,            // Turn left 90 degrees
   TURN_RIGHT, R,           // Turn right 90 degrees
@@ -170,10 +169,21 @@ const MOVE_STATE moves_a[] = {
   L,
   F,
   R,
+  A,
+  L,
   F,
+  R,
+  F, A, 
   R,
   F,
   L,
+  F, A, 
+  R,
+  A,
+  R,
+  R,
+  F,
+  R,
   F,
   L,
   A,
@@ -342,16 +352,11 @@ void in_motion() {
     case GO_IN:
       Serial.println(">> GO_IN");
       move_into_grid(speed);
-      adjust_distance();
-      adjust_angle();
       break;
     case FORWARD:
     case F:
       Serial.println(">> FORWARD");
       move_forward(speed);
-      delay(100);  // Give it some time to read distance.
-      adjust_distance();
-      adjust_angle();
       break;
     case ADJUST:
     case A:
@@ -359,10 +364,6 @@ void in_motion() {
       adjust_distance();
       adjust_angle();
       break;
-    case FNA:
-      Serial.println(">> FNA");
-      move_forward(speed);
-      break;  
     case BACKWARD:
     case B:
       Serial.println(">> BACKWARD");
@@ -581,7 +582,7 @@ void move_forward(int speed) {
   print_distance(d);
   double distance = grid_distance;
   if(d.left > 0 && d.right > 0) {
-    Serial.print("distance right: "); Serial.print(d.right); Serial.print(", left "); Serial.println(d.left);
+    Serial.print("distance left: "); Serial.print(d.left); Serial.print(", right "); Serial.println(d.right);
     double dm = min(d.left, d.right) - stop_distance;
     if(dm < distance) {
       Serial.print("obstacle detected at "); Serial.println(dm);
@@ -800,13 +801,7 @@ Distance get_distance() {
 
 int get_distance_sensor(int tca, VL53L1X& vl53) {
   tcaselect(tca);
-  for(int i = 0; i < 3; i++) {
-    vl53.read();
-    if(vl53.ranging_data.range_mm > 0) {
-      break;
-    }
-    delay(sensor_timing_budget/1000);
-  }
+  vl53.read();
   if(vl53.ranging_data.range_mm < 0) {
     return 999.99;
   }
@@ -830,7 +825,7 @@ int get_distance_r() {
 }
 
 void adjust_angle() {
-  if(save_mode) {
+  if(safe_mode) {
     return;
   }
 
@@ -874,7 +869,7 @@ void adjust_angle() {
 }
 
 void adjust_distance() {
-  if(save_mode) {
+  if(safe_mode) {
     return;
   }
 
