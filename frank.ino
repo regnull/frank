@@ -160,12 +160,13 @@ enum MOVE_STATE {
   STOP, S
 };
 
-int speed = 100;
+unsigned int speed = 100;
 
 // !!!!! Change this!
-int time_goal = 60;
+unsigned int time_goal = 60;
 
-int move_delay = 500;  // Calculated from time_goal and moves.
+unsigned long move_delay = 500;  // Calculated from time_goal and moves.
+unsigned long start_time;
 
 // !!!!!!! Robot moves
 
@@ -209,6 +210,8 @@ bool mag_available = false;
 bool accel_available = false;
 
 void setup() {
+  start_time = millis();
+
   Serial.begin(115200);
   printf_begin();
   printf("\n\n");
@@ -319,8 +322,6 @@ void ready() {
   digitalWrite(YELLOW_LED_PIN, HIGH);
   digitalWrite(RED_LED_PIN, LOW);
 
-  //compute_move_delay();
-
   // Warm up the sensors.
   Distance d = get_distance();
   // delay(500);
@@ -343,6 +344,8 @@ void in_motion() {
   Serial.println("!! IN_MOTION");
 
   MOVE_STATE next_move = moves[current_move];
+
+  compute_move_delay();
 
   if(switchA.getState() == LOW) {
     state = FINISH;
@@ -952,10 +955,11 @@ Accel get_accel() {
 void compute_move_delay() {
   int count = 0;
   MOVE_STATE* m = moves;
+  m += current_move;
   while(*m != STOP && *m != S) {
     m++;
   }
-  double time_diff = double(time_goal) - double(msec_per_move) * count;
+  double time_diff = double(time_goal) - double(millis() - start_time) / 1000.0 - double(msec_per_move) / 1000.0 * count;
   if(time_diff < 0) {
     move_delay = min_move_delay;
   } else {
