@@ -7,62 +7,66 @@
 #include <Adafruit_LSM303_Accel.h>
 #include <Adafruit_Sensor.h>
 
+// Forward declarations
+
+struct Distance;
+Distance get_distance(bool blocking = true);
+int get_distance_r(bool blocking = true);
+int get_distance_l(bool blocking = true);
+
 struct Distance {
   double left;
   double right;
 };
 
 struct Accel {
+  bool valid;  // If this is true, the data in the other fields is valid.
   double x;
   double y;
   double z;
 };
 
-char buf1[32];
-char buf2[32];
-char buf3[32];
-char buf4[32];
+// Distance measurements & related
 
-char* fd(double x, char* buf) {
-  return dtostrf(x, 8, 2, buf);
-}
-
-const int measure_distance_max_attempts = 5;  // Max attempts to measure distance before giving up.
-const int forward_measurements = 3;
-const int adjust_angle_measurements = 3;
-const int adjust_distance_measurements = 3;
+const int measure_distance_max_attempts = 5;    // Max attempts to measure distance before giving up.
+const int forward_measurements          = 1;    // Number of distance measurements before moving forward.
+const int adjust_angle_measurements     = 3;    // Number of distance measurements before adjusting the angle.
+const int adjust_distance_measurements  = 3;    // Number of distance measurements before adjusting the distance.
+const double max_accel_at_rest          = 0.2;  // Meters/second^2, below this means we are at rest.
+const int adjust_distance_attempts      = 3;
+const int adjust_angle_attempts         = 3;
 
 // !!!!!!!!!!! Activate this if everything else fails.
 const bool safe_mode = false;                 // Safe mode ignores all the sensors.
 
 // Robot dimensions
 
-const int dowel_to_middle = 130;  // Distance between the dowel and the middle of the robot
-const int sensors_base = 83;      // Distance between the sensors, millimeters.
-const int separator_width = 36;   // Width of the separator, millimeters.
-const int left_sensor_correction = 0;
+const int dowel_to_middle         = 130;  // Distance between the dowel and the middle of the robot
+const int sensors_base            = 83;   // Distance between the sensors, millimeters.
+const int separator_width         = 36;   // Width of the separator, millimeters.
+const int left_sensor_correction  = 0;
 const int right_sensor_correction = 0;
 
 // Motion
 
-const int grid_distance = 500;            // Grid distance, in millimeters.
-const int adjust_distance_horizon = 400;  // Don't adjust distance if farther than that 
-const int adjust_angle_horizon = 400;     // Don't adjust angle if farther than that 
-const int distance_factor = 245;          // !!! Adjust this to get the distance right
-const int min_move_delay = 100;
-const int max_move_delay = 2000;
-const int msec_per_move = 1600;           // Approx. milliseconds per move.
-const int angle = 90;                     // Degrees
-const int angle_factor = 710;             // !!! Adjust this to get the turn angle right
-const int shift_distance = 500;           // Millimeters
-const int shift_factor = 600;             // !!! Adjust this to get the shift distance right
-const int stop_distance = 50;             // Stop if there is an obstacle at this distance
+const int grid_distance = 500;             // Grid distance, in millimeters.
+const int adjust_distance_horizon = 400;   // Don't adjust distance if farther than that 
+const int adjust_angle_horizon    = 400;   // Don't adjust angle if farther than that 
+const int distance_factor         = 240;   // !!! Adjust this to get the distance right
+const int min_move_delay          = 200;   // Minimum move delay (after coming to a stop)
+const int max_move_delay          = 2000;  // Maximum move delay
+const int msec_per_move           = 1600;  // Approx. milliseconds per move.
+const int angle                   = 90;    // Degrees
+const int angle_factor            = 720;   // !!! Adjust this to get the turn angle right
+const int shift_distance          = 500;   // Millimeters
+const int shift_factor            = 600;   // !!! Adjust this to get the shift distance right
+const int stop_distance           = 50;    // Stop if there is an obstacle at this distance
 
 // LEDs
 
-const int RED_LED_PIN = 51;
+const int RED_LED_PIN    = 51;
 const int YELLOW_LED_PIN = 50;
-const int GREEN_LED_PIN = 49;
+const int GREEN_LED_PIN  = 49;
 
 // Switches
 
@@ -134,17 +138,8 @@ enum STATE {
 
 STATE state = START;
 
-int serial_putc(char c, FILE *) {
-  Serial.write(c);
-  return c;
-} 
-
-void printf_begin() {
-  fdevopen(&serial_putc, 0);
-}
-
 enum MOVE_STATE {
-  GO_IN,                   // Start from the edge of the grid, go into the first square. Must be the first command!
+  GO_IN, GI,               // Start from the edge of the grid, go into the first square. Must be the first command!
   FORWARD, F,              // Go forward one square
   ADJUST, A,               // Adjust the position (assuming there is a board in front)
   BACKWARD, B,             // Go backward one square
@@ -161,44 +156,45 @@ enum MOVE_STATE {
 };
 
 unsigned int speed = 100;
+unsigned long move_delay = 500;  // Calculated from time_goal and moves.
+unsigned long start_time;
 
 // !!!!! Change this!
 unsigned int time_goal = 60;
-
-unsigned long move_delay = 500;  // Calculated from time_goal and moves.
-unsigned long start_time;
 
 // !!!!!!! Robot moves
 
 const MOVE_STATE moves_a[] = {
   GO_IN,
-  L,
-  F,
-  R, A, L,
-  F,
-  R,
-  F, A,
-  R,
-  F,
-  L,
-  F, A,
-  R, A,
-  R, R,
-  F,
-  F, R,
-  F,
-  R, A,
+  F, A, L, A, L, F,
+  R, F, R,
+  F, R, A, L,
+  F, R, A, L,
+  F, L,
+  F, L, A, R, 
+  F, L, 
+  F, L,
+  F, A, L, A, R, A,
   BT,
-  // FORWARD_TO_TARGET
-  // BACkWARD_TO_TARGET
-  STOP, // !!! DO NOT DELETE THIS !!!
+  STOP,
 };
 
 const MOVE_STATE moves_b[] = {
-  // GO_IN
-  INTERACT,
-  // FORWARD_TO_TARGET
-  // BACkWARD_TO_TARGET
+  GO_IN,
+  F, A, L, A, L, F,
+  R, F, F, F, R,
+  F, A, R, A, R, F,
+  L, F, F, L,
+  F, R, A, L,
+  F, R, A, L,
+  F, R, F, R,
+  F, A, R, A, R,
+  F, L, F, F, 
+  L, A, R, F,
+  L, F, A, L,
+  F, A, L, A, 
+  R, A,
+  BT,
   STOP, // !!! DO NOT DELETE THIS !!!
 };
 
@@ -208,14 +204,12 @@ MOVE_STATE *moves;
 
 bool mag_available = false;
 bool accel_available = false;
+Accel zero_accel;  // Acceleration at rest
 
 void setup() {
   start_time = millis();
 
   Serial.begin(115200);
-  printf_begin();
-  printf("\n\n");
-
   // Switches
   switchA.setDebounceTime(50);
   switchB.setDebounceTime(50);
@@ -239,16 +233,17 @@ void setup() {
   tcaselect(0);
   if(!mag.begin())
   {
-    printf("Ooops, no LIS2MDL detected ... Check your wiring!\n");
+    Serial.println("Ooops, no LIS2MDL detected ... Check your wiring!");
   }
   mag_available = true;
 
   // Accelerometer
   tcaselect(0);
   if (!accel.begin()) {
-    printf("Ooops, no LSM303 detected ... Check your wiring!\n");
+    Serial.println("Ooops, no LSM303 detected ... Check your wiring!");
   } else {
     accel.setRange(LSM303_RANGE_2G);
+    accel.setMode(LSM303_MODE_HIGH_RESOLUTION);
   }
   accel_available = true;
 }
@@ -271,13 +266,13 @@ void loop() {
       finish();
       break;
     default:
-      printf("Unknown state!\n");
+      Serial.println("Unknown state!");
       delay(1000);
   }
 }
 
 void start() {
-  printf("!! START\n");
+  Serial.println("!! START");
 
   // All LEDs off.
   digitalWrite(GREEN_LED_PIN, LOW);
@@ -296,16 +291,18 @@ void start() {
 
 void waitForReady() {
   // Wait for the ready switch to be on, turn on the green LED and wait forever.
-  printf("!! WAIT_FOR_READY\n");
+  Serial.println("!! WAIT_FOR_READY");
 
   while(true) {
       switchA.loop();
 
       if(switchA.getState() == HIGH) {
+        Serial.println("ready :)");
         digitalWrite(GREEN_LED_PIN, HIGH);
         digitalWrite(YELLOW_LED_PIN, LOW);
         digitalWrite(RED_LED_PIN, LOW);
       } else {
+        Serial.println("not ready :(");
         digitalWrite(GREEN_LED_PIN, LOW);
         digitalWrite(YELLOW_LED_PIN, HIGH);
         digitalWrite(RED_LED_PIN, LOW);
@@ -316,15 +313,18 @@ void waitForReady() {
 }
 
 void ready() {
-  printf("!! READY\n");
+  Serial.println("!! READY");
 
-  digitalWrite(GREEN_LED_PIN, LOW);
-  digitalWrite(YELLOW_LED_PIN, HIGH);
-  digitalWrite(RED_LED_PIN, LOW);
-
+  led(false, true, false);
   // Warm up the sensors.
   Distance d = get_distance();
   // delay(500);
+
+  // Compute zero accel.
+  zero_accel = get_accel();
+
+  Serial.print("zero accel, x: "); Serial.print(zero_accel.x); Serial.print(", y: ");
+  Serial.print(zero_accel.y); Serial.print(", z: "); Serial.println(zero_accel.z);
 
   if(switchB.getState() == LOW) {
     Serial.println("using program A");
@@ -334,9 +334,7 @@ void ready() {
     moves = moves_b;
   }
 
-  digitalWrite(GREEN_LED_PIN, LOW);
-  digitalWrite(YELLOW_LED_PIN, LOW);
-  digitalWrite(RED_LED_PIN, HIGH);
+  led(true, false, false);
   state = IN_MOTION;
 }
 
@@ -348,12 +346,14 @@ void in_motion() {
   compute_move_delay();
 
   if(switchA.getState() == LOW) {
+    Serial.println("not ready, finish");
     state = FINISH;
     return;
   }
 
   switch(next_move) {
     case GO_IN:
+    case GI:
       Serial.println(">> GO_IN");
       move_into_grid(speed);
       break;
@@ -431,11 +431,9 @@ void in_motion() {
 }
 
 void finish() {
-  printf("!! FINISH\n");
+  Serial.println("!! FINISH");
 
-  digitalWrite(GREEN_LED_PIN, HIGH);
-  digitalWrite(YELLOW_LED_PIN, HIGH);
-  digitalWrite(RED_LED_PIN, HIGH);
+  led(true, true, true);
 
   while(true) {
     delay(1000);
@@ -565,22 +563,27 @@ void move_into_grid(int speed) {
   go_forward(speed);
   delay(compute_move_time(grid_distance - dowel_to_middle, distance_factor, speed));
   stop_motors();
+  wait_for_stop();
 }
 
 void move_forward_to_target(int speed) {
   go_forward(speed);
   delay(compute_move_time(grid_distance - dowel_to_middle, distance_factor, speed));
   stop_motors();
+  wait_for_stop();
 }
 
 void move_backward_to_target(int speed) {
   go_backward(speed);
   delay(compute_move_time(dowel_to_middle, distance_factor, speed));
   stop_motors();
+  wait_for_stop();
 }
 
 void move_forward(int speed) {
   led(true, false, false);
+  bool use_accel = false;
+
   // If we can get distance measurement, use it to make sure we don't bump into things.
   Distance d = get_average_distance(forward_measurements);
   print_distance(d);
@@ -602,15 +605,75 @@ void move_forward(int speed) {
     return;
   }
 
+  uint64_t start = millis();
+  uint64_t last = start;
+  double actual_distance = 0.0;
+  double actual_speed = 0.0;
+  double actual_accel = 0.0;
   go_forward(speed);
-  delay(time);
+  if(!accel_available) {
+    delay(time);
+    stop_motors();
+    return;
+  }
+  zero_accel = get_accel();
+  while(true) {
+    Distance d = get_distance(false);
+    if(d.left > 0 && d.right > 0) {
+      Serial.print("distance left: "); Serial.print(d.left); Serial.print(", right "); Serial.println(d.right);
+      if(min(d.left, d.right) < stop_distance) {
+        Serial.println("too close to an obstacle, stop!");
+        break;
+      }
+    }
+
+    uint64_t now = millis();
+    // If use acceleration is disabled, just go by time.
+    if(!use_accel) {
+      if(now - start >= time) {
+        break;
+      }
+      delay(10);
+      continue;
+    }
+
+    Accel a = get_accel();
+    if(!a.valid) {
+      // If we failed to get the acceleration, use the time estimate.
+      Serial.println("failed to get acceleration, using time");
+      uint64_t d = time - now + start;
+      if(d < 0) {
+        d = 0;
+      }
+      delay(d);
+      break;
+    }
+    double time_d = double(now - last) / 1000.0;  // time difference, in seconds
+    actual_distance += time_d * actual_speed + actual_accel * time_d * time_d / 2.0;
+    actual_speed += actual_accel * time_d;
+    actual_accel = a.x - zero_accel.x;
+    if(now - start >= time + 100) {
+      Serial.println("moving for too long, stop!");
+      // Fail safe - for whatever reason, we are going for too long. Stop.
+       break;
+    }
+    Serial.print("time: "); Serial.print(int(now - start)); Serial.print(", distance: ");
+    Serial.print(actual_distance); Serial.print(", speed: "); Serial.print(actual_speed);
+    Serial.print(", accel: "); Serial.println(actual_accel);
+    last = now;
+    if(int(actual_distance * 1000.0) >= grid_distance) {
+      break;
+    }
+  }
   stop_motors();
+  wait_for_stop();
 }
 
 void move_backward(int speed) {
   go_backward(speed);
   delay(compute_move_time(grid_distance, distance_factor, speed));
   stop_motors();
+  wait_for_stop();
 }
 
 void move_turn_left(int speed) {
@@ -618,6 +681,7 @@ void move_turn_left(int speed) {
   turn_left(speed);
   delay(compute_move_time(angle, angle_factor, speed));
   stop_motors();
+  wait_for_stop();
 }
 
 void move_turn_right(int speed) {
@@ -625,18 +689,21 @@ void move_turn_right(int speed) {
   turn_right(speed);
   delay(compute_move_time(angle, angle_factor, speed));
   stop_motors();
+  wait_for_stop();
 }
 
 void move_right_shift(int speed) {
   right_shift(speed, speed, speed, speed);  
   delay(compute_move_time(shift_distance, shift_factor, speed));
   stop_motors();
+  wait_for_stop();
 }
 
 void move_left_shift(int speed) {
   left_shift(speed, speed, speed, speed);  
   delay(compute_move_time(shift_distance, shift_factor, speed));
   stop_motors();
+  wait_for_stop();
 }
 
 void move_test(int speed) {
@@ -645,10 +712,8 @@ void move_test(int speed) {
     print_distance(d);
 
     double heading = get_heading();
-    printf("heading: %s\n", fd(heading, buf1));
 
     Accel a = get_accel();
-    printf("accel x: %s, y: %s, z: %s\n", fd(a.x, buf1), fd(a.y, buf2), fd(a.z, buf3));
     delay(1000);
   }
   return;
@@ -781,7 +846,7 @@ Distance get_average_distance(int n) {
   return d;
 }
 
-Distance get_distance() {
+Distance get_distance(bool blocking = true) {
   Distance d;
   int attempts = 0;
   while(true) {
@@ -803,25 +868,30 @@ Distance get_distance() {
   }
 }
 
-int get_distance_sensor(int tca, VL53L1X& vl53) {
+int get_distance_sensor(int tca, VL53L1X& vl53, bool blocking = true) {
   tcaselect(tca);
-  vl53.read();
+  if(!blocking) {
+    if(!vl53.dataReady()) {
+      return 999.99;
+    }
+  }
+  vl53.read(blocking);
   if(vl53.ranging_data.range_mm < 0) {
     return 999.99;
   }
   return vl53.ranging_data.range_mm;
 }
 
-int get_distance_l() {
-  int d = get_distance_sensor(0, vl53_l);
+int get_distance_l(bool blocking = true) {
+  int d = get_distance_sensor(0, vl53_l, blocking);
   if(d <= 0) {
     return d;
   }
   return d + left_sensor_correction;
 }
 
-int get_distance_r() {
-  int d = get_distance_sensor(1, vl53_r);
+int get_distance_r(bool blocking = true) {
+  int d = get_distance_sensor(1, vl53_r, blocking);
   if(d <= 0) {
     return d;
   }
@@ -836,21 +906,19 @@ void adjust_angle() {
   led(true, false, true);
   Distance d = get_average_distance(adjust_angle_measurements);
   if(d.left > adjust_angle_horizon || d.right > adjust_angle_horizon) {
-    printf("Cannot adjust angle, too far\n");
+    Serial.println("Cannot adjust angle, too far");
     return;
   }
-  printf("got distance left: %s, right: %s\n", fd(d.left, buf1), fd(d.right, buf2));
+  Serial.print("got distance left: "); Serial.print(d.left); Serial.print(", right: ");
+  Serial.println(d.right);
   double distance_delta = d.right - d.left;
-  printf("distance delta: %s\n", fd(distance_delta, buf1));
   double angle = compute_angle(distance_delta);
-  printf("angle: %s\n", fd(angle, buf1));
   int turn_time = angle * angle_factor / double(speed);
-  printf("turn time: %s\n", fd(turn_time, buf1));
 
   int attempts = 1;
 
   while(abs(angle) > 1.0) {
-    if(attempts == 10) {
+    if(attempts == adjust_angle_attempts) {
       break;
     }
     attempts++;
@@ -865,10 +933,6 @@ void adjust_angle() {
     distance_delta = d.right - d.left;
     angle = compute_angle(distance_delta);
     turn_time = angle * angle_factor / double(speed);
-    printf("got distance left: %s, right: %s\n", fd(d.left, buf1), fd(d.right, buf2));
-    printf("distance delta: %s\n", fd(distance_delta, buf1));
-    printf("angle: %s\n", fd(angle, buf1));
-    printf("turn time: %s\n", fd(turn_time, buf1));
   }
 }
 
@@ -881,7 +945,7 @@ void adjust_distance() {
   Serial.println("adjusting distance");
   int target_distance = grid_distance / 2 - dowel_to_middle - separator_width / 2;
   Serial.print("target distance: "); Serial.println(target_distance);
-  for(int i = 0; i < 5; i++) {
+  for(int i = 0; i < adjust_distance_attempts; i++) {
     Distance d = get_average_distance(adjust_distance_measurements);
     print_distance(d);
     if(d.right > adjust_distance_horizon || d.left > adjust_distance_horizon) {
@@ -912,7 +976,10 @@ double compute_angle(double distance_delta) {
 }
 
 void print_distance(const Distance& d) {
-  printf("distance left: %s, right: %s\n", fd(d.left, buf1), fd(d.right,  buf2));
+  Serial.print("distance left: "); 
+  Serial.print(d.left); 
+  Serial.print(", right: "); 
+  Serial.println(d.right);
 }
 
 double get_heading() {
@@ -937,18 +1004,27 @@ double get_heading() {
 Accel get_accel() {
   if(!accel_available) {
     Accel a;
+    a.valid = true;
     a.x = 0.0;
     a.y = 0.0;
     a.z = 0.0;
     return a;
   }
   tcaselect(0);
-  sensors_event_t event;
-  accel.getEvent(&event);
   Accel a;
-  a.x = event.acceleration.x;
-  a.y = event.acceleration.y;
-  a.z = event.acceleration.z;
+  for(int i = 0; i < 5; i++) {
+    sensors_event_t event;
+    bool valid = accel.getEvent(&event);
+    a.valid = valid;
+    a.x = event.acceleration.x;
+    a.y = event.acceleration.y;
+    a.z = event.acceleration.z;
+    if(a.valid) {
+      break;
+    }
+    Serial.println("failed to get accelaration, will try again");
+    delay(10);
+  }
   return a;
 }
 
@@ -957,18 +1033,40 @@ void compute_move_delay() {
   MOVE_STATE* m = moves;
   m += current_move;
   while(*m != STOP && *m != S) {
+    count++;
     m++;
   }
   double time_diff = double(time_goal) - double(millis() - start_time) / 1000.0 - double(msec_per_move) / 1000.0 * count;
+  Serial.print("got time diff: "); Serial.println(time_diff);
   if(time_diff < 0) {
     move_delay = min_move_delay;
   } else {
-    move_delay = int(time_diff / double(count));
+    move_delay = int(time_diff / double(count) * 1000.0);
     if(move_delay > max_move_delay) {
       move_delay = max_move_delay;
     }
+    if(move_delay < min_move_delay) {
+      move_delay = min_move_delay;
+    }
   }
-  printf("got move delay: %d msec\n");
+  Serial.print("got move delay: "); Serial.println(move_delay); 
+}
+
+void wait_for_stop() {
+  if(!accel_available) {
+    return;
+  }
+  for(int i = 0; i < 20; i++) {
+    Accel a = get_accel();
+    a.x -= zero_accel.x;
+    double b = abs(a.x);
+    Serial.print("got accel: "); Serial.print(b); Serial.print(", max: "); Serial.println(max_accel_at_rest);
+    if(b < max_accel_at_rest) {
+      Serial.println("at rest!");
+      break;
+    }
+    delay(50);
+  }
 }
 
 void led(bool red, bool yellow, bool green) {
