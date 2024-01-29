@@ -9,10 +9,10 @@
 #include <SPI.h>
 #include <SD.h>
 
-#undef MEASURE_DISTANCE_BEFORE_FORWARD
+#define MEASURE_DISTANCE_BEFORE_FORWARD
 #undef MEASURE_DISTANCE_WHILE_FORWARD
 
-const String version = "0.1.100";
+const String version = "0.1.101";
 
 // Forward declarations
 
@@ -877,7 +877,15 @@ void move_interact() {
 }
 
 long compute_move_time(int distance, int factor, int speed) {
-  return long(distance) * long(factor) / long(speed);
+  long move_time = long(distance) * long(factor) / long(speed);
+  // If move time is too short, adjust it
+  if(move_time < 0 && move_time > -100) {
+    move_time = -100;
+  }
+  if(move_time > 0 && move_time < 100) {
+    move_time = 100;
+  }
+  return move_time;
 }
 
 // Sensors control
@@ -993,7 +1001,7 @@ int get_distance_sensor(int tca, VL53L1X& vl53, bool blocking = true) {
   vl53.read(blocking);
   unsigned long duration = millis() - start;
   log_distance_measurement(vl53.ranging_data, duration);
-  if(vl53.ranging_data.range_mm < 0) {
+  if(vl53.ranging_data.range_status != VL53L1X::RangeValid) {
     return 999.99;
   }
   return vl53.ranging_data.range_mm;
@@ -1027,6 +1035,10 @@ void adjust_angle() {
   }
 
   led(true, false, true);
+  if(log_available) {
+    log_file.println("adjusting angle");
+  }
+
   Distance d = get_average_distance(adjust_angle_measurements);
   if(d.left > adjust_angle_horizon || d.right > adjust_angle_horizon) {
     if(log_available) {
@@ -1034,13 +1046,15 @@ void adjust_angle() {
     }
     return;
   }
-  if(log_available) {
-    log_file.print("got distance left: "); log_file.print(d.left); log_file.print(", right: ");
-    log_file.println(d.right);
-  }
+
   double distance_delta = d.right - d.left;
   double angle = compute_angle(distance_delta);
   int turn_time = angle * angle_factor / double(speed);
+
+  if(log_available) {
+    log_file.print("got distance left: "); log_file.print(d.left); log_file.print(", right: ");
+    log_file.print(d.right); log_file.print(", angle: "); log_file.println(angle);
+  }
 
   int attempts = 1;
 
@@ -1060,6 +1074,10 @@ void adjust_angle() {
     distance_delta = d.right - d.left;
     angle = compute_angle(distance_delta);
     turn_time = angle * angle_factor / double(speed);
+    if(log_available) {
+      log_file.print("got distance left: "); log_file.print(d.left); log_file.print(", right: ");
+      log_file.print(d.right); log_file.print(", angle: "); log_file.println(angle);
+    }
   }
 }
 
