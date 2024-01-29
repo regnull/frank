@@ -12,6 +12,8 @@
 #undef MEASURE_DISTANCE_BEFORE_FORWARD
 #undef MEASURE_DISTANCE_WHILE_FORWARD
 
+const String version = "0.1.100";
+
 // Forward declarations
 
 struct Distance;
@@ -192,7 +194,8 @@ unsigned int time_goal = 60;
 const MOVE_STATE moves_a[] = {
   GO_IN,
   F, A, L,
-  F, A, 
+  F, A, R,
+  F, F, 
   STOP,
 };
 
@@ -236,35 +239,7 @@ void setup() {
   Serial.begin(115200);
 
   // Log file
-  if (!SD.begin(CS_PIN)) {
-    Serial.println("SD card initialization failed!");
-    log_available = false;
-  } else {
-    String file_name;
-    bool found_file_name = false;
-    for(int i = 0; i < 999; i++) {
-      file_name = "log";
-      file_name += i;
-      file_name += ".txt";
-      if(!SD.exists(file_name)) {
-        found_file_name = true;
-        break;
-      }
-    }
-    if(found_file_name) {
-      log_file = SD.open(file_name, FILE_WRITE);
-      if(log_file) {
-        Serial.println("opened log file");
-        log_available = true;
-      } else {
-        Serial.println("error opening log file");
-        log_available = false;
-      }
-    } else {
-      log_available = false;
-      Serial.println("cannot find log file name, log is disabled");
-    }
-  }
+  init_log();
 
   // Switches
   switchA.setDebounceTime(50);
@@ -918,6 +893,7 @@ bool init_sensor(int tca, VL53L1X& vl53) {
     return false;
   }
   vl53.setDistanceMode(VL53L1X::Short);
+  vl53.setROISize(4, 4);  // Focus on the area straight ahead
   vl53.setMeasurementTimingBudget(sensor_timing_budget);
   vl53.startContinuous(sensor_timing_budget/1000);
 }
@@ -1013,10 +989,10 @@ int get_distance_sensor(int tca, VL53L1X& vl53, bool blocking = true) {
       return 999.99;
     }
   }
+  unsigned long start = millis();
   vl53.read(blocking);
-  if(log_available) {
-    log_file.print("distance sensor: "); log_file.println(vl53.ranging_data.range_mm);
-  }
+  unsigned long duration = millis() - start;
+  log_distance_measurement(vl53.ranging_data, duration);
   if(vl53.ranging_data.range_mm < 0) {
     return 999.99;
   }
@@ -1250,3 +1226,93 @@ void led(bool red, bool yellow, bool green) {
   digitalWrite(RED_LED_PIN, red ? HIGH : LOW);
 }
 
+void init_log() {
+  if (!SD.begin(CS_PIN)) {
+    Serial.println("SD card initialization failed!");
+    log_available = false;
+    return;
+  }
+
+  String file_name;
+  bool found_file_name = false;
+  for(int i = 0; i < 999; i++) {
+    file_name = "log";
+    file_name += i;
+    file_name += ".txt";
+    if(!SD.exists(file_name)) {
+      found_file_name = true;
+      break;
+    }
+  }
+  if(!found_file_name) {
+    log_available = false;
+    Serial.println("cannot find log file name, log is disabled");
+    return;
+  }
+
+  log_file = SD.open(file_name, FILE_WRITE);
+  if(!log_file) {
+    Serial.println("error opening log file");
+    log_available = false;
+    return;
+  }
+  Serial.println("opened log file");
+  log_available = true;
+  log_file.print("Frank OS, version "); 
+  log_file.println(version);
+}
+
+void log_distance_measurement(const VL53L1X::RangingData& rd, unsigned long duration) {
+  if(!log_available) {
+    return;
+  }
+  String status;
+  switch(rd.range_status) {
+    case VL53L1X::RangeValid:
+      status = "RangeValid";
+      break;
+    case VL53L1X::SigmaFail:
+      status = "SigmaFail";
+      break;
+    case VL53L1X::SignalFail:
+      status = "SignalFail";
+        break;
+    case VL53L1X::RangeValidMinRangeClipped:
+      status = "RangeValidMinRangeClipped";
+      break;
+    case VL53L1X::OutOfBoundsFail:
+      status = "OutOfBoundsFail";
+      break;
+    case VL53L1X::HardwareFail:
+      status = "HardwareFail";
+      break;
+    case VL53L1X::RangeValidNoWrapCheckFail:
+      status = "RangeValidNoWrapCheckFail";
+      break;
+    case VL53L1X::WrapTargetFail:
+      status = "WrapTargetFail";
+      break;
+    case VL53L1X::XtalkSignalFail:
+      status = "XtalkSignalFail";
+      break;
+    case VL53L1X::SynchronizationInt:
+      status = "SynchronizationInt";
+      break;
+    case VL53L1X::MinRangeFail:
+      status = "MinRangeFail";
+      break;
+    case VL53L1X::None:
+      status = "None";
+      break;
+  }
+  log_file.print("duration: ");
+  log_file.print(duration);
+  log_file.print(", status: ");
+  log_file.print(status);
+  log_file.print(", range: ");
+  log_file.print(rd.range_mm);
+  log_file.print(", peak signal rate: ");
+  log_file.print(rd.peak_signal_count_rate_MCPS);
+  log_file.print(", ambient_count: ");
+  log_file.println(rd.ambient_count_rate_MCPS);
+}
