@@ -6,6 +6,14 @@
 #include <Adafruit_LIS2MDL.h>
 #include <Adafruit_LSM303_Accel.h>
 #include <Adafruit_Sensor.h>
+#include <SPI.h>
+#include <SD.h>
+
+#define MEASURE_DISTANCE_BEFORE_FORWARD
+#undef MEASURE_DISTANCE_WHILE_FORWARD
+
+const String version = "0.1.102";
+const String log_message = "with minimum move time";
 
 // Forward declarations
 
@@ -30,8 +38,8 @@ struct Accel {
 
 const int measure_distance_max_attempts = 5;    // Max attempts to measure distance before giving up.
 const int forward_measurements          = 1;    // Number of distance measurements before moving forward.
-const int adjust_angle_measurements     = 3;    // Number of distance measurements before adjusting the angle.
-const int adjust_distance_measurements  = 3;    // Number of distance measurements before adjusting the distance.
+const int adjust_angle_measurements     = 5;    // Number of distance measurements before adjusting the angle.
+const int adjust_distance_measurements  = 5;    // Number of distance measurements before adjusting the distance.
 const double max_accel_at_rest          = 0.2;  // Meters/second^2, below this means we are at rest.
 const int adjust_distance_attempts      = 3;
 const int adjust_angle_attempts         = 3;
@@ -46,6 +54,7 @@ const int sensors_base            = 83;   // Distance between the sensors, milli
 const int separator_width         = 36;   // Width of the separator, millimeters.
 const int left_sensor_correction  = 0;
 const int right_sensor_correction = 0;
+const int left_wheel_correction   = 2;
 
 // Motion
 
@@ -57,21 +66,21 @@ const int min_move_delay          = 200;   // Minimum move delay (after coming t
 const int max_move_delay          = 2000;  // Maximum move delay
 const int msec_per_move           = 1600;  // Approx. milliseconds per move.
 const int angle                   = 90;    // Degrees
-const int angle_factor            = 740;   // !!! Adjust this to get the turn angle right
+const int angle_factor            = 720;   // !!! Adjust this to get the turn angle right
 const int shift_distance          = 500;   // Millimeters
 const int shift_factor            = 600;   // !!! Adjust this to get the shift distance right
 const int stop_distance           = 50;    // Stop if there is an obstacle at this distance
 
 // LEDs
 
-const int RED_LED_PIN    = 51;
-const int YELLOW_LED_PIN = 50;
-const int GREEN_LED_PIN  = 49;
+const int RED_LED_PIN    = 37;
+const int YELLOW_LED_PIN = 41;
+const int GREEN_LED_PIN  = 35;
 
 // Switches
 
-const int SWITCH_A_PIN = 53;
-const int SWITCH_B_PIN = 52;
+const int SWITCH_A_PIN = 39;
+const int SWITCH_B_PIN = 43;
 
 ezButton switchA(SWITCH_A_PIN);
 ezButton switchB(SWITCH_B_PIN);
@@ -128,6 +137,19 @@ Adafruit_LIS2MDL mag = Adafruit_LIS2MDL(MAG_SENSOR_ID);
 const int32_t ACCEL_SENSOR_ID = 1002;
 Adafruit_LSM303_Accel_Unified accel = Adafruit_LSM303_Accel_Unified(ACCEL_SENSOR_ID);
 
+// SD Card
+
+const int CS_PIN = 53;
+File log_file;
+bool log_available = false;
+
+enum DIRECTION {
+  NORTH,
+  EAST,
+  SOUTH,
+  WEST
+};
+
 enum STATE {
   START,
   WAIT_FOR_READY,
@@ -159,6 +181,13 @@ unsigned int speed = 100;
 unsigned long move_delay = 500;  // Calculated from time_goal and moves.
 unsigned long start_time;
 
+const double DIR_NORTH = 10.0;
+const double DIR_EAST = 126.0;
+const double DIR_SOUTH = 175.0;
+const double DIR_WEST = 223.0;
+
+DIRECTION direction = NORTH;
+
 // !!!!! Change this!
 unsigned int time_goal = 60;
 
@@ -166,36 +195,21 @@ unsigned int time_goal = 60;
 
 const MOVE_STATE moves_a[] = {
   GO_IN,
-  F, A, L, A, L, F,
-  R, F, R,
-  F, R, A, L,
-  F, R, A, L,
+  F, A, L,
+  F, A, R,
+  F, L, A, R, A, R,
+  F, R, A, L, L,
   F, L,
-  F, L, A, R, 
-  F, L, 
-  F, L,
-  F, A, L, A, R, A,
-  BT,
+  F,
+  F, L, A, R,
+  FT,
   STOP,
 };
 
 const MOVE_STATE moves_b[] = {
   GO_IN,
-  F, A, L, A, L, F,
-  R, F, F, F, R,
-  F, A, R, A, R, F,
-  L, F, F, L,
-  F, R, A, L,
-  F, R, A, L,
-  F, R, F, R,
-  F, A, R, A, R,
-  F, L, F, F, 
-  L, A, R, F,
-  L, F, A, L,
-  F, A, L, A, 
-  R, A,
-  BT,
-  STOP, // !!! DO NOT DELETE THIS !!!
+  F, F, F, F,
+  STOP,
 };
 
 int current_move = 0;
@@ -210,6 +224,10 @@ void setup() {
   start_time = millis();
 
   Serial.begin(115200);
+
+  // Log file
+  init_log();
+
   // Switches
   switchA.setDebounceTime(50);
   switchB.setDebounceTime(50);
@@ -223,6 +241,9 @@ void setup() {
   pinMode(GREEN_LED_PIN, OUTPUT);
 
   if(safe_mode) {
+    if(log_available) {
+      log_file.println("safe mode activated");
+    }
     return;
   }
 
@@ -231,16 +252,19 @@ void setup() {
 
   // Magnetometer
   tcaselect(0);
-  if(!mag.begin())
-  {
-    Serial.println("Ooops, no LIS2MDL detected ... Check your wiring!");
+  if(!mag.begin()) {
+    if(log_available) {
+      log_file.println("Ooops, no LIS2MDL detected ... Check your wiring!");
+    }
   }
   mag_available = true;
 
   // Accelerometer
   tcaselect(0);
   if (!accel.begin()) {
-    Serial.println("Ooops, no LSM303 detected ... Check your wiring!");
+    if(log_available) {
+      log_file.println("Ooops, no LSM303 detected ... Check your wiring!");
+    }
   } else {
     accel.setRange(LSM303_RANGE_2G);
     accel.setMode(LSM303_MODE_HIGH_RESOLUTION);
@@ -266,21 +290,22 @@ void loop() {
       finish();
       break;
     default:
-      Serial.println("Unknown state!");
+      if(log_available) {
+        log_file.println("Unknown state!");
+      }
       delay(1000);
   }
 }
 
 void start() {
-  Serial.println("!! START");
+  if(log_available) {
+    log_file.println("!! START");
+  }
 
   // All LEDs off.
-  digitalWrite(GREEN_LED_PIN, LOW);
-  digitalWrite(YELLOW_LED_PIN, LOW);
-  digitalWrite(RED_LED_PIN, LOW);
+  led(false, false, false);
 
   switchA.loop();
-
   if(switchA.getState() == HIGH) {
     // Time to go!
     state = READY; 
@@ -291,18 +316,17 @@ void start() {
 
 void waitForReady() {
   // Wait for the ready switch to be on, turn on the green LED and wait forever.
-  Serial.println("!! WAIT_FOR_READY");
+  if(log_available) {
+    log_file.println("!! WAIT_FOR_READY");
+  }
 
   while(true) {
       switchA.loop();
-
       if(switchA.getState() == HIGH) {
-        Serial.println("ready :)");
         digitalWrite(GREEN_LED_PIN, HIGH);
         digitalWrite(YELLOW_LED_PIN, LOW);
         digitalWrite(RED_LED_PIN, LOW);
       } else {
-        Serial.println("not ready :(");
         digitalWrite(GREEN_LED_PIN, LOW);
         digitalWrite(YELLOW_LED_PIN, HIGH);
         digitalWrite(RED_LED_PIN, LOW);
@@ -313,24 +337,32 @@ void waitForReady() {
 }
 
 void ready() {
-  Serial.println("!! READY");
+  if(log_available) {
+    log_file.println("!! READY");
+  }
 
   led(false, true, false);
   // Warm up the sensors.
   Distance d = get_distance();
-  // delay(500);
+  delay(500);
 
   // Compute zero accel.
   zero_accel = get_accel();
 
-  Serial.print("zero accel, x: "); Serial.print(zero_accel.x); Serial.print(", y: ");
-  Serial.print(zero_accel.y); Serial.print(", z: "); Serial.println(zero_accel.z);
+  if(log_available) {
+    log_file.print("zero accel, x: "); log_file.print(zero_accel.x); log_file.print(", y: ");
+    log_file.print(zero_accel.y); log_file.print(", z: "); log_file.println(zero_accel.z);
+  }
 
   if(switchB.getState() == LOW) {
-    Serial.println("using program A");
+    if(log_available) {
+      log_file.println("using program A");
+    }
     moves = moves_a;
   } else {
-    Serial.println("using program B");
+    if(log_available) {
+      log_file.println("using program B");
+    }
     moves = moves_b;
   }
 
@@ -339,14 +371,19 @@ void ready() {
 }
 
 void in_motion() {
-  Serial.println("!! IN_MOTION");
+  if(log_available) {
+    log_file.println("!! IN_MOTION");
+  }
 
   MOVE_STATE next_move = moves[current_move];
 
   compute_move_delay();
 
+  switchA.loop();
   if(switchA.getState() == LOW) {
-    Serial.println("not ready, finish");
+    if(log_available) {
+      log_file.println("not ready, finish");
+    }
     state = FINISH;
     return;
   }
@@ -354,73 +391,101 @@ void in_motion() {
   switch(next_move) {
     case GO_IN:
     case GI:
-      Serial.println(">> GO_IN");
+      if(log_available) {
+        log_file.println(">> GO_IN");
+      }
       move_into_grid(speed);
       break;
     case FORWARD:
     case F:
-      Serial.println(">> FORWARD");
+      if(log_available) {
+        log_file.println(">> FORWARD");
+      }
       move_forward(speed);
       break;
     case ADJUST:
     case A:
-      Serial.println(">> ADJUST");
+      if(log_available) {
+        log_file.println(">> ADJUST");
+      }
       adjust_distance();
       adjust_angle();
       break;
     case BACKWARD:
     case B:
-      Serial.println(">> BACKWARD");
+      if(log_available) {
+        log_file.println(">> BACKWARD");
+      }
       move_backward(speed);
       break;
     case TURN_LEFT:
     case L:
-      Serial.println(">> TURN_LEFT");
+      if(log_available) {
+        log_file.println(">> TURN_LEFT");
+      }
       move_turn_left(speed);
       break;
     case TURN_RIGHT:
     case R:
-      Serial.println(">> TURN_RIGHT");
+      if(log_available) {
+        log_file.println(">> TURN_RIGHT");
+      }
       move_turn_right(speed);
       break;
     case LEFT_SHIFT:
     case LS:
-      Serial.println(">> LEFT_SHIFT");
+      if(log_available) {
+        log_file.println(">> LEFT_SHIFT");
+      }
       move_left_shift(speed);
       break;
     case RIGHT_SHIFT:
     case RS:
-      Serial.println(">> RIGHT_SHIFT");
+      if(log_available) {
+        log_file.println(">> RIGHT_SHIFT");
+      }
       move_right_shift(speed);
       break;
     case TEST_MOVE:
-      Serial.println(">> TEST_MOVE");
+      if(log_available) {
+        log_file.println(">> TEST_MOVE");
+      }
       move_test(speed);
       break;
     case FORWARD_TO_TARGET:
     case FT:
-      Serial.println(">> FORWARD_TO_TARGET");
+      if(log_available) {
+        log_file.println(">> FORWARD_TO_TARGET");
+      }
       move_forward_to_target(speed);
       state = FINISH;
       break;
     case BACKWARD_TO_TARGET:
     case BT:
-      Serial.println(">> BACKWARD_TO_TARGET");
+      if(log_available) {
+        log_file.println(">> BACKWARD_TO_TARGET");
+      }
       move_backward_to_target(speed);
       state = FINISH;
       break;
     case DELAY:
     case D:
-      Serial.println(">> DELAY");
+      if(log_available) {
+        log_file.println(">> DELAY");
+      }
       delay(5000);
       break;
     case INTERACT:
-      Serial.println(">> INTERACT");
+      if(log_available) {
+        log_file.println(">> INTERACT");
+      }
       move_interact();
       break;
     case STOP:
     case S:
-      Serial.println(">> STOP");
+      if(log_available) {
+        log_file.println(">> STOP");
+      }
       state = FINISH;
       break;
   }
@@ -431,10 +496,15 @@ void in_motion() {
 }
 
 void finish() {
-  Serial.println("!! FINISH");
+  if(log_available) {
+    log_file.println(">> FINISH");
+  }
 
   led(true, true, true);
 
+  if(log_available) {
+    log_file.close();
+  }
   while(true) {
     delay(1000);
   }
@@ -518,10 +588,10 @@ void stop_motors() {
 }
 
 void go_forward(int speed) {
-   RL_fwd(speed);
+   RL_fwd(speed + left_wheel_correction);
    RR_fwd(speed);
    FR_fwd(speed);
-   FL_fwd(speed); 
+   FL_fwd(speed + left_wheel_correction); 
 }
 
 void go_backward(int speed) {
@@ -584,23 +654,33 @@ void move_forward(int speed) {
   led(true, false, false);
   bool use_accel = false;
 
+  double distance = grid_distance;
+  
+#ifdef MEASURE_DISTANCE_BEFORE_FORWARD
   // If we can get distance measurement, use it to make sure we don't bump into things.
   Distance d = get_average_distance(forward_measurements);
   print_distance(d);
-  double distance = grid_distance;
   if(d.left > 0 && d.right > 0) {
-    Serial.print("distance left: "); Serial.print(d.left); Serial.print(", right "); Serial.println(d.right);
+    if(log_available) {
+      log_file.print("distance left: "); log_file.print(d.left); log_file.print(", right "); log_file.println(d.right);
+    }
     double dm = min(d.left, d.right) - stop_distance;
     if(dm < distance) {
-      Serial.print("obstacle detected at "); Serial.println(dm);
+      if(log_available) {
+        log_file.print("obstacle detected at "); log_file.println(dm);
+      }
       distance = dm;
     }
     if(distance < 0.0) {
       distance = 0.0;
     }
   }
+#endif
+
   int time = compute_move_time(distance, distance_factor, speed);
-  Serial.print("move time "); Serial.println(time);
+  if(log_available) {
+    log_file.print("move time "); log_file.println(time);
+  }
   if(time <= 0) {
     return;
   }
@@ -618,52 +698,28 @@ void move_forward(int speed) {
   }
   zero_accel = get_accel();
   while(true) {
+
+#ifdef MEASURE_DISTANCE_WHILE_FORWARD
     Distance d = get_distance(false);
     if(d.left > 0 && d.right > 0) {
-      Serial.print("distance left: "); Serial.print(d.left); Serial.print(", right "); Serial.println(d.right);
+      if(log_available) {
+        log_file.print("distance left: "); log_file.print(d.left); log_file.print(", right "); log_file.println(d.right);
+      }
       if(min(d.left, d.right) < stop_distance) {
-        Serial.println("too close to an obstacle, stop!");
+        if(log_available) {
+          log_file.println("too close to an obstacle, stop!");
+        }
         break;
       }
     }
+#endif
 
     uint64_t now = millis();
     // If use acceleration is disabled, just go by time.
-    if(!use_accel) {
-      if(now - start >= time) {
-        break;
-      }
-      delay(10);
-      continue;
+    if(now - start >= time) {
+     break;
     }
-
-    Accel a = get_accel();
-    if(!a.valid) {
-      // If we failed to get the acceleration, use the time estimate.
-      Serial.println("failed to get acceleration, using time");
-      uint64_t d = time - now + start;
-      if(d < 0) {
-        d = 0;
-      }
-      delay(d);
-      break;
-    }
-    double time_d = double(now - last) / 1000.0;  // time difference, in seconds
-    actual_distance += time_d * actual_speed + actual_accel * time_d * time_d / 2.0;
-    actual_speed += actual_accel * time_d;
-    actual_accel = a.x - zero_accel.x;
-    if(now - start >= time + 100) {
-      Serial.println("moving for too long, stop!");
-      // Fail safe - for whatever reason, we are going for too long. Stop.
-       break;
-    }
-    Serial.print("time: "); Serial.print(int(now - start)); Serial.print(", distance: ");
-    Serial.print(actual_distance); Serial.print(", speed: "); Serial.print(actual_speed);
-    Serial.print(", accel: "); Serial.println(actual_accel);
-    last = now;
-    if(int(actual_distance * 1000.0) >= grid_distance) {
-      break;
-    }
+    delay(10);
   }
   stop_motors();
   wait_for_stop();
@@ -682,6 +738,20 @@ void move_turn_left(int speed) {
   delay(compute_move_time(angle, angle_factor, speed));
   stop_motors();
   wait_for_stop();
+  switch(direction) {
+    case NORTH:
+      direction = WEST;
+      break;
+    case EAST:
+      direction = NORTH;
+      break;
+    case SOUTH:
+      direction = EAST;
+      break;
+    case WEST:
+      direction = SOUTH;
+      break;
+  }
 }
 
 void move_turn_right(int speed) {
@@ -690,6 +760,20 @@ void move_turn_right(int speed) {
   delay(compute_move_time(angle, angle_factor, speed));
   stop_motors();
   wait_for_stop();
+  switch(direction) {
+    case NORTH:
+      direction = EAST;
+      break;
+    case EAST:
+      direction = SOUTH;
+      break;
+    case SOUTH:
+      direction = WEST;
+      break;
+    case WEST:
+      direction = NORTH;
+      break;
+  }
 }
 
 void move_right_shift(int speed) {
@@ -779,7 +863,15 @@ void move_interact() {
 }
 
 long compute_move_time(int distance, int factor, int speed) {
-  return long(distance) * long(factor) / long(speed);
+  long move_time = long(distance) * long(factor) / long(speed);
+  // If move time is too short, adjust it
+  if(move_time < 0 && move_time > -100) {
+    move_time = -100;
+  }
+  if(move_time > 0 && move_time < 100) {
+    move_time = 100;
+  }
+  return move_time;
 }
 
 // Sensors control
@@ -789,30 +881,43 @@ bool init_sensor(int tca, VL53L1X& vl53) {
   vl53.setTimeout(sensor_timeout);
   if (!vl53.init())
   {
-    Serial.print(F("Error on init of VL sensor"));
+    if(log_available) {
+      log_file.println(F("Error on init of VL sensor"));
+    }
     return false;
   }
   vl53.setDistanceMode(VL53L1X::Short);
+  vl53.setROISize(4, 4);  // Focus on the area straight ahead
   vl53.setMeasurementTimingBudget(sensor_timing_budget);
   vl53.startContinuous(sensor_timing_budget/1000);
 }
 
 void init_sensors() {
-  Serial.println("init sensors");
+  if(log_available) {
+    log_file.println("init sensors");
+  }
 
   Wire.begin();
   Wire.setClock(400000); // use 400 kHz I2C
 
-  Serial.println(F("Initializing left sensor..."));
+  if(log_available) {
+    log_file.println(F("Initializing left sensor..."));
+  }
   if(!init_sensor(0, vl53_l)) {
-    Serial.println("failed to initialize left sensor");
+    if(log_available) {
+      log_file.println("failed to initialize left sensor");
+    }
     state = FINISH;
     return;
   }
 
-  Serial.println(F("Initializing right sensor..."));
+  if(log_available) {
+    log_file.println(F("Initializing right sensor..."));
+  }
   if(!init_sensor(1, vl53_r)) {
-    Serial.println("failed to initialize right sensor");
+    if(log_available) {
+      log_file.println("failed to initialize right sensor");
+    }
     state = FINISH;
     return;
   }
@@ -872,17 +977,26 @@ int get_distance_sensor(int tca, VL53L1X& vl53, bool blocking = true) {
   tcaselect(tca);
   if(!blocking) {
     if(!vl53.dataReady()) {
+      if(log_available) {
+        log_file.println("distance data is not ready");
+      }
       return 999.99;
     }
   }
+  unsigned long start = millis();
   vl53.read(blocking);
-  if(vl53.ranging_data.range_mm < 0) {
+  unsigned long duration = millis() - start;
+  log_distance_measurement(vl53.ranging_data, duration);
+  if(vl53.ranging_data.range_status != VL53L1X::RangeValid) {
     return 999.99;
   }
   return vl53.ranging_data.range_mm;
 }
 
 int get_distance_l(bool blocking = true) {
+  if(log_available) {
+    log_file.println("getting left distance");
+  }
   int d = get_distance_sensor(0, vl53_l, blocking);
   if(d <= 0) {
     return d;
@@ -891,6 +1005,9 @@ int get_distance_l(bool blocking = true) {
 }
 
 int get_distance_r(bool blocking = true) {
+  if(log_available) {
+    log_file.println("getting right distance");
+  }
   int d = get_distance_sensor(1, vl53_r, blocking);
   if(d <= 0) {
     return d;
@@ -904,16 +1021,26 @@ void adjust_angle() {
   }
 
   led(true, false, true);
+  if(log_available) {
+    log_file.println("adjusting angle");
+  }
+
   Distance d = get_average_distance(adjust_angle_measurements);
   if(d.left > adjust_angle_horizon || d.right > adjust_angle_horizon) {
-    Serial.println("Cannot adjust angle, too far");
+    if(log_available) {
+      log_file.println("Cannot adjust angle, too far");
+    }
     return;
   }
-  Serial.print("got distance left: "); Serial.print(d.left); Serial.print(", right: ");
-  Serial.println(d.right);
+
   double distance_delta = d.right - d.left;
   double angle = compute_angle(distance_delta);
   int turn_time = angle * angle_factor / double(speed);
+
+  if(log_available) {
+    log_file.print("got distance left: "); log_file.print(d.left); log_file.print(", right: ");
+    log_file.print(d.right); log_file.print(", angle: "); log_file.println(angle);
+  }
 
   int attempts = 1;
 
@@ -933,6 +1060,10 @@ void adjust_angle() {
     distance_delta = d.right - d.left;
     angle = compute_angle(distance_delta);
     turn_time = angle * angle_factor / double(speed);
+    if(log_available) {
+      log_file.print("got distance left: "); log_file.print(d.left); log_file.print(", right: ");
+      log_file.print(d.right); log_file.print(", angle: "); log_file.println(angle);
+    }
   }
 }
 
@@ -942,21 +1073,31 @@ void adjust_distance() {
   }
 
   led(true, true, false);
-  Serial.println("adjusting distance");
+  if(log_available) {
+    log_file.println("adjusting distance");
+  }
   int target_distance = grid_distance / 2 - dowel_to_middle - separator_width / 2;
-  Serial.print("target distance: "); Serial.println(target_distance);
+  if(log_available) {
+    log_file.print("target distance: "); log_file.println(target_distance);
+  }
   for(int i = 0; i < adjust_distance_attempts; i++) {
     Distance d = get_average_distance(adjust_distance_measurements);
     print_distance(d);
     if(d.right > adjust_distance_horizon || d.left > adjust_distance_horizon) {
-      Serial.println("Cannot adjust grid distance, too far");
+      if(log_available) {
+        log_file.println("Cannot adjust grid distance, too far");
+      }
       return;
     }
     double min_distance = min(d.right, d.left);
     double distance = min_distance - target_distance;
-    Serial.print("distance to go: "); Serial.println(distance);
+    if(log_available) {
+      log_file.print("distance to go: "); log_file.println(distance);
+    }
     if(abs(distance - target_distance) < 5) {
-      Serial.println("reached target distance");
+      if(log_available) {
+        log_file.println("reached target distance");
+      }
       return;
     }
     long time = compute_move_time(distance, distance_factor, speed);
@@ -976,10 +1117,14 @@ double compute_angle(double distance_delta) {
 }
 
 void print_distance(const Distance& d) {
-  Serial.print("distance left: "); 
-  Serial.print(d.left); 
-  Serial.print(", right: "); 
-  Serial.println(d.right);
+  if(!log_available) {
+    return;
+  }
+
+  log_file.print("distance left: "); 
+  log_file.print(d.left); 
+  log_file.print(", right: "); 
+  log_file.println(d.right);
 }
 
 double get_heading() {
@@ -991,7 +1136,7 @@ double get_heading() {
   mag.getEvent(&event);
 
   // Calculate the angle of the vector y,x
-  double heading = (atan2(event.magnetic.y,event.magnetic.x) * 180) / M_PI;
+  double heading = (atan2(-event.magnetic.y,event.magnetic.x) * 180.0) / M_PI;
 
   // Normalize to 0-360
   if (heading < 0)
@@ -1022,7 +1167,9 @@ Accel get_accel() {
     if(a.valid) {
       break;
     }
-    Serial.println("failed to get accelaration, will try again");
+    if(log_available) {
+      log_file.println("failed to get accelaration, will try again");
+    }
     delay(10);
   }
   return a;
@@ -1037,7 +1184,9 @@ void compute_move_delay() {
     m++;
   }
   double time_diff = double(time_goal) - double(millis() - start_time) / 1000.0 - double(msec_per_move) / 1000.0 * count;
-  Serial.print("got time diff: "); Serial.println(time_diff);
+  if(log_available) {
+    log_file.print("got time diff: "); log_file.println(time_diff);
+  }
   if(time_diff < 0) {
     move_delay = min_move_delay;
   } else {
@@ -1049,7 +1198,9 @@ void compute_move_delay() {
       move_delay = min_move_delay;
     }
   }
-  Serial.print("got move delay: "); Serial.println(move_delay); 
+  if(log_available) {
+    log_file.print("got move delay: "); log_file.println(move_delay); 
+  }
 }
 
 void wait_for_stop() {
@@ -1060,9 +1211,13 @@ void wait_for_stop() {
     Accel a = get_accel();
     a.x -= zero_accel.x;
     double b = abs(a.x);
-    Serial.print("got accel: "); Serial.print(b); Serial.print(", max: "); Serial.println(max_accel_at_rest);
+    if(log_available) {
+      log_file.print("got accel: "); log_file.print(b); log_file.print(", max: "); log_file.println(max_accel_at_rest);
+    }
     if(b < max_accel_at_rest) {
-      Serial.println("at rest!");
+      if(log_available) {
+        log_file.println("at rest!");
+      }
       break;
     }
     delay(50);
@@ -1075,3 +1230,96 @@ void led(bool red, bool yellow, bool green) {
   digitalWrite(RED_LED_PIN, red ? HIGH : LOW);
 }
 
+void init_log() {
+  if (!SD.begin(CS_PIN)) {
+    Serial.println("SD card initialization failed!");
+    log_available = false;
+    return;
+  }
+
+  String file_name;
+  bool found_file_name = false;
+  for(int i = 0; i < 999; i++) {
+    file_name = "log";
+    file_name += i;
+    file_name += ".txt";
+    if(!SD.exists(file_name)) {
+      found_file_name = true;
+      break;
+    }
+  }
+  if(!found_file_name) {
+    log_available = false;
+    Serial.println("cannot find log file name, log is disabled");
+    return;
+  }
+
+  log_file = SD.open(file_name, FILE_WRITE);
+  if(!log_file) {
+    Serial.println("error opening log file");
+    log_available = false;
+    return;
+  }
+  Serial.println("opened log file");
+  log_available = true;
+  log_file.print("Frank OS, version "); 
+  if(log_message != "") {
+    log_file.println(log_message);
+  }
+  log_file.println(version);
+}
+
+void log_distance_measurement(const VL53L1X::RangingData& rd, unsigned long duration) {
+  if(!log_available) {
+    return;
+  }
+  String status;
+  switch(rd.range_status) {
+    case VL53L1X::RangeValid:
+      status = "RangeValid";
+      break;
+    case VL53L1X::SigmaFail:
+      status = "SigmaFail";
+      break;
+    case VL53L1X::SignalFail:
+      status = "SignalFail";
+        break;
+    case VL53L1X::RangeValidMinRangeClipped:
+      status = "RangeValidMinRangeClipped";
+      break;
+    case VL53L1X::OutOfBoundsFail:
+      status = "OutOfBoundsFail";
+      break;
+    case VL53L1X::HardwareFail:
+      status = "HardwareFail";
+      break;
+    case VL53L1X::RangeValidNoWrapCheckFail:
+      status = "RangeValidNoWrapCheckFail";
+      break;
+    case VL53L1X::WrapTargetFail:
+      status = "WrapTargetFail";
+      break;
+    case VL53L1X::XtalkSignalFail:
+      status = "XtalkSignalFail";
+      break;
+    case VL53L1X::SynchronizationInt:
+      status = "SynchronizationInt";
+      break;
+    case VL53L1X::MinRangeFail:
+      status = "MinRangeFail";
+      break;
+    case VL53L1X::None:
+      status = "None";
+      break;
+  }
+  log_file.print("duration: ");
+  log_file.print(duration);
+  log_file.print(", status: ");
+  log_file.print(status);
+  log_file.print(", range: ");
+  log_file.print(rd.range_mm);
+  log_file.print(", peak signal rate: ");
+  log_file.print(rd.peak_signal_count_rate_MCPS);
+  log_file.print(", ambient_count: ");
+  log_file.println(rd.ambient_count_rate_MCPS);
+}
