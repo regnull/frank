@@ -197,19 +197,34 @@ const MOVE_STATE moves_a[] = {
   GO_IN,
   F, A, L,
   F, A, R,
-  F, L, A, R, A, R,
-  F, R, A, L, L,
-  F, L,
-  F,
-  F, L, A, R,
-  FT,
+  F, F, 
   STOP,
 };
 
 const MOVE_STATE moves_b[] = {
   GO_IN,
-  F, F, F, F,
-  STOP,
+  F, A, L, A, L,
+  F, R, 
+  F, 
+  F, 
+  F, R,
+  F, A, R, A, R, 
+  F, L, 
+  F, 
+  F, L,
+  F, R, A, L,
+  F, R, A, L,
+  F, R, 
+  F, R,
+  F, A, R, A, R,
+  F, L, 
+  F, 
+  F, L, A, R, 
+  F, L, 
+  F, A, L,
+  F, A, L, A, R, A,
+  BT,
+  STOP, // !!! DO NOT DELETE THIS !!!
 };
 
 int current_move = 0;
