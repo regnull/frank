@@ -12,7 +12,8 @@
 #define MEASURE_DISTANCE_BEFORE_FORWARD
 #undef MEASURE_DISTANCE_WHILE_FORWARD
 
-const String version = "0.1.101";
+const String version = "0.1.102";
+const String log_message = "with minimum move time";
 
 // Forward declarations
 
@@ -37,8 +38,8 @@ struct Accel {
 
 const int measure_distance_max_attempts = 5;    // Max attempts to measure distance before giving up.
 const int forward_measurements          = 1;    // Number of distance measurements before moving forward.
-const int adjust_angle_measurements     = 3;    // Number of distance measurements before adjusting the angle.
-const int adjust_distance_measurements  = 3;    // Number of distance measurements before adjusting the distance.
+const int adjust_angle_measurements     = 5;    // Number of distance measurements before adjusting the angle.
+const int adjust_distance_measurements  = 5;    // Number of distance measurements before adjusting the distance.
 const double max_accel_at_rest          = 0.2;  // Meters/second^2, below this means we are at rest.
 const int adjust_distance_attempts      = 3;
 const int adjust_angle_attempts         = 3;
@@ -673,7 +674,6 @@ void move_forward(int speed) {
   // If we can get distance measurement, use it to make sure we don't bump into things.
   Distance d = get_average_distance(forward_measurements);
   print_distance(d);
-  double distance = grid_distance;
   if(d.left > 0 && d.right > 0) {
     if(log_available) {
       log_file.print("distance left: "); log_file.print(d.left); log_file.print(", right "); log_file.println(d.right);
@@ -1277,6 +1277,9 @@ void init_log() {
   Serial.println("opened log file");
   log_available = true;
   log_file.print("Frank OS, version "); 
+  if(log_message != "") {
+    log_file.println(log_message);
+  }
   log_file.println(version);
 }
 
