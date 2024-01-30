@@ -12,8 +12,8 @@
 #define MEASURE_DISTANCE_BEFORE_FORWARD
 #undef MEASURE_DISTANCE_WHILE_FORWARD
 
-const String version = "0.1.102";
-const String log_message = "with minimum move time";
+const String version = "0.1.103";
+const String log_message = "";
 
 // Forward declarations
 
