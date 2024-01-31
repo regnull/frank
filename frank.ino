@@ -497,10 +497,13 @@ void in_motion() {
       state = FINISH;
       break;
   }
-
+  current_move++;
+  if(safe_mode && (next_move == ADJUST || next_move == A)) {
+    // In safe mode, we don't wait after adjust, because it does nothing.
+    return;
+  }
   delay(move_delay);
 
-  current_move++;
 }
 
 void finish() {
@@ -708,18 +711,18 @@ void move_forward(int speed) {
   while(true) {
 
 #ifdef MEASURE_DISTANCE_WHILE_FORWARD
-    Distance d = get_distance(false);
-    if(d.left > 0 && d.right > 0) {
-      if(log_available) {
-        log_file.print("distance left: "); log_file.print(d.left); log_file.print(", right "); log_file.println(d.right);
-      }
-      if(min(d.left, d.right) < stop_distance) {
-        if(log_available) {
-          log_file.println("too close to an obstacle, stop!");
-        }
-        break;
-      }
+  Distance d = get_distance(false);
+  if(d.left > 0 && d.right > 0) {
+    if(log_available) {
+      log_file.print("distance left: "); log_file.print(d.left); log_file.print(", right "); log_file.println(d.right);
     }
+    if(min(d.left, d.right) < stop_distance) {
+      if(log_available) {
+        log_file.println("too close to an obstacle, stop!");
+      }
+      break;
+    }
+  }
 #endif
 
     uint64_t now = millis();
@@ -873,6 +876,12 @@ void init_sensors() {
 }
 
 Distance get_average_distance(int n) {
+  if(safe_mode) {
+     Distance d;
+     d.left = 999.99;
+     d.right = 999.99;
+     return d;
+  }
   double sum_r = 0.0;
   double sum_l = 0.0;
   int measurements = 0;
@@ -901,6 +910,12 @@ Distance get_average_distance(int n) {
 }
 
 Distance get_distance(bool blocking = true) {
+  if(safe_mode) {
+     Distance d;
+     d.left = 999.99;
+     d.right = 999.99;
+     return d;
+  }
   Distance d;
   int attempts = 0;
   while(true) {
@@ -923,6 +938,9 @@ Distance get_distance(bool blocking = true) {
 }
 
 int get_distance_sensor(int tca, VL53L1X& vl53, bool blocking = true) {
+  if(safe_mode) {
+    return 999.99;
+  }
   tcaselect(tca);
   if(!blocking) {
     if(!vl53.dataReady()) {
@@ -943,6 +961,9 @@ int get_distance_sensor(int tca, VL53L1X& vl53, bool blocking = true) {
 }
 
 int get_distance_l(bool blocking = true) {
+  if(safe_mode) {
+    return 999.99;
+  }
   if(log_available) {
     log_file.println("getting left distance");
   }
@@ -954,6 +975,9 @@ int get_distance_l(bool blocking = true) {
 }
 
 int get_distance_r(bool blocking = true) {
+  if(safe_mode) {
+    return 999.99;
+  }
   if(log_available) {
     log_file.println("getting right distance");
   }
@@ -1077,7 +1101,7 @@ void print_distance(const Distance& d) {
 }
 
 double get_heading() {
-  if(!mag_available) {
+  if(!mag_available || safe_mode) {
     return 0.0;
   }
   tcaselect(0);
@@ -1096,7 +1120,7 @@ double get_heading() {
 }
 
 Accel get_accel() {
-  if(!accel_available) {
+  if(!accel_available || safe_mode) {
     Accel a;
     a.valid = true;
     a.x = 0.0;
@@ -1153,7 +1177,7 @@ void compute_move_delay() {
 }
 
 void wait_for_stop() {
-  if(!accel_available) {
+  if(!accel_available || safe_mode) {
     return;
   }
   for(int i = 0; i < 20; i++) {
