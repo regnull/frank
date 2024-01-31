@@ -66,7 +66,7 @@ const int min_move_delay          = 200;   // Minimum move delay (after coming t
 const int max_move_delay          = 2000;  // Maximum move delay
 const int msec_per_move           = 1600;  // Approx. milliseconds per move.
 const int angle                   = 90;    // Degrees
-const int angle_factor            = 720;   // !!! Adjust this to get the turn angle right
+const int angle_factor            = 710;   // !!! Adjust this to get the turn angle right
 const int shift_distance          = 500;   // Millimeters
 const int shift_factor            = 600;   // !!! Adjust this to get the shift distance right
 const int stop_distance           = 50;    // Stop if there is an obstacle at this distance
@@ -195,36 +195,36 @@ unsigned int time_goal = 60;
 
 const MOVE_STATE moves_a[] = {
   GO_IN,
+  A, R,
   F, A, L,
   F, A, R,
-  F, F, 
+  F, A, L,
+  F, A, L,
+  F, A, R,
+  F, R,
+  F, R, A, L, A, BT,
   STOP,
 };
 
 const MOVE_STATE moves_b[] = {
   GO_IN,
-  F, A, L, A, L,
-  F, R, 
-  F, 
-  F, 
-  F, R,
-  F, A, R, A, R, 
-  F, L, 
-  F, 
-  F, L,
-  F, R, A, L,
-  F, R, A, L,
-  F, R, 
-  F, R,
-  F, A, R, A, R,
-  F, L, 
-  F, 
-  F, L, A, R, 
-  F, L, 
+  A, R,
   F, A, L,
-  F, A, L, A, R, A,
-  BT,
-  STOP, // !!! DO NOT DELETE THIS !!!
+  F, A, L,
+  F, R,
+  F, R, A, L,
+  F, R, A, R,
+  F,
+  F, A, L,
+  F,
+  F, A, L,
+  F, A, R,
+  F, L, L,
+  F, R, A, L,
+  F, A, R,
+  F, R,
+  F, R, A, L, A, BT,
+  STOP,
 };
 
 int current_move = 0;
