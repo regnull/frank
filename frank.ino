@@ -12,7 +12,7 @@
 #define MEASURE_DISTANCE_BEFORE_FORWARD
 #undef MEASURE_DISTANCE_WHILE_FORWARD
 
-const String version = "0.1.104";
+const String version = "0.1.105";
 const String log_message = "";
 
 // Forward declarations
