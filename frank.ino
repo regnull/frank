@@ -12,7 +12,7 @@
 #define MEASURE_DISTANCE_BEFORE_FORWARD
 #undef MEASURE_DISTANCE_WHILE_FORWARD
 
-const String version = "0.1.103";
+const String version = "0.1.104";
 const String log_message = "";
 
 // Forward declarations
@@ -173,7 +173,6 @@ enum MOVE_STATE {
   FORWARD_TO_TARGET, FT,   // Go into the target square, stop with the dowel over the target. Must be the last command!
   BACKWARD_TO_TARGET, BT,  // Move back from the center of the square so that the dowel is in the center 
   DELAY, D,
-  INTERACT,
   STOP, S
 };
 
@@ -489,12 +488,6 @@ void in_motion() {
         log_file.println(">> DELAY");
       }
       delay(5000);
-      break;
-    case INTERACT:
-      if(log_available) {
-        log_file.println(">> INTERACT");
-      }
-      move_interact();
       break;
     case STOP:
     case S:
@@ -816,65 +809,6 @@ void move_test(int speed) {
     delay(1000);
   }
   return;
-}
-
-void move_interact() {
-  char inChar = 0;
-  char command[16];
-  static int i = 0; // static ensures the variable retains its value between function calls
-
-  while(true) {
-    Serial.print("command >>> ");
-
-    while(true) {
-      if(Serial.available() <= 0) {
-        delay(100);
-        continue;
-      }
-      inChar = Serial.read();
-
-      if (inChar != '\n') {
-        Serial.print(inChar);
-        command[i++] = inChar;
-
-        // Check if the buffer is full to avoid overflow
-        if (i >= sizeof(command) - 1) {
-          i = 0; // Reset the index if the buffer is full
-        }
-      } else {
-        Serial.println();
-        // Process the received string or reset if needed
-        command[i] = '\0'; // Null-terminate the string
-        Serial.print("Received: ");
-        Serial.println(command);
-
-        if(strcmp(command, "F") == 0) {
-          move_forward(speed);
-        } else if (strcmp(command, "B") == 0) {
-          move_backward(speed);
-        } else if (strcmp(command, "L") == 0) {
-          move_turn_left(speed);
-        } else if (strcmp(command, "R") == 0) {
-          move_turn_right(speed);
-        } else if (strcmp(command, "AA") == 0) {
-          adjust_angle();
-        } else if (strcmp(command, "AD") == 0) {
-          adjust_distance();
-        } else if (strcmp(command, "S") == 0) {
-          state = FINISH;
-          return;
-        } else {
-          Serial.println("bad command");
-        }
-
-        // Clear the buffer for the next string
-        memset(command, 0, sizeof(command));
-
-        // Reset the index
-        i = 0;
-      }
-    }
-  }
 }
 
 long compute_move_time(int distance, int factor, int speed) {
