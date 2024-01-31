@@ -1278,10 +1278,10 @@ void init_log() {
   Serial.println("opened log file");
   log_available = true;
   log_file.print("Frank OS, version "); 
+  log_file.println(version);
   if(log_message != "") {
     log_file.println(log_message);
   }
-  log_file.println(version);
 }
 
 void log_distance_measurement(const VL53L1X::RangingData& rd, unsigned long duration) {
