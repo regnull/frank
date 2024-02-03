@@ -7,6 +7,7 @@
 #include <Adafruit_LIS2MDL.h>
 #include <Adafruit_LSM303_Accel.h>
 #include <Adafruit_Sensor.h>
+#include <Adafruit_BNO055.h>
 #include <SPI.h>
 #include <SD.h>
 
@@ -45,7 +46,7 @@ const int adjust_angle_measurements     = 5;    // Number of distance measuremen
 const int adjust_distance_measurements  = 5;    // Number of distance measurements before adjusting the distance.
 const double max_accel_at_rest          = 0.1;  // Meters/second^2, below this means we are at rest.
 const int adjust_distance_attempts      = 3;
-const int adjust_angle_attempts         = 3;
+const int adjust_angle_attempts         = 10;
 
 // !!!!!!!!!!! Activate this if everything else fails.
 const bool safe_mode = false;                 // Safe mode ignores all the sensors.
@@ -72,8 +73,8 @@ const int angle                   = 90;    // Degrees
 const int angle_factor            = 710;   // !!! Adjust this to get the turn angle right
 const int shift_distance          = 500;   // Millimeters
 const int shift_factor            = 600;   // !!! Adjust this to get the shift distance right
-const int stop_distance           = 80;    // Stop if there is an obstacle at this distance
-const int min_angle_adjust_time   = 30;
+const int stop_distance           = 100;    // Stop if there is an obstacle at this distance
+const int min_angle_adjust_time   = 40;
 
 // LEDs
 
@@ -118,6 +119,10 @@ const uint32_t sensor_timing_budget = 50000; // Microseconds
 
 VL53L1X vl53_l;
 VL53L1X vl53_r;
+
+double base_direction;
+double direction;
+Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28);
 
 // I2C multiplexor
 
@@ -189,7 +194,6 @@ const double DIR_EAST = 126.0;
 const double DIR_SOUTH = 175.0;
 const double DIR_WEST = 223.0;
 
-DIRECTION direction = NORTH;
 
 // !!!!! Change this!
 unsigned int time_goal = 80;
@@ -197,24 +201,24 @@ unsigned int time_goal = 80;
 // !!!!!!! Robot moves
 
 const MOVE_STATE moves_a[] = {
-  GO_IN, A, L,
-  F, R,
-  F, L, A, R, A, R, 
-  F, L,
-  F, L,
-  F, A, L, A, L,
-  F, R,
-  F, A, R,
-  F, A, L,
-  F, R,
-  F, R, A, L,
-  F, R,
-  F, R, A, L,
-  F, R, A, L,
-  F, R, 
-  F, A, R, 
-  F, L, A, R,
-  F, A, R, A, L,
+  GO_IN, A, L, // 1, 4, W
+  F, R, // 1, 3, N
+  F, A, R, // 2, 3, E
+  F, L, // 2, 4, N
+  F, L, // 3, 4, W
+  F, A, L, A, L,  // 3, 3, E
+  F, R, // 3, 4, S
+  F, A, R, // 2, 4, W
+  F, A, L, // 2, 3, S
+  F, R, // 1, 3, W
+  F, // 1, 2, W
+  F, R, // 1, 1, N
+  F,  // 2, 1, N 
+  F,  // 3, 1, N
+  F, R, // 4, 1, E
+  F, A, R, // 4, 2, S
+  F, // 3, 2, S
+  F, A, R, A, L, // 2, 2, S
   BT,
   STOP,
 };
@@ -292,6 +296,14 @@ void setup() {
     accel.setMode(LSM303_MODE_HIGH_RESOLUTION);
   }
   accel_available = true;
+
+  // IMU
+
+  tcaselect(1);
+  if (!bno.begin()) {
+    logger->println("No BNO055 detected");
+  }
+
 }
 
 void loop() {
@@ -342,6 +354,8 @@ void waitForReady() {
         digitalWrite(GREEN_LED_PIN, HIGH);
         digitalWrite(YELLOW_LED_PIN, LOW);
         digitalWrite(RED_LED_PIN, LOW);
+        state = READY;
+        return;
       } else {
         digitalWrite(GREEN_LED_PIN, LOW);
         digitalWrite(YELLOW_LED_PIN, HIGH);
@@ -356,6 +370,7 @@ void ready() {
   logger->println("!! READY");
 
   led(false, true, false);
+
   // Warm up the sensors.
   Distance d = get_distance();
   delay(500);
@@ -374,6 +389,10 @@ void ready() {
     moves = moves_b;
   }
 
+  base_direction = get_heading();
+  direction = base_direction;
+  logger->print("got base direction: "); logger->println(base_direction);
+
   led(true, false, false);
   state = IN_MOTION;
 }
@@ -381,6 +400,10 @@ void ready() {
 void in_motion() {
   logger->print("!! IN_MOTION, move ");
   logger->println(current_move);
+
+  double heading = get_heading();
+  logger->print("direction: "); logger->print(direction);
+  logger->print(", heading: "); logger->println(heading);
 
   MOVE_STATE next_move = moves[current_move];
 
@@ -402,7 +425,9 @@ void in_motion() {
     case FORWARD:
     case F:
       logger->println(">> FORWARD");
+      adjust_angle();
       move_forward(speed);
+      adjust_angle();
       break;
     case ADJUST:
     case A:
@@ -419,11 +444,13 @@ void in_motion() {
     case L:
       logger->println(">> TURN_LEFT");
       move_turn_left(speed);
+      adjust_angle();
       break;
     case TURN_RIGHT:
     case R:
       logger->println(">> TURN_RIGHT");
       move_turn_right(speed);
+      adjust_angle();
       break;
     case LEFT_SHIFT:
     case LS:
@@ -657,9 +684,6 @@ void move_forward(int speed) {
 
   uint64_t start = millis();
   uint64_t last = start;
-  double actual_distance = 0.0;
-  double actual_speed = 0.0;
-  double actual_accel = 0.0;
   go_forward(speed);
   if(!accel_available) {
     delay(time);
@@ -704,19 +728,9 @@ void move_turn_left(int speed) {
   delay(compute_move_time(angle, angle_factor, speed));
   stop_motors();
   wait_for_stop();
-  switch(direction) {
-    case NORTH:
-      direction = WEST;
-      break;
-    case EAST:
-      direction = NORTH;
-      break;
-    case SOUTH:
-      direction = EAST;
-      break;
-    case WEST:
-      direction = SOUTH;
-      break;
+  direction -= 90.0;
+  if(direction < 0.0) {
+    direction += 360.0;
   }
 }
 
@@ -726,19 +740,9 @@ void move_turn_right(int speed) {
   delay(compute_move_time(angle, angle_factor, speed));
   stop_motors();
   wait_for_stop();
-  switch(direction) {
-    case NORTH:
-      direction = EAST;
-      break;
-    case EAST:
-      direction = SOUTH;
-      break;
-    case SOUTH:
-      direction = WEST;
-      break;
-    case WEST:
-      direction = NORTH;
-      break;
+  direction += 90.0;
+  if(direction > 360.0) {
+    direction -= 360.0;
   }
 }
 
@@ -919,6 +923,52 @@ void adjust_angle() {
   led(true, false, true);
   logger->println("adjusting angle");
 
+  double heading = get_heading();
+  double angle = direction - heading;
+  if(angle > 180.0) {
+    angle -= 360.0;
+  } else if(angle < -180.0) {
+    angle += 360.0;
+  }
+  int turn_time = angle * angle_factor / double(speed);
+  if(turn_time > 0 && turn_time < min_angle_adjust_time) {
+    turn_time = min_angle_adjust_time;
+  } else if(turn_time < 0 && turn_time > -min_angle_adjust_time) {
+    turn_time = -min_angle_adjust_time;
+  }
+  int attempts = 1;
+  logger->print("angle: "); logger->print(angle);
+  logger->print(", turn time: "); logger->println(turn_time);
+  while(abs(angle) > 1.0) {
+    if(attempts == adjust_angle_attempts) {
+      break;
+    }
+    attempts++;
+    if(turn_time > 0) {
+      turn_right(speed);
+    } else {
+      turn_left(speed);
+    }
+    delay(abs(turn_time));
+    stop_motors();
+    heading = get_heading();
+    angle = direction - heading;
+    if(angle > 180.0) {
+      angle -= 360.0;
+    } else if(angle < -180.0) {
+      angle += 360.0;
+    }
+    turn_time = angle * angle_factor / double(speed);
+    if(turn_time > 0 && turn_time < min_angle_adjust_time) {
+      turn_time = min_angle_adjust_time;
+    } else if(turn_time < 0 && turn_time > -min_angle_adjust_time) {
+      turn_time = -min_angle_adjust_time;
+    }
+    logger->print("angle: "); logger->print(angle);
+    logger->print(", turn time: "); logger->println(turn_time);
+  }
+
+  /*
   Distance d = get_average_distance(adjust_angle_measurements);
   if(d.left > adjust_angle_horizon || d.right > adjust_angle_horizon) {
     logger->println("Cannot adjust angle, too far");
@@ -963,6 +1013,7 @@ void adjust_angle() {
     logger->print("got distance left: "); logger->print(d.left); logger->print(", right: ");
     logger->print(d.right); logger->print(", angle: "); logger->println(angle);
   }
+  */
 }
 
 void adjust_distance() {
@@ -1015,19 +1066,15 @@ double get_heading() {
   if(!mag_available || safe_mode) {
     return 0.0;
   }
-  tcaselect(0);
-  sensors_event_t event;
-  mag.getEvent(&event);
-
-  // Calculate the angle of the vector y,x
-  double heading = (atan2(-event.magnetic.y,event.magnetic.x) * 180.0) / M_PI;
-
-  // Normalize to 0-360
-  if (heading < 0)
-  {
-    heading = 360 + heading;
+  tcaselect(1);
+  double sum;
+  sensors_event_t orientationData;
+  for(int i = 0; i < 5; i++) {
+    bno.getEvent(&orientationData, Adafruit_BNO055::VECTOR_EULER);
+    sum += orientationData.orientation.x;
+    delay(10);
   }
-  return heading;
+  return sum/5;
 }
 
 Accel get_accel() {
