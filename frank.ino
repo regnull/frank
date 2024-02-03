@@ -73,6 +73,7 @@ const int angle_factor            = 710;   // !!! Adjust this to get the turn an
 const int shift_distance          = 500;   // Millimeters
 const int shift_factor            = 600;   // !!! Adjust this to get the shift distance right
 const int stop_distance           = 80;    // Stop if there is an obstacle at this distance
+const int min_angle_adjust_time   = 30;
 
 // LEDs
 
@@ -927,10 +928,10 @@ void adjust_angle() {
   double distance_delta = d.right - d.left;
   double angle = compute_angle(distance_delta);
   int turn_time = angle * angle_factor / double(speed);
-  if(turn_time > 0 && turn_time < 100) {
-    turn_time = 100;
-  } else if(turn_time < 0 && turn_time > -100) {
-    turn_time = -100;
+  if(turn_time > 0 && turn_time < min_angle_adjust_time) {
+    turn_time = min_angle_adjust_time;
+  } else if(turn_time < 0 && turn_time > -min_angle_adjust_time) {
+    turn_time = -min_angle_adjust_time;
   }
 
   logger->print("got distance left: "); logger->print(d.left); logger->print(", right: ");
@@ -954,10 +955,10 @@ void adjust_angle() {
     distance_delta = d.right - d.left;
     angle = compute_angle(distance_delta);
     turn_time = angle * angle_factor / double(speed);
-    if(turn_time > 0 && turn_time < 100) {
-      turn_time = 100;
-    } else if(turn_time < 0 && turn_time > -100) {
-      turn_time = -100;
+    if(turn_time > 0 && turn_time < min_angle_adjust_time) {
+      turn_time = min_angle_adjust_time;
+    } else if(turn_time < 0 && turn_time > -min_angle_adjust_time) {
+      turn_time = -min_angle_adjust_time;
     }
     logger->print("got distance left: "); logger->print(d.left); logger->print(", right: ");
     logger->print(d.right); logger->print(", angle: "); logger->println(angle);
