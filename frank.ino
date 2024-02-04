@@ -13,7 +13,7 @@
 #define MEASURE_DISTANCE_BEFORE_FORWARD
 #define MEASURE_DISTANCE_WHILE_FORWARD
 
-const String version = "0.2.0";
+const String version = "0.2.1";
 const String log_message = "";
 
 // Forward declarations
@@ -1100,6 +1100,11 @@ bool init_sd() {
 }
 
 void init_log() {
+  // If serial is connected, keep using it for logging
+  if(Serial) {
+    return;
+  }
+
   String file_name;
   bool found_file_name = false;
   for(int i = 0; i < 999; i++) {
