@@ -283,7 +283,6 @@ void start() {
 }
 
 void waitForReady() {
-  // Wait for the ready switch to be on, turn on the green LED and wait forever.
   logger->println("!! WAIT_FOR_READY");
 
   tcaselect(1);
@@ -309,6 +308,7 @@ void waitForReady() {
 
     switchA.loop();
     if(switchA.getState() == HIGH) {
+      // It's go time
       led(true, false, false);
       state = READY;
       return;
