@@ -37,8 +37,8 @@ enum MOVE_STATE {
   TEST_MOVE,           // Test only, do not use!
   FORWARD_TO_TARGET,   // Go into the target square, stop with the dowel over the target. Must be the last command!
   BACKWARD_TO_TARGET,  // Move back from the center of the square so that the dowel is in the center 
-  DELAY, 
-  NORTH,
+  DELAY,               // Long delay, mostly for debugging
+  NORTH,               // Face north, i.e. the go in direction
   EAST,
   SOUTH,
   WEST,
@@ -84,18 +84,19 @@ const int left_wheel_correction   = 2;
 // Motion
 
 const int grid_distance = 500;             // Grid distance, in millimeters.
-const int adjust_distance_horizon = 400;   // Don't adjust distance if farther than that 
-const int adjust_angle_horizon    = 400;   // Don't adjust angle if farther than that 
-const int distance_factor         = 240;   // !!! Adjust this to get the distance right
-const int min_move_delay          = 100;   // Minimum move delay (after coming to a stop)
-const int max_move_delay          = 2000;  // Maximum move delay
-const int msec_per_move           = 1600;  // Approx. milliseconds per move.
-const int angle                   = 90;    // Degrees
-const int angle_factor            = 710;   // !!! Adjust this to get the turn angle right
-const int shift_distance          = 500;   // Millimeters
-const int shift_factor            = 600;   // !!! Adjust this to get the shift distance right
-const int stop_distance           = 100;    // Stop if there is an obstacle at this distance
-const int min_angle_adjust_time   = 40;
+const int adjust_distance_horizon  = 400;   // Don't adjust distance if farther than that 
+const int adjust_angle_horizon     = 400;   // Don't adjust angle if farther than that 
+const int distance_factor          = 240;   // !!! Adjust this to get the distance right
+const int min_move_delay           = 100;   // Minimum move delay (after coming to a stop)
+const int max_move_delay           = 2000;  // Maximum move delay
+const int msec_per_move            = 1600;  // Approx. milliseconds per move.
+const int angle                    = 90;    // Degrees
+const int angle_factor             = 710;   // !!! Adjust this to get the turn angle right
+const int shift_distance           = 500;   // Millimeters
+const int shift_factor             = 600;   // !!! Adjust this to get the shift distance right
+const int stop_distance            = 100;   // Stop if there is an obstacle at this distance
+const int min_move_time            = 100; 
+const int min_angle_adjust_time    = 40;
 
 // LEDs
 
@@ -223,7 +224,9 @@ void setup() {
   }
 
   // Sensors
-  init_sensors();
+  if(!init_sensors()) {
+    return;
+  }
 
   // IMU
 
@@ -251,12 +254,15 @@ void loop() {
       in_motion();
       break;
     case FINISH:
-    case FAIL:
       finish();
+      break;
+    case FAIL:
+      fail();
       break;
     default:
       logger->println("Unknown state!");
-      delay(1000);
+      fail();
+      break;
   }
 }
 
@@ -319,7 +325,7 @@ void ready() {
     return;
   }
 
-  //init_log();
+  init_log();
 
   String file_name;
   switchB.loop();
@@ -462,21 +468,15 @@ void in_motion() {
 }
 
 void finish() {
-  if(state == FINISH) {
-    logger->println(">> FINISH");
-  } else {
-    logger->println(">> FAIL");
-  }
+  logger->println(">> FINISH");
 
   led(true, true, true);
 
-  if(state == FAIL) {
-    while(true) {
-      delay(1000);
-    }
-  }
-
   current_move = 0;
+  if(log_available) {
+    log_file.close();
+    logger = &Serial;
+  }
 
   while(true) {
     switchA.loop();
@@ -487,14 +487,17 @@ void finish() {
     }
     delay(100);
   }
+}
 
-  // if(log_available) {
-  //   log_file.close();
-  //   logger = &Serial;
-  // }
-  // while(true) {
-  //   delay(1000);
-  // }
+void fail() {
+  // Once we enter the fail state, we stay here until a hard reset
+  logger->println(">> FAIL");
+  while(true) {
+    led(true, true, true);
+    delay(500);
+    led(false, false, false);
+    delay(500);
+  }
 }
 
 // Motor control
@@ -759,11 +762,11 @@ void move_test(int speed) {
 long compute_move_time(int distance, int factor, int speed) {
   long move_time = long(distance) * long(factor) / long(speed);
   // If move time is too short, adjust it
-  if(move_time < 0 && move_time > -100) {
-    move_time = -100;
+  if(move_time < 0 && move_time > -min_move_time) {
+    move_time = -min_move_time;
   }
-  if(move_time > 0 && move_time < 100) {
-    move_time = 100;
+  if(move_time > 0 && move_time < min_move_time) {
+    move_time = min_move_time;
   }
   return move_time;
 }
@@ -783,7 +786,7 @@ bool init_sensor(int tca, VL53L1X& vl53) {
   vl53.startContinuous(sensor_timing_budget/1000);
 }
 
-void init_sensors() {
+bool init_sensors() {
   logger->println("init sensors");
 
   Wire.begin();
@@ -793,15 +796,17 @@ void init_sensors() {
   if(!init_sensor(0, vl53_l)) {
     logger->println("failed to initialize left sensor");
     state = FAIL;
-    return;
+    return false;
   }
 
   logger->println(F("Initializing right sensor..."));
   if(!init_sensor(1, vl53_r)) {
     logger->println("failed to initialize right sensor");
     state = FAIL;
-    return;
+    return false;
   }
+
+  return true;
 }
 
 Distance get_average_distance(int n) {
@@ -936,7 +941,7 @@ void adjust_angle() {
   }
 
   if(reached_goal) {
-    logger->println("reached the correct angle");
+    logger->println("reached target angle");
   }
 }
 
@@ -1010,7 +1015,6 @@ double get_heading(double base = 0.0) {
     delay(10);
   }
   double avg_heading = sum / 5;
-  logger->print("avg_heading: "); logger->println(avg_heading);
   avg_heading = normalize_direction(avg_heading);
   logger->print("avg_heading, normalized: "); logger->println(avg_heading);
   return avg_heading;
@@ -1182,14 +1186,11 @@ void log_distance_measurement(const VL53L1X::RangingData& rd, unsigned long dura
 }
 
 double normalize_direction(double dir, double min_dir = 0.0, double max_dir = 360.0) {
-  logger->print("nd, dir: "); logger->println(dir);
   double d = dir;
   while(d > max_dir) {
-    logger->println(d);
     d -= 360.0;
   }
   while(d < min_dir) {
-    logger->println(d);
     d += 360.0;
   }
   return d;
