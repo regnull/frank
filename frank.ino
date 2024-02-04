@@ -13,7 +13,7 @@
 #define MEASURE_DISTANCE_BEFORE_FORWARD
 #define MEASURE_DISTANCE_WHILE_FORWARD
 
-const String version = "0.2.1";
+const String version = "0.2.2";
 const String log_message = "";
 
 // Forward declarations
@@ -42,6 +42,7 @@ enum MOVE_STATE {
   EAST,
   SOUTH,
   WEST,
+  INVALID,
   STOP
 };
 
@@ -1255,21 +1256,37 @@ bool read_program(const String& name) {
       }
       if(line.charAt(i) == ',') {
         s[count++] = '\0';
-        moves[moves_count++] = parse_move(s);
+        if(strlen(s) > 0) {
+          MOVE_STATE st = parse_move(s);
+          if(st == INVALID) {
+            state = FAIL;
+            return;
+          }
+          moves[moves_count++] = st;
+        }
         count = 0;
         continue;
       }
       s[count++] = line.charAt(i);
     }
     s[count++] = '\0';
-    moves[moves_count++] = parse_move(s);
+    if(strlen(s) > 0) {
+      MOVE_STATE st = parse_move(s);
+      if(st == INVALID) {
+        state = FAIL;
+        return;
+      }
+      moves[moves_count++] = st;
+    }
   }
   if(moves_count == 0) {
     logger->println("got zero moves!");
     state = FAIL;
     return false;
   }
-  moves[moves_count++] = STOP;
+  if(moves[moves_count - 1] != STOP) {
+    moves[moves_count++] = STOP;
+  }
   return true;
 }
 
@@ -1327,5 +1344,5 @@ MOVE_STATE parse_move(const String& s) {
     return STOP;
   }
   logger->print("Unknown command: "); logger->println(s);
-  return STOP;
+  return INVALID;
 }
