@@ -13,7 +13,7 @@
 #define MEASURE_DISTANCE_BEFORE_FORWARD
 #define MEASURE_DISTANCE_WHILE_FORWARD
 
-const String version = "0.1.108";
+const String version = "0.2.0";
 const String log_message = "";
 
 // Forward declarations
@@ -846,8 +846,8 @@ Distance get_average_distance(int n) {
 Distance get_distance(bool blocking = true) {
   if(safe_mode) {
      Distance d;
-     d.left = 99999;
-     d.right = 99999;
+     d.left = 9999;
+     d.right = 9999;
      return d;
   }
   Distance d;
