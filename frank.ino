@@ -716,9 +716,7 @@ void move_turn_left(int speed) {
   stop_motors();
   wait_for_stop();
   direction -= 90.0;
-  if(direction < 0.0) {
-    direction += 360.0;
-  }
+  direction = normalize_direction(direction);
 }
 
 void move_turn_right(int speed) {
@@ -728,9 +726,7 @@ void move_turn_right(int speed) {
   stop_motors();
   wait_for_stop();
   direction += 90.0;
-  if(direction > 360.0) {
-    direction -= 360.0;
-  }
+  direction = normalize_direction(direction);
 }
 
 void move_right_shift(int speed) {
@@ -762,14 +758,7 @@ void move_test(int speed) {
 
 long compute_move_time(int distance, int factor, int speed) {
   long move_time = long(distance) * long(factor) / long(speed);
-  // If move time is too short, adjust it
-  if(move_time < 0 && move_time > -min_move_time) {
-    move_time = -min_move_time;
-  }
-  if(move_time > 0 && move_time < min_move_time) {
-    move_time = min_move_time;
-  }
-  return move_time;
+  return min_time(move_time, min_move_time);
 }
 
 // Sensors control
