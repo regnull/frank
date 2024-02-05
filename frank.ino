@@ -13,8 +13,8 @@
 #define MEASURE_DISTANCE_BEFORE_FORWARD
 #define MEASURE_DISTANCE_WHILE_FORWARD
 
-const String version = "0.2.2";
-const String log_message = "";
+const String version = "0.2.5";
+const String log_message = "Gradarius Firmus Victoria";
 
 // Forward declarations
 
@@ -22,7 +22,7 @@ struct Distance;
 Distance get_distance(bool blocking = true);
 int get_distance_r(bool blocking = true);
 int get_distance_l(bool blocking = true);
-double get_heading(double base = 0.0);
+double get_heading();
 double normalize_direction(double dir, double min_dir = 0.0, double max_dir = 360.0);
 
 enum MOVE_STATE {
@@ -87,10 +87,11 @@ const int left_wheel_correction   = 2;
 const int grid_distance = 500;             // Grid distance, in millimeters.
 const int adjust_distance_horizon  = 400;   // Don't adjust distance if farther than that 
 const int adjust_angle_horizon     = 400;   // Don't adjust angle if farther than that 
-const int distance_factor          = 240;   // !!! Adjust this to get the distance right
+//const int distance_factor          = 240;   // !!! Adjust this to get the distance right
+const int distance_factor          = 245;   // !!! Adjust this to get the distance right
 const int min_move_delay           = 100;   // Minimum move delay (after coming to a stop)
 const int max_move_delay           = 2000;  // Maximum move delay
-const int msec_per_move            = 1600;  // Approx. milliseconds per move.
+const int msec_per_move            = 1700;  // Approx. milliseconds per move.
 const int angle                    = 90;    // Degrees
 const int angle_factor             = 710;   // !!! Adjust this to get the turn angle right
 const int shift_distance           = 500;   // Millimeters
@@ -203,8 +204,6 @@ bool accel_available = false;
 Accel zero_accel;  // Acceleration at rest
 
 void setup() {
-  start_time = millis();
-
   Serial.begin(115200);
 
   // Switches
@@ -319,6 +318,8 @@ void waitForReady() {
 
 void ready() {
   logger->println("!! READY");
+
+  start_time = millis();
 
   led(false, true, false);
 
@@ -471,6 +472,9 @@ void in_motion() {
 void finish() {
   logger->println(">> FINISH");
 
+  unsigned int final_time = millis() - start_time;
+  logger->print("final time: "); logger->println(final_time);
+
   led(true, true, true);
 
   current_move = 0;
@@ -498,6 +502,12 @@ void fail() {
     delay(500);
     led(false, false, false);
     delay(500);
+    switchA.loop();
+    if(switchA.getState() == LOW) {
+      led(false, false, false);
+      state = WAIT_FOR_READY;
+      return;
+    }
   }
 }
 
@@ -660,6 +670,34 @@ void move_forward(int speed) {
     if(distance < 0.0) {
       distance = 0.0;
     }
+  } else {
+    int count = 0;
+    while(d.left < 300 && d.right > 500) {
+      logger->println("shifting right");
+      if(count++ == 3) {
+        break;
+      }
+      right_shift(speed, speed, speed, speed);  
+      delay(compute_move_time(100, shift_factor, speed));
+      stop_motors();
+      wait_for_stop();
+      adjust_angle();
+      d = get_average_distance(forward_measurements);
+    }
+
+    count = 0;
+    while(d.left > 500 && d.right < 300) {
+      logger->println("shifting left");
+      if(count++ == 3) {
+        break;
+      }
+      left_shift(speed, speed, speed, speed);  
+      delay(compute_move_time(100, shift_factor, speed));
+      stop_motors();
+      wait_for_stop();
+      adjust_angle();
+      d = get_average_distance(forward_measurements);
+    }
   }
 #endif
 
@@ -771,7 +809,7 @@ bool init_sensor(int tca, VL53L1X& vl53) {
     return false;
   }
   vl53.setDistanceMode(VL53L1X::Short);
-  vl53.setROISize(4, 4);  // Focus on the area straight ahead
+  vl53.setROISize(6, 4);  // Focus on the area straight ahead
   vl53.setMeasurementTimingBudget(sensor_timing_budget);
   vl53.startContinuous(sensor_timing_budget/1000);
 }
@@ -901,7 +939,7 @@ void adjust_angle() {
   led(true, false, true);
   logger->println("adjusting angle");
 
-  double heading = get_heading(direction);
+  double heading = get_heading();
   double angle = normalize_turn_angle(direction - heading);
   int turn_time = angle * angle_factor / double(speed);
   turn_time = min_time(turn_time, min_angle_adjust_time);
@@ -981,19 +1019,22 @@ void print_distance(const Distance& d) {
   logger->println(d.right);
 }
 
-double get_heading(double base = 0.0) {
+double get_heading() {
   if(safe_mode) {
     return 0.0;
   }
-  logger->print("get_heading base: "); logger->println(base);
   tcaselect(1);
   double sum = 0.0;
   sensors_event_t orientationData;
+  double base;
   for(int i = 0; i < 5; i++) {
     bool res = bno.getEvent(&orientationData, Adafruit_BNO055::VECTOR_EULER);
     // We are adding to 360 degrees to the angle before averaging to avoid adding up
     // angles that cross the origin, i.e. adding 1 and 359.
     double d = orientationData.orientation.x;
+    if(i == 0) {
+      base = d;
+    }
     if((base > 0.0 && base < 90.0) || (base > 270.0 && base < 360.0)) {
       d = normalize_direction(d, -180.0, 180.0);
     }
@@ -1041,6 +1082,7 @@ void compute_move_delay() {
   unsigned int elapsed = millis() - start_time;
   double time_diff = double(time_goal) - double(elapsed) / 1000.0 - double(msec_per_move) / 1000.0 * count;
   logger->print("elapsed: "); logger->print(elapsed);
+  logger->print("moves left: "); logger->print(count);
   logger->print(", time diff: "); logger->println(time_diff);
   if(time_diff < 0) {
     move_delay = min_move_delay;
@@ -1091,9 +1133,9 @@ bool init_sd() {
 
 void init_log() {
   // If serial is connected, keep using it for logging
-  if(Serial) {
-    return;
-  }
+  // if(Serial) {
+  //   return;
+  // }
 
   String file_name;
   bool found_file_name = false;
@@ -1206,13 +1248,15 @@ int min_time(int time, int min_time) {
   if(time > 0 && time < min_time) {
     return min_time;
   }
-  if(time < 0 && time > min_time) {
+  if(time < 0 && time > -min_time) {
     return -min_time;
   }
   return time;
 }
 
 bool read_program(const String& name) {
+  moves_count = 0;
+
   File file = SD.open(name.c_str());
   if(!file) {
     logger->print("failed to read program: ");
