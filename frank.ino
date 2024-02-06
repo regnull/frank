@@ -13,7 +13,7 @@
 #define MEASURE_DISTANCE_BEFORE_FORWARD
 #define MEASURE_DISTANCE_WHILE_FORWARD
 
-const String version = "0.2.5";
+const String version = "0.2.8";
 const String log_message = "Gradarius Firmus Victoria";
 
 // Forward declarations
@@ -97,7 +97,7 @@ const int angle_factor             = 710;   // !!! Adjust this to get the turn a
 const int shift_distance           = 500;   // Millimeters
 const int shift_factor             = 600;   // !!! Adjust this to get the shift distance right
 const int stop_distance            = 100;   // Stop if there is an obstacle at this distance
-const int min_move_time            = 100; 
+const int min_move_time            = 0; 
 const int min_angle_adjust_time    = 40;
 
 // LEDs
@@ -291,11 +291,6 @@ void waitForReady() {
   uint8_t mag;
   while(true) {
     bno.getCalibration(&system, &gyro, &accel, &mag);
-    // logger->print("system: "); logger->print(system);
-    // logger->print(", gyro: "); logger->print(gyro);
-    // logger->print(", accel: "); logger->print(accel);
-    // logger->print(", mag: "); logger->println(mag);
-    // logger->print("fully calibrated: "); logger->println(bno.isFullyCalibrated());
 
     if(bno.isFullyCalibrated()) {
       led(false, false, true);
@@ -331,13 +326,22 @@ void ready() {
 
   String file_name;
   switchB.loop();
-  if(switchB.getState() == LOW) {
+  // For whatever reason, getState() does not work correctly here. It returns 
+  // an incorrect value the first time after switch. getStateRaw() works as 
+  // expected though. It's fine to use it here since the switch must be flipped
+  // before the ready switch does, so the state must be stable by now.
+  if(switchB.getStateRaw() == LOW) {
     logger->println("using program A");
     file_name = "prog_a.jsn";
   } else {
     logger->println("using program B");
     file_name = "prog_b.jsn";
   }
+  delay(1000);
+
+  state = FINISH;
+  return;
+
   if(!read_program(file_name)) {
     return;
   }
@@ -363,6 +367,8 @@ void ready() {
 void in_motion() {
   logger->print("!! IN_MOTION, move ");
   logger->println(current_move);
+
+  unsigned int move_start = millis();
 
   double heading = get_heading();
   logger->print("direction: "); logger->print(direction);
@@ -467,6 +473,8 @@ void in_motion() {
   logger->flush();
   delay(move_delay);
 
+  unsigned int move_time = millis() - move_start;
+  logger->print("move time: "); logger->println(move_time);
 }
 
 void finish() {
@@ -702,7 +710,7 @@ void move_forward(int speed) {
 #endif
 
   int time = compute_move_time(distance, distance_factor, speed);
-  logger->print("move time "); logger->println(time);
+  logger->print("move forward time: "); logger->println(time);
   if(time <= 0) {
     return;
   }
@@ -1035,7 +1043,7 @@ double get_heading() {
     if(i == 0) {
       base = d;
     }
-    if((base > 0.0 && base < 90.0) || (base > 270.0 && base < 360.0)) {
+    if((base >= 0.0 && base < 90.0) || (base > 270.0 && base <= 360.0)) {
       d = normalize_direction(d, -180.0, 180.0);
     }
     sum += d;
@@ -1080,9 +1088,11 @@ void compute_move_delay() {
     m++;
   }
   unsigned int elapsed = millis() - start_time;
-  double time_diff = double(time_goal) - double(elapsed) / 1000.0 - double(msec_per_move) / 1000.0 * count;
+  double moves_time = double(msec_per_move) / 1000.0 * count;
+  double time_diff = double(time_goal) - double(elapsed) / 1000.0 - moves_time;
   logger->print("elapsed: "); logger->print(elapsed);
-  logger->print("moves left: "); logger->print(count);
+  logger->print(", moves left: "); logger->print(count);
+  logger->print(", est moves time: "); logger->print(moves_time);
   logger->print(", time diff: "); logger->println(time_diff);
   if(time_diff < 0) {
     move_delay = min_move_delay;
