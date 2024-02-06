@@ -337,18 +337,15 @@ void ready() {
     logger->println("using program B");
     file_name = "prog_b.jsn";
   }
-  delay(1000);
-
-  state = FINISH;
-  return;
 
   if(!read_program(file_name)) {
     return;
   }
 
+  unsigned int start = millis();
   // Warm up the sensors.
   Distance d = get_distance();
-  delay(500);
+  delay(max(500 - millis() + start, 0));
 
   // Compute zero accel.
   zero_accel = get_accel();
