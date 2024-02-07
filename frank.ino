@@ -13,7 +13,7 @@
 #define MEASURE_DISTANCE_BEFORE_FORWARD
 #define MEASURE_DISTANCE_WHILE_FORWARD
 
-const String version = "0.2.8";
+const String version = "0.2.9";
 const String log_message = "Gradarius Firmus Victoria";
 
 // Forward declarations
@@ -399,9 +399,11 @@ void in_motion() {
 
   unsigned int move_start = millis();
 
-  double heading = get_heading();
+  if(!safe_mode) {
+    actual_direction = get_heading();
+  }
   logger->print("direction: "); logger->print(direction);
-  logger->print(", heading: "); logger->println(heading);
+  logger->print(", heading: "); logger->println(actual_direction);
 
   MOVE_STATE next_move = moves[current_move];
 
@@ -435,12 +437,14 @@ void in_motion() {
       break;
     case TURN_LEFT:
       logger->println(">> TURN_LEFT");
-      move_turn_left(speed);
+      led(false, true, false);
+      direction = normalize_direction(direction - 90.0);
       adjust_angle();
       break;
     case TURN_RIGHT:
       logger->println(">> TURN_RIGHT");
-      move_turn_right(speed);
+      led(false, false, true);
+      direction = normalize_direction(direction + 90.0);
       adjust_angle();
       break;
     case LEFT_SHIFT:
@@ -480,16 +484,19 @@ void in_motion() {
       break;
     case EAST:
       logger->println(">> EAST");
+      led(false, false, true);
       direction = normalize_direction(base_direction + 90.0);
       adjust_angle();
       break;
     case SOUTH:
       logger->println(">> SOUTH");
+      led(false, false, true);
       direction = normalize_direction(base_direction + 180.0);
       adjust_angle();
       break;
     case WEST:
       logger->println(">> WEST");
+      led(false, true, false);
       direction = normalize_direction(base_direction - 90.0);
       adjust_angle();
       break;
@@ -783,37 +790,6 @@ void move_backward(int speed) {
   go_backward(speed);
   delay(compute_move_time(grid_distance, distance_factor, speed));
   stop_motors();
-  wait_for_stop();
-}
-
-void move_turn_left(int speed) {
-  led(false, true, false);
-  direction -= 90.0;
-  direction = normalize_direction(direction);
-  if(safe_mode) {
-    turn_left(speed);
-    delay(compute_move_time(angle, angle_factor, speed));
-    stop_motors();
-    wait_for_stop();
-    actual_direction = direction;
-    return;
-  }
-  adjust_angle();
-  wait_for_stop();
-}
-
-void move_turn_right(int speed) {
-  led(false, false, true);
-  direction += 90.0;
-  direction = normalize_direction(direction);
-  if(safe_mode) {
-    turn_right(speed);
-    delay(compute_move_time(angle, angle_factor, speed));
-    stop_motors();
-    wait_for_stop();
-    actual_direction = direction;
-    return;
-  }
   wait_for_stop();
 }
 
