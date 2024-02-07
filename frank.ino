@@ -70,8 +70,8 @@ const double max_accel_at_rest          = 0.1;  // Meters/second^2, below this m
 const int adjust_distance_attempts      = 3;
 const int adjust_angle_attempts         = 10;
 
-// !!!!!!!!!!! Activate this if everything else fails.
-const bool safe_mode = false;                 // Safe mode ignores all the sensors.
+// The last resort
+bool safe_mode = false;                 // Safe mode ignores all the sensors.
 
 // Robot dimensions
 
@@ -160,6 +160,7 @@ void tcaselect(uint8_t i) {
 
 double base_direction;
 double direction;
+double actual_direction;
 Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28);
 
 // SD Card
@@ -210,16 +211,20 @@ void setup() {
   switchA.setDebounceTime(50);
   switchB.setDebounceTime(50);
 
-  // Motors
-  init_motors_GPIO();
-
   // LEDs
   pinMode(RED_LED_PIN, OUTPUT);
   pinMode(YELLOW_LED_PIN, OUTPUT);
   pinMode(GREEN_LED_PIN, OUTPUT);
 
+  safe_mode = switchB.getStateRaw() == HIGH;
   if(safe_mode) {
-    logger->println("safe mode activated");
+    logger->println("*** SAFE MODE IS ACTIVE");
+  }
+
+  // Motors
+  init_motors_GPIO();
+
+  if(safe_mode) {
     return;
   }
 
@@ -284,6 +289,24 @@ void start() {
 void waitForReady() {
   logger->println("!! WAIT_FOR_READY");
 
+  if(safe_mode) {
+    // Safe mode!
+    while(true) {
+      led(true, false, false);
+      delay(500);
+      led(false, false, true);
+      delay(500);      
+
+      switchA.loop();
+      if(switchA.getState() == HIGH) {
+        // It's go time
+        led(true, false, false);
+        state = READY;
+        return;
+      }
+    }
+  }
+
   tcaselect(1);
   uint8_t system;
   uint8_t gyro;
@@ -314,8 +337,6 @@ void waitForReady() {
 void ready() {
   logger->println("!! READY");
 
-  start_time = millis();
-
   led(false, true, false);
 
   if(!init_sd()) {
@@ -324,6 +345,7 @@ void ready() {
 
   init_log();
 
+  /*
   String file_name;
   switchB.loop();
   // For whatever reason, getState() does not work correctly here. It returns 
@@ -337,8 +359,9 @@ void ready() {
     logger->println("using program B");
     file_name = "prog_b.jsn";
   }
+  */
 
-  if(!read_program(file_name)) {
+  if(!read_program("prog.jsn")) {
     return;
   }
 
@@ -353,11 +376,20 @@ void ready() {
   logger->print("zero accel, x: "); logger->print(zero_accel.x); logger->print(", y: ");
   logger->print(zero_accel.y); logger->print(", z: "); logger->println(zero_accel.z);
 
-  base_direction = get_heading();
+  if(safe_mode) {
+    base_direction = 0.0;
+  } else {
+    base_direction = get_heading();
+  }
   direction = base_direction;
+  actual_direction = direction;
   logger->print("got base direction: "); logger->println(base_direction);
 
   led(true, false, false);
+  
+  // Start time right before we are about to move
+  start_time = millis();
+  
   state = IN_MOTION;
 }
 
@@ -715,12 +747,14 @@ void move_forward(int speed) {
   uint64_t start = millis();
   uint64_t last = start;
   go_forward(speed);
-  if(!accel_available) {
+  if(!accel_available || safe_mode) {
     delay(time);
     stop_motors();
+    wait_for_stop();
     return;
   }
   zero_accel = get_accel();
+  
   while(true) {
 
 #ifdef MEASURE_DISTANCE_WHILE_FORWARD
@@ -754,22 +788,33 @@ void move_backward(int speed) {
 
 void move_turn_left(int speed) {
   led(false, true, false);
-  turn_left(speed);
-  delay(compute_move_time(angle, angle_factor, speed));
-  stop_motors();
-  wait_for_stop();
   direction -= 90.0;
   direction = normalize_direction(direction);
+  if(safe_mode) {
+    turn_left(speed);
+    delay(compute_move_time(angle, angle_factor, speed));
+    stop_motors();
+    wait_for_stop();
+    actual_direction = direction;
+    return;
+  }
+  adjust_angle();
+  wait_for_stop();
 }
 
 void move_turn_right(int speed) {
   led(false, false, true);
-  turn_right(speed);
-  delay(compute_move_time(angle, angle_factor, speed));
-  stop_motors();
-  wait_for_stop();
   direction += 90.0;
   direction = normalize_direction(direction);
+  if(safe_mode) {
+    turn_right(speed);
+    delay(compute_move_time(angle, angle_factor, speed));
+    stop_motors();
+    wait_for_stop();
+    actual_direction = direction;
+    return;
+  }
+  wait_for_stop();
 }
 
 void move_right_shift(int speed) {
@@ -937,15 +982,17 @@ int get_distance_r(bool blocking = true) {
 }
 
 void adjust_angle() {
-  if(safe_mode) {
-    return;
-  }
+  // if(safe_mode) {
+  //   return;
+  // }
 
   led(true, false, true);
   logger->println("adjusting angle");
 
-  double heading = get_heading();
-  double angle = normalize_turn_angle(direction - heading);
+  if(!safe_mode) {
+    actual_direction = get_heading();
+  }
+  double angle = normalize_turn_angle(direction - actual_direction);
   int turn_time = angle * angle_factor / double(speed);
   turn_time = min_time(turn_time, min_angle_adjust_time);
   int attempts = 1;
@@ -965,8 +1012,12 @@ void adjust_angle() {
     }
     delay(abs(turn_time));
     stop_motors();
-    heading = get_heading();
-    angle = normalize_turn_angle(direction - heading);
+    if(safe_mode) {
+      actual_direction = direction;
+    } else {
+      actual_direction = get_heading();
+    }
+    angle = normalize_turn_angle(direction - actual_direction);
     turn_time = angle * angle_factor / double(speed);
     turn_time = min_time(turn_time, min_angle_adjust_time);
     logger->print("angle: "); logger->print(angle);
@@ -1107,6 +1158,8 @@ void compute_move_delay() {
 
 void wait_for_stop() {
   if(safe_mode) {
+    // In safe mode, we just wait a fixed time, and hopefully we will stop by then.
+    delay(300);
     return;
   }
   for(int i = 0; i < 20; i++) {
