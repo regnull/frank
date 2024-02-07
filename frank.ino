@@ -236,12 +236,13 @@ void setup() {
   // IMU
 
   tcaselect(1);
+  logger->print("initializing IMU...");
   if (!bno.begin(OPERATION_MODE_IMUPLUS)) {
-    logger->println("No BNO055 detected");
+    logger->println("FAIL");
     state = FAIL;
     return;
   }
-
+  logger->println("OK");
 }
 
 void loop() {
@@ -344,22 +345,6 @@ void ready() {
   }
 
   init_log();
-
-  /*
-  String file_name;
-  switchB.loop();
-  // For whatever reason, getState() does not work correctly here. It returns 
-  // an incorrect value the first time after switch. getStateRaw() works as 
-  // expected though. It's fine to use it here since the switch must be flipped
-  // before the ready switch does, so the state must be stable by now.
-  if(switchB.getStateRaw() == LOW) {
-    logger->println("using program A");
-    file_name = "prog_a.jsn";
-  } else {
-    logger->println("using program B");
-    file_name = "prog_b.jsn";
-  }
-  */
 
   if(!read_program("prog.jsn")) {
     return;
@@ -846,19 +831,21 @@ bool init_sensors() {
   Wire.begin();
   Wire.setClock(400000); // use 400 kHz I2C
 
-  logger->println(F("Initializing left sensor..."));
+  logger->print(F("Initializing left sensor..."));
   if(!init_sensor(0, vl53_l)) {
-    logger->println("failed to initialize left sensor");
+    logger->println("FAIL");
     state = FAIL;
     return false;
   }
+  logger->println(F("OK"));
 
-  logger->println(F("Initializing right sensor..."));
+  logger->print(F("Initializing right sensor..."));
   if(!init_sensor(1, vl53_r)) {
-    logger->println("failed to initialize right sensor");
+    logger->println("FAIL");
     state = FAIL;
     return false;
   }
+  logger->println(F("OK"));
 
   return true;
 }
@@ -1168,11 +1155,6 @@ bool init_sd() {
 }
 
 void init_log() {
-  // If serial is connected, keep using it for logging
-  // if(Serial) {
-  //   return;
-  // }
-
   String file_name;
   bool found_file_name = false;
   for(int i = 0; i < 999; i++) {
