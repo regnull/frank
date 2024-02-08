@@ -1,7 +1,6 @@
 #include <math.h>
 #include <stdio.h>
 #include <stream.h>
-#include <ezButton.h>
 #include <Wire.h>
 #include <VL53L1X.h>
 #include <Adafruit_Sensor.h>
@@ -13,17 +12,32 @@
 #define MEASURE_DISTANCE_BEFORE_FORWARD
 #define MEASURE_DISTANCE_WHILE_FORWARD
 
-const String version = "0.2.9";
+const String version = "0.2.10";
 const String log_message = "Gradarius Firmus Victoria";
 
 // Forward declarations
 
 struct Distance;
+struct Accel;
 Distance get_distance(bool blocking = true);
 int get_distance_r(bool blocking = true);
 int get_distance_l(bool blocking = true);
 double get_heading();
 double normalize_direction(double dir, double min_dir = 0.0, double max_dir = 360.0);
+void init_motors_GPIO();
+bool init_sensors();
+void ready();
+void in_motion();
+void finish();
+void fail();
+bool switch_a();
+bool switch_b();
+void led(bool red, bool yellow, bool green);
+bool init_sd();
+void init_log();
+bool read_program(const String& name);
+Accel get_accel();
+void compute_move_delay();
 
 enum MOVE_STATE {
   GO_IN,               // Start from the edge of the grid, go into the first square. Must be the first command!
@@ -89,7 +103,7 @@ const int adjust_distance_horizon  = 400;   // Don't adjust distance if farther 
 const int adjust_angle_horizon     = 400;   // Don't adjust angle if farther than that 
 //const int distance_factor          = 240;   // !!! Adjust this to get the distance right
 const int distance_factor          = 245;   // !!! Adjust this to get the distance right
-const int min_move_delay           = 100;   // Minimum move delay (after coming to a stop)
+const int min_move_delay           = 0;   // Minimum move delay (after coming to a stop)
 const int max_move_delay           = 2000;  // Maximum move delay
 const int msec_per_move            = 1700;  // Approx. milliseconds per move.
 const int angle                    = 90;    // Degrees
@@ -110,9 +124,6 @@ const int GREEN_LED_PIN  = 35;
 
 const int SWITCH_A_PIN = 39;
 const int SWITCH_B_PIN = 43;
-
-ezButton switchA(SWITCH_A_PIN);
-ezButton switchB(SWITCH_B_PIN);
 
 // Motors 
 
@@ -208,15 +219,17 @@ void setup() {
   Serial.begin(115200);
 
   // Switches
-  switchA.setDebounceTime(50);
-  switchB.setDebounceTime(50);
+  pinMode(SWITCH_A_PIN, INPUT_PULLUP);
+  pinMode(SWITCH_B_PIN, INPUT_PULLUP);
+  // switchA.setDebounceTime(50);
+  // switchB.setDebounceTime(50);
 
   // LEDs
   pinMode(RED_LED_PIN, OUTPUT);
   pinMode(YELLOW_LED_PIN, OUTPUT);
   pinMode(GREEN_LED_PIN, OUTPUT);
 
-  safe_mode = switchB.getStateRaw() == HIGH;
+  safe_mode = switch_b();
   if(safe_mode) {
     logger->println("*** SAFE MODE IS ACTIVE");
   }
@@ -278,8 +291,7 @@ void start() {
   // All LEDs off.
   led(false, false, false);
 
-  switchA.loop();
-  if(switchA.getState() == HIGH) {
+  if(switch_a()) {
     // Time to go!
     state = READY; 
   } else {
@@ -298,8 +310,7 @@ void waitForReady() {
       led(false, false, true);
       delay(500);      
 
-      switchA.loop();
-      if(switchA.getState() == HIGH) {
+      if(switch_a()) {
         // It's go time
         led(true, false, false);
         state = READY;
@@ -324,8 +335,7 @@ void waitForReady() {
       led(true, false, false);
     }
 
-    switchA.loop();
-    if(switchA.getState() == HIGH) {
+    if(switch_a()) {
       // It's go time
       led(true, false, false);
       state = READY;
@@ -333,7 +343,7 @@ void waitForReady() {
     }
     delay(100);
   }
-}
+ }
 
 void ready() {
   logger->println("!! READY");
@@ -394,8 +404,7 @@ void in_motion() {
 
   compute_move_delay();
 
-  switchA.loop();
-  if(switchA.getState() == LOW) {
+  if(!switch_a()) {
     logger->println("not ready, finish");
     state = FINISH;
     return;
@@ -501,7 +510,7 @@ void in_motion() {
 void finish() {
   logger->println(">> FINISH");
 
-  unsigned int final_time = millis() - start_time;
+  unsigned long final_time = millis() - start_time;
   logger->print("final time: "); logger->println(final_time);
 
   led(true, true, true);
@@ -513,8 +522,7 @@ void finish() {
   }
 
   while(true) {
-    switchA.loop();
-    if(switchA.getState() == LOW) {
+    if(!switch_a()) {
       led(false, false, false);
       state = WAIT_FOR_READY;
       return;
@@ -531,8 +539,7 @@ void fail() {
     delay(500);
     led(false, false, false);
     delay(500);
-    switchA.loop();
-    if(switchA.getState() == LOW) {
+    if(!switch_a()) {
       led(false, false, false);
       state = WAIT_FOR_READY;
       return;
@@ -688,7 +695,7 @@ void move_forward(int speed) {
   
 #ifdef MEASURE_DISTANCE_BEFORE_FORWARD
   // If we can get distance measurement, use it to make sure we don't bump into things.
-  Distance d = get_average_distance(forward_measurements);
+  Distance d = get_distance(false);
   print_distance(d);
   if(d.left < 999 && d.right < 999) {
     double dm = min(d.left, d.right) - stop_distance;
@@ -892,8 +899,8 @@ Distance get_distance(bool blocking = true) {
      return d;
   }
   Distance d;
-  double dr = get_distance_r();
-  double dl = get_distance_l();
+  double dr = get_distance_r(blocking);
+  double dl = get_distance_l(blocking);
   d.left = dl;
   d.right = dr;
   return d;
@@ -1098,7 +1105,7 @@ void compute_move_delay() {
     count++;
     m++;
   }
-  unsigned int elapsed = millis() - start_time;
+  unsigned long elapsed = millis() - start_time;
   double moves_time = double(msec_per_move) / 1000.0 * count;
   double time_diff = double(time_goal) - double(elapsed) / 1000.0 - moves_time;
   logger->print("elapsed: "); logger->print(elapsed);
@@ -1396,4 +1403,29 @@ MOVE_STATE parse_move(const String& s) {
   }
   logger->print("Unknown command: "); logger->println(s);
   return INVALID;
+}
+
+const int debounce_delay = 10;
+
+bool debounce(int pin) {
+  bool state;
+  bool prev_state;
+  prev_state = digitalRead(pin);
+  for(int i = 0; i < debounce_delay; i++) {
+    delay(1);
+    state = digitalRead(pin);
+    if(state != prev_state) {
+      i = 0;
+      prev_state = state;
+    }
+  }
+  return state;
+}
+
+bool switch_a() {
+  return debounce(SWITCH_A_PIN);
+}
+
+bool switch_b() {
+  return debounce(SWITCH_B_PIN);
 }
