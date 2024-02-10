@@ -12,7 +12,7 @@
 #define MEASURE_DISTANCE_BEFORE_FORWARD
 #define MEASURE_DISTANCE_WHILE_FORWARD
 
-const String version = "0.2.10";
+const String version = "0.2.12";
 const String log_message = "Gradarius Firmus Victoria";
 
 // Forward declarations
@@ -219,10 +219,8 @@ void setup() {
   Serial.begin(115200);
 
   // Switches
-  pinMode(SWITCH_A_PIN, INPUT_PULLUP);
-  pinMode(SWITCH_B_PIN, INPUT_PULLUP);
-  // switchA.setDebounceTime(50);
-  // switchB.setDebounceTime(50);
+  pinMode(SWITCH_A_PIN, INPUT);
+  pinMode(SWITCH_B_PIN, INPUT);
 
   // LEDs
   pinMode(RED_LED_PIN, OUTPUT);
@@ -361,9 +359,11 @@ void ready() {
   }
 
   unsigned int start = millis();
+
   // Warm up the sensors.
   Distance d = get_distance();
-  delay(max(500 - millis() + start, 0));
+  delay(500);
+
 
   // Compute zero accel.
   zero_accel = get_accel();
@@ -517,8 +517,7 @@ void finish() {
 
   current_move = 0;
   if(log_available) {
-    log_file.close();
-    logger = &Serial;
+    log_file.flush();
   }
 
   while(true) {
@@ -1406,12 +1405,17 @@ MOVE_STATE parse_move(const String& s) {
 }
 
 const int debounce_delay = 10;
+const int max_debounce_delay = 100;
 
 bool debounce(int pin) {
   bool state;
   bool prev_state;
   prev_state = digitalRead(pin);
+  int count = 0;
   for(int i = 0; i < debounce_delay; i++) {
+    if(count++ == max_debounce_delay) {
+      return state;
+    }
     delay(1);
     state = digitalRead(pin);
     if(state != prev_state) {
