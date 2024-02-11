@@ -1,0 +1,1837 @@
+Frank OS, version 0.2.11
+Gradarius Firmus Victoria
+time_goal: 65
+GO_IN
+A
+W
+F
+F
+N
+A
+W
+F
+N
+F
+A
+E
+F
+N
+F
+A
+E
+F
+F
+N
+A
+W
+F
+N
+F
+E
+A
+S
+F
+W
+F
+N
+A
+BT
+STOP
+getting right distance
+duration: 4, status: SignalFail, range: 467, peak signal rate: 1.17, ambient_count: 0.12
+getting left distance
+duration: 3, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+zero accel, x: -0.51, y: 0.79, z: 9.64
+get event: 1, get_heading: 259.88, d: 259.88, sum: 259.88
+get event: 1, get_heading: 259.88, d: 259.88, sum: 519.75
+get event: 1, get_heading: 259.88, d: 259.88, sum: 779.63
+get event: 1, get_heading: 259.88, d: 259.88, sum: 1039.50
+get event: 1, get_heading: 259.88, d: 259.88, sum: 1299.38
+avg_heading, normalized: 259.88
+got base direction: 259.88
+!! IN_MOTION, move 0
+get event: 1, get_heading: 259.88, d: 259.88, sum: 259.88
+get event: 1, get_heading: 259.88, d: 259.88, sum: 519.75
+get event: 1, get_heading: 259.88, d: 259.88, sum: 779.63
+get event: 1, get_heading: 259.88, d: 259.88, sum: 1039.50
+get event: 1, get_heading: 259.88, d: 259.88, sum: 1299.38
+avg_heading, normalized: 259.88
+direction: 259.88, heading: 259.88
+elapsed: 75, moves left: 35, est moves time: 59.50, time diff: 5.43
+got move delay: 155
+>> GO_IN
+got accel: 0.15, max: 0.10
+got accel: 2.18, max: 0.10
+got accel: 1.87, max: 0.10
+got accel: 1.13, max: 0.10
+got accel: 0.60, max: 0.10
+got accel: 1.21, max: 0.10
+got accel: 0.11, max: 0.10
+got accel: 0.61, max: 0.10
+got accel: 0.03, max: 0.10
+at rest!
+move time: 1588
+!! IN_MOTION, move 1
+get event: 1, get_heading: 259.25, d: 259.25, sum: 259.25
+get event: 1, get_heading: 259.25, d: 259.25, sum: 518.50
+get event: 1, get_heading: 259.25, d: 259.25, sum: 777.75
+get event: 1, get_heading: 259.25, d: 259.25, sum: 1037.00
+get event: 1, get_heading: 259.25, d: 259.25, sum: 1296.25
+avg_heading, normalized: 259.25
+direction: 259.88, heading: 259.25
+elapsed: 1663, moves left: 34, est moves time: 57.80, time diff: 5.54
+got move delay: 162
+>> ADJUST
+adjusting distance
+target distance: 102
+getting right distance
+duration: 3, status: RangeValid, range: 79, peak signal rate: 89.27, ambient_count: 0.80
+getting left distance
+duration: 4, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+getting right distance
+duration: 61, status: RangeValid, range: 96, peak signal rate: 18.95, ambient_count: 0.15
+getting left distance
+duration: 4, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+getting right distance
+duration: 72, status: RangeValid, range: 94, peak signal rate: 18.99, ambient_count: 0.13
+getting left distance
+duration: 4, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+getting right distance
+duration: 76, status: RangeValid, range: 95, peak signal rate: 18.95, ambient_count: 0.14
+getting left distance
+duration: 3, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+getting right distance
+duration: 73, status: RangeValid, range: 95, peak signal rate: 18.86, ambient_count: 0.16
+getting left distance
+duration: 3, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+distance left: 9999.00, right: 91.80
+Cannot adjust grid distance, too far
+adjusting angle
+get event: 1, get_heading: 259.25, d: 259.25, sum: 259.25
+get event: 1, get_heading: 259.25, d: 259.25, sum: 518.50
+get event: 1, get_heading: 259.25, d: 259.25, sum: 777.75
+get event: 1, get_heading: 259.25, d: 259.25, sum: 1037.00
+get event: 1, get_heading: 259.25, d: 259.25, sum: 1296.25
+avg_heading, normalized: 259.25
+angle: 0.63, turn time: 40
+reached target angle
+move time: 718
+!! IN_MOTION, move 2
+get event: 1, get_heading: 259.25, d: 259.25, sum: 259.25
+get event: 1, get_heading: 259.25, d: 259.25, sum: 518.50
+get event: 1, get_heading: 259.25, d: 259.25, sum: 777.75
+get event: 1, get_heading: 259.25, d: 259.25, sum: 1037.00
+get event: 1, get_heading: 259.25, d: 259.25, sum: 1296.25
+avg_heading, normalized: 259.25
+direction: 259.88, heading: 259.25
+elapsed: 2387, moves left: 33, est moves time: 56.10, time diff: 6.51
+got move delay: 197
+>> WEST
+adjusting angle
+get event: 1, get_heading: 259.25, d: 259.25, sum: 259.25
+get event: 1, get_heading: 259.25, d: 259.25, sum: 518.50
+get event: 1, get_heading: 259.25, d: 259.25, sum: 777.75
+get event: 1, get_heading: 259.25, d: 259.25, sum: 1037.00
+get event: 1, get_heading: 259.25, d: 259.25, sum: 1296.25
+avg_heading, normalized: 259.25
+angle: -89.37, turn time: -634
+get event: 1, get_heading: 185.44, d: 185.44, sum: 185.44
+get event: 1, get_heading: 182.50, d: 182.50, sum: 367.94
+get event: 1, get_heading: 180.94, d: 180.94, sum: 548.88
+get event: 1, get_heading: 179.50, d: 179.50, sum: 728.38
+get event: 1, get_heading: 177.19, d: 177.19, sum: 905.56
+avg_heading, normalized: 181.11
+angle: -11.24, turn time: -79
+get event: 1, get_heading: 170.81, d: 170.81, sum: 170.81
+get event: 1, get_heading: 168.94, d: 168.94, sum: 339.75
+get event: 1, get_heading: 167.94, d: 167.94, sum: 507.69
+get event: 1, get_heading: 166.06, d: 166.06, sum: 673.75
+get event: 1, get_heading: 165.31, d: 165.31, sum: 839.06
+avg_heading, normalized: 167.81
+angle: 2.06, turn time: 40
+get event: 1, get_heading: 163.69, d: 163.69, sum: 163.69
+get event: 1, get_heading: 163.81, d: 163.81, sum: 327.50
+get event: 1, get_heading: 164.13, d: 164.13, sum: 491.63
+get event: 1, get_heading: 165.25, d: 165.25, sum: 656.88
+get event: 1, get_heading: 165.69, d: 165.69, sum: 822.56
+avg_heading, normalized: 164.51
+angle: 5.36, turn time: 40
+get event: 1, get_heading: 165.63, d: 165.63, sum: 165.63
+get event: 1, get_heading: 165.75, d: 165.75, sum: 331.38
+get event: 1, get_heading: 166.38, d: 166.38, sum: 497.75
+get event: 1, get_heading: 166.94, d: 166.94, sum: 664.69
+get event: 1, get_heading: 167.38, d: 167.38, sum: 832.06
+avg_heading, normalized: 166.41
+angle: 3.46, turn time: 40
+get event: 1, get_heading: 167.44, d: 167.44, sum: 167.44
+get event: 1, get_heading: 167.50, d: 167.50, sum: 334.94
+get event: 1, get_heading: 168.25, d: 168.25, sum: 503.19
+get event: 1, get_heading: 168.88, d: 168.88, sum: 672.06
+get event: 1, get_heading: 169.63, d: 169.63, sum: 841.69
+avg_heading, normalized: 168.34
+angle: 1.54, turn time: 40
+get event: 1, get_heading: 169.63, d: 169.63, sum: 169.63
+get event: 1, get_heading: 169.81, d: 169.81, sum: 339.44
+get event: 1, get_heading: 170.13, d: 170.13, sum: 509.56
+get event: 1, get_heading: 170.63, d: 170.63, sum: 680.19
+get event: 1, get_heading: 171.50, d: 171.50, sum: 851.69
+avg_heading, normalized: 170.34
+angle: -0.46, turn time: -40
+reached target angle
+move time: 1676
+!! IN_MOTION, move 3
+get event: 1, get_heading: 171.38, d: 171.38, sum: 171.38
+get event: 1, get_heading: 171.38, d: 171.38, sum: 342.75
+get event: 1, get_heading: 171.44, d: 171.44, sum: 514.19
+get event: 1, get_heading: 171.44, d: 171.44, sum: 685.63
+get event: 1, get_heading: 171.44, d: 171.44, sum: 857.06
+avg_heading, normalized: 171.41
+direction: 169.88, heading: 171.41
+elapsed: 4065, moves left: 32, est moves time: 54.40, time diff: 6.53
+got move delay: 204
+>> FORWARD
+adjusting angle
+get event: 1, get_heading: 171.44, d: 171.44, sum: 171.44
+get event: 1, get_heading: 171.44, d: 171.44, sum: 342.88
+get event: 1, get_heading: 171.44, d: 171.44, sum: 514.31
+get event: 1, get_heading: 171.44, d: 171.44, sum: 685.75
+get event: 1, get_heading: 171.44, d: 171.44, sum: 857.19
+avg_heading, normalized: 171.44
+angle: -1.56, turn time: -40
+get event: 1, get_heading: 171.44, d: 171.44, sum: 171.44
+get event: 1, get_heading: 171.38, d: 171.38, sum: 342.81
+get event: 1, get_heading: 171.19, d: 171.19, sum: 514.00
+get event: 1, get_heading: 170.19, d: 170.19, sum: 684.19
+get event: 1, get_heading: 169.75, d: 169.75, sum: 853.94
+avg_heading, normalized: 170.79
+angle: -0.91, turn time: -40
+reached target angle
+getting right distance
+duration: 3, status: SignalFail, range: 711, peak signal rate: 0.02, ambient_count: 0.02
+getting left distance
+duration: 4, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+distance left: 9999.00, right: 9999.00
+move forward time: 1225
+got accel: 0.67, max: 0.10
+got accel: 0.95, max: 0.10
+got accel: 2.29, max: 0.10
+got accel: 1.96, max: 0.10
+got accel: 0.70, max: 0.10
+got accel: 1.27, max: 0.10
+got accel: 0.48, max: 0.10
+got accel: 0.74, max: 0.10
+got accel: 0.20, max: 0.10
+got accel: 0.48, max: 0.10
+got accel: 0.31, max: 0.10
+got accel: 0.39, max: 0.10
+got accel: 0.34, max: 0.10
+got accel: 0.39, max: 0.10
+got accel: 0.36, max: 0.10
+got accel: 0.38, max: 0.10
+got accel: 0.36, max: 0.10
+got accel: 0.39, max: 0.10
+got accel: 0.37, max: 0.10
+got accel: 0.38, max: 0.10
+move time: 2790
+!! IN_MOTION, move 4
+get event: 1, get_heading: 170.44, d: 170.44, sum: 170.44
+get event: 1, get_heading: 170.44, d: 170.44, sum: 340.88
+get event: 1, get_heading: 170.44, d: 170.44, sum: 511.31
+get event: 1, get_heading: 170.44, d: 170.44, sum: 681.75
+get event: 1, get_heading: 170.44, d: 170.44, sum: 852.19
+avg_heading, normalized: 170.44
+direction: 169.88, heading: 170.44
+elapsed: 6857, moves left: 31, est moves time: 52.70, time diff: 5.44
+got move delay: 175
+>> FORWARD
+adjusting angle
+get event: 1, get_heading: 170.44, d: 170.44, sum: 170.44
+get event: 1, get_heading: 170.44, d: 170.44, sum: 340.88
+get event: 1, get_heading: 170.44, d: 170.44, sum: 511.31
+get event: 1, get_heading: 170.44, d: 170.44, sum: 681.75
+get event: 1, get_heading: 170.44, d: 170.44, sum: 852.19
+avg_heading, normalized: 170.44
+angle: -0.56, turn time: -40
+reached target angle
+getting right distance
+duration: 3, status: SignalFail, range: 816, peak signal rate: 0.00, ambient_count: 0.20
+getting left distance
+duration: 3, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+distance left: 9999.00, right: 9999.00
+move forward time: 1225
+got accel: 0.44, max: 0.10
+got accel: 4.14, max: 0.10
+got accel: 2.68, max: 0.10
+got accel: 1.07, max: 0.10
+got accel: 1.28, max: 0.10
+got accel: 0.82, max: 0.10
+got accel: 0.59, max: 0.10
+got accel: 0.58, max: 0.10
+got accel: 0.03, max: 0.10
+at rest!
+move time: 2012
+!! IN_MOTION, move 5
+get event: 1, get_heading: 170.38, d: 170.38, sum: 170.38
+get event: 1, get_heading: 170.38, d: 170.38, sum: 340.75
+get event: 1, get_heading: 170.38, d: 170.38, sum: 511.13
+get event: 1, get_heading: 170.38, d: 170.38, sum: 681.50
+get event: 1, get_heading: 170.38, d: 170.38, sum: 851.88
+avg_heading, normalized: 170.38
+direction: 169.88, heading: 170.38
+elapsed: 8873, moves left: 30, est moves time: 51.00, time diff: 5.13
+got move delay: 170
+>> NORTH
+adjusting angle
+get event: 1, get_heading: 170.38, d: 170.38, sum: 170.38
+get event: 1, get_heading: 170.38, d: 170.38, sum: 340.75
+get event: 1, get_heading: 170.38, d: 170.38, sum: 511.13
+get event: 1, get_heading: 170.38, d: 170.38, sum: 681.50
+get event: 1, get_heading: 170.38, d: 170.38, sum: 851.88
+avg_heading, normalized: 170.38
+angle: 89.50, turn time: 635
+get event: 1, get_heading: 245.13, d: 245.13, sum: 245.13
+get event: 1, get_heading: 248.19, d: 248.19, sum: 493.31
+get event: 1, get_heading: 249.81, d: 249.81, sum: 743.13
+get event: 1, get_heading: 252.94, d: 252.94, sum: 996.06
+get event: 1, get_heading: 254.25, d: 254.25, sum: 1250.31
+avg_heading, normalized: 250.06
+angle: 9.81, turn time: 69
+get event: 1, get_heading: 260.69, d: 260.69, sum: 260.69
+get event: 1, get_heading: 262.75, d: 262.75, sum: 523.44
+get event: 1, get_heading: 263.75, d: 263.75, sum: 787.19
+get event: 1, get_heading: 266.56, d: 266.56, sum: 1053.75
+get event: 1, get_heading: 267.31, d: 267.31, sum: 1321.06
+avg_heading, normalized: 264.21
+angle: -4.34, turn time: -40
+get event: 1, get_heading: 268.94, d: 268.94, sum: 268.94
+get event: 1, get_heading: 268.81, d: 268.81, sum: 537.75
+get event: 1, get_heading: 268.56, d: 268.56, sum: 806.31
+get event: 1, get_heading: 267.88, d: 267.88, sum: 1074.19
+get event: 1, get_heading: 267.63, d: 267.63, sum: 1341.81
+avg_heading, normalized: 268.36
+angle: -8.49, turn time: -60
+get event: 1, get_heading: 267.19, d: 267.19, sum: 267.19
+get event: 1, get_heading: 266.63, d: 266.63, sum: 533.81
+get event: 1, get_heading: 265.94, d: 265.94, sum: 799.75
+get event: 1, get_heading: 264.75, d: 264.75, sum: 1064.50
+get event: 1, get_heading: 264.25, d: 264.25, sum: 1328.75
+avg_heading, normalized: 265.75
+angle: -5.88, turn time: -41
+get event: 1, get_heading: 263.75, d: 263.75, sum: 263.75
+get event: 1, get_heading: 263.56, d: 263.56, sum: 527.31
+get event: 1, get_heading: 262.94, d: 262.94, sum: 790.25
+get event: 1, get_heading: 262.50, d: 262.50, sum: 1052.75
+get event: 1, get_heading: 262.06, d: 262.06, sum: 1314.81
+avg_heading, normalized: 262.96
+angle: -3.09, turn time: -40
+get event: 1, get_heading: 262.13, d: 262.13, sum: 262.13
+get event: 1, get_heading: 262.00, d: 262.00, sum: 524.13
+get event: 1, get_heading: 261.69, d: 261.69, sum: 785.81
+get event: 1, get_heading: 261.13, d: 261.13, sum: 1046.94
+get event: 1, get_heading: 260.44, d: 260.44, sum: 1307.38
+avg_heading, normalized: 261.48
+angle: -1.60, turn time: -40
+get event: 1, get_heading: 260.50, d: 260.50, sum: 260.50
+get event: 1, get_heading: 260.38, d: 260.38, sum: 520.88
+get event: 1, get_heading: 260.00, d: 260.00, sum: 780.88
+get event: 1, get_heading: 259.50, d: 259.50, sum: 1040.38
+get event: 1, get_heading: 258.81, d: 258.81, sum: 1299.19
+avg_heading, normalized: 259.84
+angle: 0.04, turn time: 0
+reached target angle
+move time: 1803
+!! IN_MOTION, move 6
+get event: 1, get_heading: 258.88, d: 258.88, sum: 258.88
+get event: 1, get_heading: 258.88, d: 258.88, sum: 517.75
+get event: 1, get_heading: 258.88, d: 258.88, sum: 776.63
+get event: 1, get_heading: 258.88, d: 258.88, sum: 1035.50
+get event: 1, get_heading: 258.88, d: 258.88, sum: 1294.38
+avg_heading, normalized: 258.88
+direction: 259.88, heading: 258.88
+elapsed: 10679, moves left: 29, est moves time: 49.30, time diff: 5.02
+got move delay: 173
+>> ADJUST
+adjusting distance
+target distance: 102
+getting right distance
+duration: 4, status: RangeValid, range: 69, peak signal rate: 103.30, ambient_count: 0.63
+getting left distance
+duration: 4, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+getting right distance
+duration: 53, status: RangeValid, range: 85, peak signal rate: 22.07, ambient_count: 0.11
+getting left distance
+duration: 3, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+getting right distance
+duration: 71, status: RangeValid, range: 89, peak signal rate: 19.73, ambient_count: 0.09
+getting left distance
+duration: 5, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+getting right distance
+duration: 77, status: RangeValid, range: 87, peak signal rate: 19.71, ambient_count: 0.09
+getting left distance
+duration: 4, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+getting right distance
+duration: 76, status: RangeValid, range: 88, peak signal rate: 19.56, ambient_count: 0.09
+getting left distance
+duration: 3, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+distance left: 9999.00, right: 83.60
+Cannot adjust grid distance, too far
+adjusting angle
+get event: 1, get_heading: 258.81, d: 258.81, sum: 258.81
+get event: 1, get_heading: 258.81, d: 258.81, sum: 517.63
+get event: 1, get_heading: 258.81, d: 258.81, sum: 776.44
+get event: 1, get_heading: 258.81, d: 258.81, sum: 1035.25
+get event: 1, get_heading: 258.81, d: 258.81, sum: 1294.06
+avg_heading, normalized: 258.81
+angle: 1.06, turn time: 40
+get event: 1, get_heading: 258.81, d: 258.81, sum: 258.81
+get event: 1, get_heading: 258.88, d: 258.88, sum: 517.69
+get event: 1, get_heading: 259.06, d: 259.06, sum: 776.75
+get event: 1, get_heading: 260.13, d: 260.13, sum: 1036.88
+get event: 1, get_heading: 260.63, d: 260.63, sum: 1297.50
+avg_heading, normalized: 259.50
+angle: 0.37, turn time: 40
+reached target angle
+move time: 847
+!! IN_MOTION, move 7
+get event: 1, get_heading: 260.69, d: 260.69, sum: 260.69
+get event: 1, get_heading: 260.69, d: 260.69, sum: 521.38
+get event: 1, get_heading: 260.69, d: 260.69, sum: 782.06
+get event: 1, get_heading: 260.69, d: 260.69, sum: 1042.75
+get event: 1, get_heading: 260.69, d: 260.69, sum: 1303.44
+avg_heading, normalized: 260.69
+direction: 259.88, heading: 260.69
+elapsed: 11605, moves left: 28, est moves time: 47.60, time diff: 5.79
+got move delay: 206
+>> WEST
+adjusting angle
+get event: 1, get_heading: 260.69, d: 260.69, sum: 260.69
+get event: 1, get_heading: 260.69, d: 260.69, sum: 521.38
+get event: 1, get_heading: 260.69, d: 260.69, sum: 782.06
+get event: 1, get_heading: 260.69, d: 260.69, sum: 1042.75
+get event: 1, get_heading: 260.69, d: 260.69, sum: 1303.44
+avg_heading, normalized: 260.69
+angle: -90.81, turn time: -644
+get event: 1, get_heading: 187.63, d: 187.63, sum: 187.63
+get event: 1, get_heading: 184.50, d: 184.50, sum: 372.13
+get event: 1, get_heading: 182.88, d: 182.88, sum: 555.00
+get event: 1, get_heading: 179.94, d: 179.94, sum: 734.94
+get event: 1, get_heading: 178.56, d: 178.56, sum: 913.50
+avg_heading, normalized: 182.70
+angle: -12.82, turn time: -91
+get event: 1, get_heading: 169.63, d: 169.63, sum: 169.63
+get event: 1, get_heading: 168.63, d: 168.63, sum: 338.25
+get event: 1, get_heading: 166.50, d: 166.50, sum: 504.75
+get event: 1, get_heading: 165.44, d: 165.44, sum: 670.19
+get event: 1, get_heading: 164.44, d: 164.44, sum: 834.63
+avg_heading, normalized: 166.93
+angle: 2.95, turn time: 40
+get event: 1, get_heading: 161.69, d: 161.69, sum: 161.69
+get event: 1, get_heading: 161.75, d: 161.75, sum: 323.44
+get event: 1, get_heading: 162.06, d: 162.06, sum: 485.50
+get event: 1, get_heading: 162.56, d: 162.56, sum: 648.06
+get event: 1, get_heading: 163.56, d: 163.56, sum: 811.63
+avg_heading, normalized: 162.33
+angle: 7.55, turn time: 53
+get event: 1, get_heading: 163.81, d: 163.81, sum: 163.81
+get event: 1, get_heading: 164.06, d: 164.06, sum: 327.88
+get event: 1, get_heading: 165.25, d: 165.25, sum: 493.13
+get event: 1, get_heading: 165.94, d: 165.94, sum: 659.06
+get event: 1, get_heading: 166.50, d: 166.50, sum: 825.56
+avg_heading, normalized: 165.11
+angle: 4.76, turn time: 40
+get event: 1, get_heading: 166.81, d: 166.81, sum: 166.81
+get event: 1, get_heading: 166.88, d: 166.88, sum: 333.69
+get event: 1, get_heading: 167.50, d: 167.50, sum: 501.19
+get event: 1, get_heading: 168.06, d: 168.06, sum: 669.25
+get event: 1, get_heading: 168.56, d: 168.56, sum: 837.81
+avg_heading, normalized: 167.56
+angle: 2.31, turn time: 40
+get event: 1, get_heading: 168.81, d: 168.81, sum: 168.81
+get event: 1, get_heading: 169.00, d: 169.00, sum: 337.81
+get event: 1, get_heading: 169.38, d: 169.38, sum: 507.19
+get event: 1, get_heading: 170.00, d: 170.00, sum: 677.19
+get event: 1, get_heading: 170.94, d: 170.94, sum: 848.13
+avg_heading, normalized: 169.63
+angle: 0.25, turn time: 40
+reached target angle
+move time: 1716
+!! IN_MOTION, move 8
+get event: 1, get_heading: 171.13, d: 171.13, sum: 171.13
+get event: 1, get_heading: 171.13, d: 171.13, sum: 342.25
+get event: 1, get_heading: 171.13, d: 171.13, sum: 513.38
+get event: 1, get_heading: 171.13, d: 171.13, sum: 684.50
+get event: 1, get_heading: 171.19, d: 171.19, sum: 855.69
+avg_heading, normalized: 171.14
+direction: 169.88, heading: 171.14
+elapsed: 13327, moves left: 27, est moves time: 45.90, time diff: 5.77
+got move delay: 213
+>> FORWARD
+adjusting angle
+get event: 1, get_heading: 171.19, d: 171.19, sum: 171.19
+get event: 1, get_heading: 171.19, d: 171.19, sum: 342.38
+get event: 1, get_heading: 171.19, d: 171.19, sum: 513.56
+get event: 1, get_heading: 171.19, d: 171.19, sum: 684.75
+get event: 1, get_heading: 171.19, d: 171.19, sum: 855.94
+avg_heading, normalized: 171.19
+angle: -1.31, turn time: -40
+get event: 1, get_heading: 171.13, d: 171.13, sum: 171.13
+get event: 1, get_heading: 170.94, d: 170.94, sum: 342.06
+get event: 1, get_heading: 169.94, d: 169.94, sum: 512.00
+get event: 1, get_heading: 169.44, d: 169.44, sum: 681.44
+get event: 1, get_heading: 169.00, d: 169.00, sum: 850.44
+avg_heading, normalized: 170.09
+angle: -0.21, turn time: -40
+reached target angle
+getting right distance
+duration: 3, status: SignalFail, range: 767, peak signal rate: 0.00, ambient_count: 0.02
+getting left distance
+duration: 3, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+distance left: 9999.00, right: 9999.00
+move forward time: 1225
+got accel: 0.80, max: 0.10
+got accel: 1.79, max: 0.10
+got accel: 0.75, max: 0.10
+got accel: 1.34, max: 0.10
+got accel: 2.03, max: 0.10
+got accel: 0.65, max: 0.10
+got accel: 0.18, max: 0.10
+got accel: 0.55, max: 0.10
+got accel: 0.33, max: 0.10
+got accel: 0.05, max: 0.10
+at rest!
+move time: 2213
+!! IN_MOTION, move 9
+get event: 1, get_heading: 168.88, d: 168.88, sum: 168.88
+get event: 1, get_heading: 168.88, d: 168.88, sum: 337.75
+get event: 1, get_heading: 168.88, d: 168.88, sum: 506.63
+get event: 1, get_heading: 168.88, d: 168.88, sum: 675.50
+get event: 1, get_heading: 168.88, d: 168.88, sum: 844.38
+avg_heading, normalized: 168.88
+direction: 169.88, heading: 168.88
+elapsed: 15548, moves left: 26, est moves time: 44.20, time diff: 5.25
+got move delay: 201
+>> NORTH
+adjusting angle
+get event: 1, get_heading: 168.88, d: 168.88, sum: 168.88
+get event: 1, get_heading: 168.88, d: 168.88, sum: 337.75
+get event: 1, get_heading: 168.88, d: 168.88, sum: 506.63
+get event: 1, get_heading: 168.88, d: 168.88, sum: 675.50
+get event: 1, get_heading: 168.88, d: 168.88, sum: 844.38
+avg_heading, normalized: 168.88
+angle: 91.00, turn time: 646
+get event: 1, get_heading: 245.50, d: 245.50, sum: 245.50
+get event: 1, get_heading: 248.44, d: 248.44, sum: 493.94
+get event: 1, get_heading: 249.94, d: 249.94, sum: 743.88
+get event: 1, get_heading: 251.44, d: 251.44, sum: 995.31
+get event: 1, get_heading: 254.31, d: 254.31, sum: 1249.63
+avg_heading, normalized: 249.93
+angle: 9.95, turn time: 70
+get event: 1, get_heading: 260.44, d: 260.44, sum: 260.44
+get event: 1, get_heading: 262.38, d: 262.38, sum: 522.81
+get event: 1, get_heading: 264.38, d: 264.38, sum: 787.19
+get event: 1, get_heading: 265.44, d: 265.44, sum: 1052.63
+get event: 1, get_heading: 266.31, d: 266.31, sum: 1318.94
+avg_heading, normalized: 263.79
+angle: -3.91, turn time: -40
+get event: 1, get_heading: 268.50, d: 268.50, sum: 268.50
+get event: 1, get_heading: 268.31, d: 268.31, sum: 536.81
+get event: 1, get_heading: 267.44, d: 267.44, sum: 804.25
+get event: 1, get_heading: 266.94, d: 266.94, sum: 1071.19
+get event: 1, get_heading: 266.38, d: 266.38, sum: 1337.56
+avg_heading, normalized: 267.51
+angle: -7.64, turn time: -54
+get event: 1, get_heading: 266.19, d: 266.19, sum: 266.19
+get event: 1, get_heading: 265.69, d: 265.69, sum: 531.88
+get event: 1, get_heading: 265.00, d: 265.00, sum: 796.88
+get event: 1, get_heading: 263.88, d: 263.88, sum: 1060.75
+get event: 1, get_heading: 263.56, d: 263.56, sum: 1324.31
+avg_heading, normalized: 264.86
+angle: -4.99, turn time: -40
+get event: 1, get_heading: 263.31, d: 263.31, sum: 263.31
+get event: 1, get_heading: 263.19, d: 263.19, sum: 526.50
+get event: 1, get_heading: 262.38, d: 262.38, sum: 788.88
+get event: 1, get_heading: 261.81, d: 261.81, sum: 1050.69
+get event: 1, get_heading: 261.44, d: 261.44, sum: 1312.13
+avg_heading, normalized: 262.42
+angle: -2.55, turn time: -40
+get event: 1, get_heading: 261.31, d: 261.31, sum: 261.31
+get event: 1, get_heading: 261.19, d: 261.19, sum: 522.50
+get event: 1, get_heading: 260.56, d: 260.56, sum: 783.06
+get event: 1, get_heading: 259.63, d: 259.63, sum: 1042.69
+get event: 1, get_heading: 259.38, d: 259.38, sum: 1302.06
+avg_heading, normalized: 260.41
+angle: -0.54, turn time: -40
+reached target angle
+move time: 1696
+!! IN_MOTION, move 10
+get event: 1, get_heading: 259.50, d: 259.50, sum: 259.50
+get event: 1, get_heading: 259.50, d: 259.50, sum: 519.00
+get event: 1, get_heading: 259.50, d: 259.50, sum: 778.50
+get event: 1, get_heading: 259.50, d: 259.50, sum: 1038.00
+get event: 1, get_heading: 259.50, d: 259.50, sum: 1297.50
+avg_heading, normalized: 259.50
+direction: 259.88, heading: 259.50
+elapsed: 17247, moves left: 25, est moves time: 42.50, time diff: 5.25
+got move delay: 210
+>> FORWARD
+adjusting angle
+get event: 1, get_heading: 259.50, d: 259.50, sum: 259.50
+get event: 1, get_heading: 259.50, d: 259.50, sum: 519.00
+get event: 1, get_heading: 259.50, d: 259.50, sum: 778.50
+get event: 1, get_heading: 259.50, d: 259.50, sum: 1038.00
+get event: 1, get_heading: 259.50, d: 259.50, sum: 1297.50
+avg_heading, normalized: 259.50
+angle: 0.37, turn time: 40
+reached target angle
+getting right distance
+duration: 3, status: RangeValid, range: 586, peak signal rate: 2.28, ambient_count: 0.42
+getting left distance
+duration: 3, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+distance left: 9999.00, right: 586.00
+move forward time: 1225
+got accel: 0.31, max: 0.10
+got accel: 3.50, max: 0.10
+got accel: 2.22, max: 0.10
+got accel: 0.45, max: 0.10
+got accel: 1.81, max: 0.10
+got accel: 1.09, max: 0.10
+got accel: 0.51, max: 0.10
+got accel: 0.72, max: 0.10
+got accel: 0.02, max: 0.10
+at rest!
+move time: 2049
+!! IN_MOTION, move 11
+get event: 1, get_heading: 259.56, d: 259.56, sum: 259.56
+get event: 1, get_heading: 259.56, d: 259.56, sum: 519.13
+get event: 1, get_heading: 259.56, d: 259.56, sum: 778.69
+get event: 1, get_heading: 259.56, d: 259.56, sum: 1038.25
+get event: 1, get_heading: 259.56, d: 259.56, sum: 1297.81
+avg_heading, normalized: 259.56
+direction: 259.88, heading: 259.56
+elapsed: 19300, moves left: 24, est moves time: 40.80, time diff: 4.90
+got move delay: 204
+>> ADJUST
+adjusting distance
+target distance: 102
+getting right distance
+duration: 5, status: RangeValid, range: 77, peak signal rate: 92.16, ambient_count: 0.52
+getting left distance
+duration: 4, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+getting right distance
+duration: 68, status: RangeValid, range: 91, peak signal rate: 19.66, ambient_count: 0.09
+getting left distance
+duration: 4, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+getting right distance
+duration: 72, status: RangeValid, range: 92, peak signal rate: 19.66, ambient_count: 0.10
+getting left distance
+duration: 4, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+getting right distance
+duration: 76, status: RangeValid, range: 93, peak signal rate: 19.71, ambient_count: 0.09
+getting left distance
+duration: 4, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+getting right distance
+duration: 72, status: RangeValid, range: 93, peak signal rate: 19.88, ambient_count: 0.09
+getting left distance
+duration: 4, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+distance left: 9999.00, right: 89.20
+Cannot adjust grid distance, too far
+adjusting angle
+get event: 1, get_heading: 259.50, d: 259.50, sum: 259.50
+get event: 1, get_heading: 259.50, d: 259.50, sum: 519.00
+get event: 1, get_heading: 259.50, d: 259.50, sum: 778.50
+get event: 1, get_heading: 259.50, d: 259.50, sum: 1038.00
+get event: 1, get_heading: 259.50, d: 259.50, sum: 1297.50
+avg_heading, normalized: 259.50
+angle: 0.37, turn time: 40
+reached target angle
+move time: 763
+!! IN_MOTION, move 12
+get event: 1, get_heading: 259.50, d: 259.50, sum: 259.50
+get event: 1, get_heading: 259.50, d: 259.50, sum: 519.00
+get event: 1, get_heading: 259.50, d: 259.50, sum: 778.50
+get event: 1, get_heading: 259.50, d: 259.50, sum: 1038.00
+get event: 1, get_heading: 259.50, d: 259.50, sum: 1297.50
+avg_heading, normalized: 259.50
+direction: 259.88, heading: 259.50
+elapsed: 20066, moves left: 23, est moves time: 39.10, time diff: 5.83
+got move delay: 253
+>> EAST
+adjusting angle
+get event: 1, get_heading: 259.50, d: 259.50, sum: 259.50
+get event: 1, get_heading: 259.50, d: 259.50, sum: 519.00
+get event: 1, get_heading: 259.50, d: 259.50, sum: 778.50
+get event: 1, get_heading: 259.50, d: 259.50, sum: 1038.00
+get event: 1, get_heading: 259.50, d: 259.50, sum: 1297.50
+avg_heading, normalized: 259.50
+angle: 90.37, turn time: 641
+get event: 1, get_heading: 335.25, d: -24.75, sum: -24.75
+get event: 1, get_heading: 338.38, d: -21.62, sum: -46.38
+get event: 1, get_heading: 339.88, d: -20.12, sum: -66.50
+get event: 1, get_heading: 341.44, d: -18.56, sum: -85.06
+get event: 1, get_heading: 344.13, d: -15.88, sum: -100.94
+avg_heading, normalized: 339.81
+angle: 10.06, turn time: 71
+get event: 1, get_heading: 350.94, d: -9.06, sum: -9.06
+get event: 1, get_heading: 351.94, d: -8.06, sum: -17.12
+get event: 1, get_heading: 353.00, d: -7.00, sum: -24.12
+get event: 1, get_heading: 355.06, d: -4.94, sum: -29.06
+get event: 1, get_heading: 355.88, d: -4.13, sum: -33.19
+avg_heading, normalized: 353.36
+angle: -3.49, turn time: -40
+get event: 1, get_heading: 357.69, d: -2.31, sum: -2.31
+get event: 1, get_heading: 357.44, d: -2.56, sum: -4.88
+get event: 1, get_heading: 356.69, d: -3.31, sum: -8.19
+get event: 1, get_heading: 356.31, d: -3.69, sum: -11.88
+get event: 1, get_heading: 356.06, d: -3.94, sum: -15.81
+avg_heading, normalized: 356.84
+angle: -6.96, turn time: -49
+get event: 1, get_heading: 355.94, d: -4.06, sum: -4.06
+get event: 1, get_heading: 355.63, d: -4.38, sum: -8.44
+get event: 1, get_heading: 354.50, d: -5.50, sum: -13.94
+get event: 1, get_heading: 354.00, d: -6.00, sum: -19.94
+get event: 1, get_heading: 353.63, d: -6.38, sum: -26.31
+avg_heading, normalized: 354.74
+angle: -4.86, turn time: -40
+get event: 1, get_heading: 353.50, d: -6.50, sum: -6.50
+get event: 1, get_heading: 353.00, d: -7.00, sum: -13.50
+get event: 1, get_heading: 352.50, d: -7.50, sum: -21.00
+get event: 1, get_heading: 351.94, d: -8.06, sum: -29.06
+get event: 1, get_heading: 351.31, d: -8.69, sum: -37.75
+avg_heading, normalized: 352.45
+angle: -2.58, turn time: -40
+get event: 1, get_heading: 351.50, d: -8.50, sum: -8.50
+get event: 1, get_heading: 350.88, d: -9.13, sum: -17.62
+get event: 1, get_heading: 350.38, d: -9.63, sum: -27.25
+get event: 1, get_heading: 349.50, d: -10.50, sum: -37.75
+get event: 1, get_heading: 349.38, d: -10.63, sum: -48.38
+avg_heading, normalized: 350.33
+angle: -0.45, turn time: -40
+reached target angle
+move time: 1737
+!! IN_MOTION, move 13
+get event: 1, get_heading: 349.44, d: -10.56, sum: -10.56
+get event: 1, get_heading: 349.44, d: -10.56, sum: -21.12
+get event: 1, get_heading: 349.44, d: -10.56, sum: -31.69
+get event: 1, get_heading: 349.44, d: -10.56, sum: -42.25
+get event: 1, get_heading: 349.44, d: -10.56, sum: -52.81
+avg_heading, normalized: 349.44
+direction: 349.88, heading: 349.44
+elapsed: 21806, moves left: 22, est moves time: 37.40, time diff: 5.79
+got move delay: 263
+>> FORWARD
+adjusting angle
+get event: 1, get_heading: 349.38, d: -10.63, sum: -10.63
+get event: 1, get_heading: 349.38, d: -10.63, sum: -21.25
+get event: 1, get_heading: 349.38, d: -10.63, sum: -31.87
+get event: 1, get_heading: 349.38, d: -10.63, sum: -42.50
+get event: 1, get_heading: 349.38, d: -10.63, sum: -53.13
+avg_heading, normalized: 349.38
+angle: 0.50, turn time: 40
+reached target angle
+getting right distance
+duration: 3, status: SignalFail, range: 626, peak signal rate: 0.70, ambient_count: 0.08
+getting left distance
+duration: 3, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+distance left: 9999.00, right: 9999.00
+move forward time: 1225
+got accel: 0.62, max: 0.10
+got accel: 0.01, max: 0.10
+at rest!
+move time: 1744
+!! IN_MOTION, move 14
+get event: 1, get_heading: 350.00, d: -10.00, sum: -10.00
+get event: 1, get_heading: 350.00, d: -10.00, sum: -20.00
+get event: 1, get_heading: 350.00, d: -10.00, sum: -30.00
+get event: 1, get_heading: 350.00, d: -10.00, sum: -40.00
+get event: 1, get_heading: 350.00, d: -10.00, sum: -50.00
+avg_heading, normalized: 350.00
+direction: 349.88, heading: 350.00
+elapsed: 23549, moves left: 21, est moves time: 35.70, time diff: 5.75
+got move delay: 273
+>> NORTH
+adjusting angle
+get event: 1, get_heading: 350.00, d: -10.00, sum: -10.00
+get event: 1, get_heading: 350.00, d: -10.00, sum: -20.00
+get event: 1, get_heading: 350.00, d: -10.00, sum: -30.00
+get event: 1, get_heading: 350.00, d: -10.00, sum: -40.00
+get event: 1, get_heading: 350.00, d: -10.00, sum: -50.00
+avg_heading, normalized: 350.00
+angle: -90.12, turn time: -639
+get event: 1, get_heading: 276.56, d: -83.44, sum: -83.44
+get event: 1, get_heading: 273.44, d: -86.56, sum: -170.00
+get event: 1, get_heading: 272.00, d: -88.00, sum: -258.00
+get event: 1, get_heading: 269.38, d: -90.62, sum: -348.63
+get event: 1, get_heading: 268.25, d: -91.75, sum: -440.38
+avg_heading, normalized: 271.92
+angle: -12.05, turn time: -85
+get event: 1, get_heading: 261.19, d: 261.19, sum: 261.19
+get event: 1, get_heading: 260.25, d: 260.25, sum: 521.44
+get event: 1, get_heading: 258.25, d: 258.25, sum: 779.69
+get event: 1, get_heading: 257.25, d: 257.25, sum: 1036.94
+get event: 1, get_heading: 255.63, d: 255.63, sum: 1292.56
+avg_heading, normalized: 258.51
+angle: 1.36, turn time: 40
+get event: 1, get_heading: 254.19, d: 254.19, sum: 254.19
+get event: 1, get_heading: 254.31, d: 254.31, sum: 508.50
+get event: 1, get_heading: 254.56, d: 254.56, sum: 763.06
+get event: 1, get_heading: 255.38, d: 255.38, sum: 1018.44
+get event: 1, get_heading: 255.69, d: 255.69, sum: 1274.13
+avg_heading, normalized: 254.83
+angle: 5.05, turn time: 40
+get event: 1, get_heading: 255.88, d: 255.88, sum: 255.88
+get event: 1, get_heading: 256.00, d: 256.00, sum: 511.88
+get event: 1, get_heading: 256.88, d: 256.88, sum: 768.75
+get event: 1, get_heading: 257.50, d: 257.50, sum: 1026.25
+get event: 1, get_heading: 257.88, d: 257.88, sum: 1284.13
+avg_heading, normalized: 256.83
+angle: 3.05, turn time: 40
+get event: 1, get_heading: 257.81, d: 257.81, sum: 257.81
+get event: 1, get_heading: 257.94, d: 257.94, sum: 515.75
+get event: 1, get_heading: 258.63, d: 258.63, sum: 774.38
+get event: 1, get_heading: 259.19, d: 259.19, sum: 1033.56
+get event: 1, get_heading: 260.13, d: 260.13, sum: 1293.69
+avg_heading, normalized: 258.74
+angle: 1.14, turn time: 40
+get event: 1, get_heading: 260.13, d: 260.13, sum: 260.13
+get event: 1, get_heading: 260.19, d: 260.19, sum: 520.31
+get event: 1, get_heading: 260.94, d: 260.94, sum: 781.25
+get event: 1, get_heading: 261.63, d: 261.63, sum: 1042.88
+get event: 1, get_heading: 262.63, d: 262.63, sum: 1305.50
+avg_heading, normalized: 261.10
+angle: -1.23, turn time: -40
+get event: 1, get_heading: 262.69, d: 262.69, sum: 262.69
+get event: 1, get_heading: 262.25, d: 262.25, sum: 524.94
+get event: 1, get_heading: 261.81, d: 261.81, sum: 786.75
+get event: 1, get_heading: 260.81, d: 260.81, sum: 1047.56
+get event: 1, get_heading: 260.63, d: 260.63, sum: 1308.19
+avg_heading, normalized: 261.64
+angle: -1.76, turn time: -40
+get event: 1, get_heading: 260.56, d: 260.56, sum: 260.56
+get event: 1, get_heading: 260.19, d: 260.19, sum: 520.75
+get event: 1, get_heading: 259.75, d: 259.75, sum: 780.50
+get event: 1, get_heading: 258.88, d: 258.88, sum: 1039.38
+get event: 1, get_heading: 258.63, d: 258.63, sum: 1298.00
+avg_heading, normalized: 259.60
+angle: 0.27, turn time: 40
+reached target angle
+move time: 2064
+!! IN_MOTION, move 15
+get event: 1, get_heading: 258.63, d: 258.63, sum: 258.63
+get event: 1, get_heading: 258.63, d: 258.63, sum: 517.25
+get event: 1, get_heading: 258.63, d: 258.63, sum: 775.88
+get event: 1, get_heading: 258.63, d: 258.63, sum: 1034.50
+get event: 1, get_heading: 258.63, d: 258.63, sum: 1293.13
+avg_heading, normalized: 258.63
+direction: 259.88, heading: 258.63
+elapsed: 25621, moves left: 20, est moves time: 34.00, time diff: 5.38
+got move delay: 268
+>> FORWARD
+adjusting angle
+get event: 1, get_heading: 258.63, d: 258.63, sum: 258.63
+get event: 1, get_heading: 258.63, d: 258.63, sum: 517.25
+get event: 1, get_heading: 258.63, d: 258.63, sum: 775.88
+get event: 1, get_heading: 258.63, d: 258.63, sum: 1034.50
+get event: 1, get_heading: 258.63, d: 258.63, sum: 1293.13
+avg_heading, normalized: 258.63
+angle: 1.25, turn time: 40
+get event: 1, get_heading: 258.63, d: 258.63, sum: 258.63
+get event: 1, get_heading: 258.81, d: 258.81, sum: 517.44
+get event: 1, get_heading: 259.13, d: 259.13, sum: 776.56
+get event: 1, get_heading: 259.63, d: 259.63, sum: 1036.19
+get event: 1, get_heading: 260.56, d: 260.56, sum: 1296.75
+avg_heading, normalized: 259.35
+angle: 0.52, turn time: 40
+reached target angle
+getting right distance
+duration: 4, status: RangeValid, range: 591, peak signal rate: 2.45, ambient_count: 0.45
+getting left distance
+duration: 4, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+distance left: 9999.00, right: 591.00
+move forward time: 1225
+got accel: 0.34, max: 0.10
+got accel: 0.84, max: 0.10
+got accel: 1.70, max: 0.10
+got accel: 0.69, max: 0.10
+got accel: 0.92, max: 0.10
+got accel: 0.79, max: 0.10
+got accel: 1.11, max: 0.10
+got accel: 0.57, max: 0.10
+got accel: 0.01, max: 0.10
+at rest!
+move time: 2220
+!! IN_MOTION, move 16
+get event: 1, get_heading: 259.44, d: 259.44, sum: 259.44
+get event: 1, get_heading: 259.44, d: 259.44, sum: 518.88
+get event: 1, get_heading: 259.44, d: 259.44, sum: 778.31
+get event: 1, get_heading: 259.44, d: 259.44, sum: 1037.75
+get event: 1, get_heading: 259.44, d: 259.44, sum: 1297.19
+avg_heading, normalized: 259.44
+direction: 259.88, heading: 259.44
+elapsed: 27839, moves left: 19, est moves time: 32.30, time diff: 4.86
+got move delay: 255
+>> ADJUST
+adjusting distance
+target distance: 102
+getting right distance
+duration: 4, status: RangeValid, range: 82, peak signal rate: 87.00, ambient_count: 0.61
+getting left distance
+duration: 3, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+getting right distance
+duration: 15, status: RangeValid, range: 82, peak signal rate: 87.02, ambient_count: 0.62
+getting left distance
+duration: 9, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+getting right distance
+duration: 68, status: RangeValid, range: 99, peak signal rate: 18.40, ambient_count: 0.10
+getting left distance
+duration: 3, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+getting right distance
+duration: 77, status: RangeValid, range: 97, peak signal rate: 18.27, ambient_count: 0.11
+getting left distance
+duration: 4, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+getting right distance
+duration: 72, status: RangeValid, range: 98, peak signal rate: 18.34, ambient_count: 0.09
+getting left distance
+duration: 4, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+distance left: 9999.00, right: 91.60
+Cannot adjust grid distance, too far
+adjusting angle
+get event: 1, get_heading: 259.44, d: 259.44, sum: 259.44
+get event: 1, get_heading: 259.44, d: 259.44, sum: 518.88
+get event: 1, get_heading: 259.44, d: 259.44, sum: 778.31
+get event: 1, get_heading: 259.44, d: 259.44, sum: 1037.75
+get event: 1, get_heading: 259.44, d: 259.44, sum: 1297.19
+avg_heading, normalized: 259.44
+angle: 0.44, turn time: 40
+reached target angle
+move time: 761
+!! IN_MOTION, move 17
+get event: 1, get_heading: 259.44, d: 259.44, sum: 259.44
+get event: 1, get_heading: 259.44, d: 259.44, sum: 518.88
+get event: 1, get_heading: 259.44, d: 259.44, sum: 778.31
+get event: 1, get_heading: 259.44, d: 259.44, sum: 1037.75
+get event: 1, get_heading: 259.44, d: 259.44, sum: 1297.19
+avg_heading, normalized: 259.44
+direction: 259.88, heading: 259.44
+elapsed: 28607, moves left: 18, est moves time: 30.60, time diff: 5.79
+got move delay: 321
+>> EAST
+adjusting angle
+get event: 1, get_heading: 259.44, d: 259.44, sum: 259.44
+get event: 1, get_heading: 259.44, d: 259.44, sum: 518.88
+get event: 1, get_heading: 259.44, d: 259.44, sum: 778.31
+get event: 1, get_heading: 259.44, d: 259.44, sum: 1037.75
+get event: 1, get_heading: 259.44, d: 259.44, sum: 1297.19
+avg_heading, normalized: 259.44
+angle: 90.44, turn time: 642
+get event: 1, get_heading: 336.75, d: -23.25, sum: -23.25
+get event: 1, get_heading: 338.31, d: -21.69, sum: -44.94
+get event: 1, get_heading: 341.44, d: -18.56, sum: -63.50
+get event: 1, get_heading: 342.94, d: -17.06, sum: -80.56
+get event: 1, get_heading: 344.31, d: -15.69, sum: -96.25
+avg_heading, normalized: 340.75
+angle: 9.13, turn time: 64
+get event: 1, get_heading: 350.81, d: -9.19, sum: -9.19
+get event: 1, get_heading: 352.81, d: -7.19, sum: -16.37
+get event: 1, get_heading: 353.75, d: -6.25, sum: -22.62
+get event: 1, get_heading: 355.63, d: -4.38, sum: -27.00
+get event: 1, get_heading: 356.44, d: -3.56, sum: -30.56
+avg_heading, normalized: 353.89
+angle: -4.01, turn time: -40
+get event: 1, get_heading: 358.31, d: -1.69, sum: -1.69
+get event: 1, get_heading: 358.06, d: -1.94, sum: -3.63
+get event: 1, get_heading: 357.69, d: -2.31, sum: -5.94
+get event: 1, get_heading: 357.19, d: -2.81, sum: -8.75
+get event: 1, get_heading: 357.19, d: -2.81, sum: -11.56
+avg_heading, normalized: 357.69
+angle: -7.81, turn time: -55
+get event: 1, get_heading: 357.13, d: -2.88, sum: -2.88
+get event: 1, get_heading: 356.31, d: -3.69, sum: -6.56
+get event: 1, get_heading: 355.81, d: -4.19, sum: -10.75
+get event: 1, get_heading: 355.31, d: -4.69, sum: -15.44
+get event: 1, get_heading: 354.75, d: -5.25, sum: -20.69
+avg_heading, normalized: 355.86
+angle: -5.99, turn time: -42
+get event: 1, get_heading: 354.63, d: -5.38, sum: -5.38
+get event: 1, get_heading: 354.44, d: -5.56, sum: -10.94
+get event: 1, get_heading: 353.44, d: -6.56, sum: -17.50
+get event: 1, get_heading: 352.94, d: -7.06, sum: -24.56
+get event: 1, get_heading: 352.56, d: -7.44, sum: -32.00
+avg_heading, normalized: 353.60
+angle: -3.73, turn time: -40
+get event: 1, get_heading: 352.56, d: -7.44, sum: -7.44
+get event: 1, get_heading: 352.44, d: -7.56, sum: -15.00
+get event: 1, get_heading: 351.69, d: -8.31, sum: -23.31
+get event: 1, get_heading: 351.25, d: -8.75, sum: -32.06
+get event: 1, get_heading: 350.88, d: -9.13, sum: -41.19
+avg_heading, normalized: 351.76
+angle: -1.89, turn time: -40
+get event: 1, get_heading: 350.88, d: -9.13, sum: -9.13
+get event: 1, get_heading: 350.75, d: -9.25, sum: -18.37
+get event: 1, get_heading: 350.25, d: -9.75, sum: -28.12
+get event: 1, get_heading: 349.69, d: -10.31, sum: -38.44
+get event: 1, get_heading: 349.00, d: -11.00, sum: -49.44
+avg_heading, normalized: 350.11
+angle: -0.24, turn time: -40
+reached target angle
+move time: 1917
+!! IN_MOTION, move 18
+get event: 1, get_heading: 349.06, d: -10.94, sum: -10.94
+get event: 1, get_heading: 349.06, d: -10.94, sum: -21.87
+get event: 1, get_heading: 349.06, d: -10.94, sum: -32.81
+get event: 1, get_heading: 349.06, d: -10.94, sum: -43.75
+get event: 1, get_heading: 349.06, d: -10.94, sum: -54.69
+avg_heading, normalized: 349.06
+direction: 349.88, heading: 349.06
+elapsed: 30528, moves left: 17, est moves time: 28.90, time diff: 5.57
+got move delay: 327
+>> FORWARD
+adjusting angle
+get event: 1, get_heading: 349.06, d: -10.94, sum: -10.94
+get event: 1, get_heading: 349.06, d: -10.94, sum: -21.87
+get event: 1, get_heading: 349.06, d: -10.94, sum: -32.81
+get event: 1, get_heading: 349.06, d: -10.94, sum: -43.75
+get event: 1, get_heading: 349.06, d: -10.94, sum: -54.69
+avg_heading, normalized: 349.06
+angle: 0.81, turn time: 40
+reached target angle
+getting right distance
+duration: 3, status: SignalFail, range: 556, peak signal rate: 0.04, ambient_count: 0.09
+getting left distance
+duration: 3, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+distance left: 9999.00, right: 9999.00
+move forward time: 1225
+got accel: 0.34, max: 0.10
+got accel: 1.65, max: 0.10
+got accel: 2.40, max: 0.10
+got accel: 2.62, max: 0.10
+got accel: 0.77, max: 0.10
+got accel: 1.72, max: 0.10
+got accel: 0.61, max: 0.10
+got accel: 0.42, max: 0.10
+got accel: 0.04, max: 0.10
+at rest!
+move time: 2163
+!! IN_MOTION, move 19
+get event: 1, get_heading: 349.38, d: -10.63, sum: -10.63
+get event: 1, get_heading: 349.38, d: -10.63, sum: -21.25
+get event: 1, get_heading: 349.38, d: -10.63, sum: -31.87
+get event: 1, get_heading: 349.38, d: -10.63, sum: -42.50
+get event: 1, get_heading: 349.38, d: -10.63, sum: -53.13
+avg_heading, normalized: 349.38
+direction: 349.88, heading: 349.38
+elapsed: 32697, moves left: 16, est moves time: 27.20, time diff: 5.10
+got move delay: 318
+>> FORWARD
+adjusting angle
+get event: 1, get_heading: 349.38, d: -10.63, sum: -10.63
+get event: 1, get_heading: 349.38, d: -10.63, sum: -21.25
+get event: 1, get_heading: 349.38, d: -10.63, sum: -31.87
+get event: 1, get_heading: 349.38, d: -10.63, sum: -42.50
+get event: 1, get_heading: 349.38, d: -10.63, sum: -53.13
+avg_heading, normalized: 349.38
+angle: 0.50, turn time: 40
+reached target angle
+getting right distance
+duration: 3, status: SignalFail, range: 214, peak signal rate: 0.00, ambient_count: 0.58
+getting left distance
+duration: 3, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+distance left: 9999.00, right: 9999.00
+move forward time: 1225
+got accel: 0.05, max: 0.10
+at rest!
+move time: 1732
+!! IN_MOTION, move 20
+get event: 1, get_heading: 349.25, d: -10.75, sum: -10.75
+get event: 1, get_heading: 349.25, d: -10.75, sum: -21.50
+get event: 1, get_heading: 349.25, d: -10.75, sum: -32.25
+get event: 1, get_heading: 349.25, d: -10.75, sum: -43.00
+get event: 1, get_heading: 349.25, d: -10.75, sum: -53.75
+avg_heading, normalized: 349.25
+direction: 349.88, heading: 349.25
+elapsed: 34434, moves left: 15, est moves time: 25.50, time diff: 5.07
+got move delay: 337
+>> NORTH
+adjusting angle
+get event: 1, get_heading: 349.25, d: -10.75, sum: -10.75
+get event: 1, get_heading: 349.25, d: -10.75, sum: -21.50
+get event: 1, get_heading: 349.25, d: -10.75, sum: -32.25
+get event: 1, get_heading: 349.25, d: -10.75, sum: -43.00
+get event: 1, get_heading: 349.25, d: -10.75, sum: -53.75
+avg_heading, normalized: 349.25
+angle: -89.37, turn time: -634
+get event: 1, get_heading: 277.81, d: -82.19, sum: -82.19
+get event: 1, get_heading: 274.81, d: -85.19, sum: -167.38
+get event: 1, get_heading: 273.31, d: -86.69, sum: -254.06
+get event: 1, get_heading: 271.88, d: -88.12, sum: -342.19
+get event: 1, get_heading: 269.31, d: -90.69, sum: -432.88
+avg_heading, normalized: 273.42
+angle: -13.55, turn time: -96
+get event: 1, get_heading: 261.44, d: 261.44, sum: 261.44
+get event: 1, get_heading: 260.56, d: 260.56, sum: 522.00
+get event: 1, get_heading: 258.50, d: 258.50, sum: 780.50
+get event: 1, get_heading: 257.50, d: 257.50, sum: 1038.00
+get event: 1, get_heading: 255.75, d: 255.75, sum: 1293.75
+avg_heading, normalized: 258.75
+angle: 1.12, turn time: 40
+get event: 1, get_heading: 253.81, d: 253.81, sum: 253.81
+get event: 1, get_heading: 253.94, d: 253.94, sum: 507.75
+get event: 1, get_heading: 254.25, d: 254.25, sum: 762.00
+get event: 1, get_heading: 254.69, d: 254.69, sum: 1016.69
+get event: 1, get_heading: 255.50, d: 255.50, sum: 1272.19
+avg_heading, normalized: 254.44
+angle: 5.44, turn time: 40
+get event: 1, get_heading: 255.50, d: 255.50, sum: 255.50
+get event: 1, get_heading: 255.63, d: 255.63, sum: 511.13
+get event: 1, get_heading: 255.88, d: 255.88, sum: 767.00
+get event: 1, get_heading: 256.63, d: 256.63, sum: 1023.63
+get event: 1, get_heading: 256.94, d: 256.94, sum: 1280.56
+avg_heading, normalized: 256.11
+angle: 3.76, turn time: 40
+get event: 1, get_heading: 257.00, d: 257.00, sum: 257.00
+get event: 1, get_heading: 257.19, d: 257.19, sum: 514.19
+get event: 1, get_heading: 257.56, d: 257.56, sum: 771.75
+get event: 1, get_heading: 258.25, d: 258.25, sum: 1030.00
+get event: 1, get_heading: 258.38, d: 258.38, sum: 1288.38
+avg_heading, normalized: 257.67
+angle: 2.20, turn time: 40
+get event: 1, get_heading: 258.19, d: 258.19, sum: 258.19
+get event: 1, get_heading: 258.38, d: 258.38, sum: 516.56
+get event: 1, get_heading: 259.06, d: 259.06, sum: 775.63
+get event: 1, get_heading: 259.44, d: 259.44, sum: 1035.06
+get event: 1, get_heading: 259.75, d: 259.75, sum: 1294.81
+avg_heading, normalized: 258.96
+angle: 0.91, turn time: 40
+reached target angle
+move time: 1848
+!! IN_MOTION, move 21
+get event: 1, get_heading: 259.81, d: 259.81, sum: 259.81
+get event: 1, get_heading: 259.81, d: 259.81, sum: 519.63
+get event: 1, get_heading: 259.81, d: 259.81, sum: 779.44
+get event: 1, get_heading: 259.81, d: 259.81, sum: 1039.25
+get event: 1, get_heading: 259.81, d: 259.81, sum: 1299.06
+avg_heading, normalized: 259.81
+direction: 259.88, heading: 259.81
+elapsed: 36280, moves left: 14, est moves time: 23.80, time diff: 4.92
+got move delay: 351
+>> ADJUST
+adjusting distance
+target distance: 102
+getting right distance
+duration: 4, status: RangeValid, range: 90, peak signal rate: 79.18, ambient_count: 0.70
+getting left distance
+duration: 3, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+getting right distance
+duration: 18, status: RangeValid, range: 88, peak signal rate: 78.98, ambient_count: 0.71
+getting left distance
+duration: 4, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+getting right distance
+duration: 73, status: RangeValid, range: 104, peak signal rate: 16.28, ambient_count: 0.12
+getting left distance
+duration: 3, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+getting right distance
+duration: 76, status: RangeValid, range: 103, peak signal rate: 16.26, ambient_count: 0.13
+getting left distance
+duration: 4, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+getting right distance
+duration: 73, status: RangeValid, range: 103, peak signal rate: 16.27, ambient_count: 0.12
+getting left distance
+duration: 4, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+distance left: 9999.00, right: 97.60
+Cannot adjust grid distance, too far
+adjusting angle
+get event: 1, get_heading: 259.88, d: 259.88, sum: 259.88
+get event: 1, get_heading: 259.88, d: 259.88, sum: 519.75
+get event: 1, get_heading: 259.88, d: 259.88, sum: 779.63
+get event: 1, get_heading: 259.88, d: 259.88, sum: 1039.50
+get event: 1, get_heading: 259.88, d: 259.88, sum: 1299.38
+avg_heading, normalized: 259.88
+angle: 0.00, turn time: 0
+reached target angle
+move time: 860
+!! IN_MOTION, move 22
+get event: 1, get_heading: 259.88, d: 259.88, sum: 259.88
+get event: 1, get_heading: 259.88, d: 259.88, sum: 519.75
+get event: 1, get_heading: 259.88, d: 259.88, sum: 779.63
+get event: 1, get_heading: 259.88, d: 259.88, sum: 1039.50
+get event: 1, get_heading: 259.88, d: 259.88, sum: 1299.38
+avg_heading, normalized: 259.88
+direction: 259.88, heading: 259.88
+elapsed: 37147, moves left: 13, est moves time: 22.10, time diff: 5.75
+got move delay: 442
+>> WEST
+adjusting angle
+get event: 1, get_heading: 259.88, d: 259.88, sum: 259.88
+get event: 1, get_heading: 259.88, d: 259.88, sum: 519.75
+get event: 1, get_heading: 259.88, d: 259.88, sum: 779.63
+get event: 1, get_heading: 259.88, d: 259.88, sum: 1039.50
+get event: 1, get_heading: 259.88, d: 259.88, sum: 1299.38
+avg_heading, normalized: 259.88
+angle: -90.00, turn time: -639
+get event: 1, get_heading: 185.31, d: 185.31, sum: 185.31
+get event: 1, get_heading: 183.94, d: 183.94, sum: 369.25
+get event: 1, get_heading: 181.00, d: 181.00, sum: 550.25
+get event: 1, get_heading: 179.50, d: 179.50, sum: 729.75
+get event: 1, get_heading: 178.06, d: 178.06, sum: 907.81
+avg_heading, normalized: 181.56
+angle: -11.69, turn time: -82
+get event: 1, get_heading: 170.00, d: 170.00, sum: 170.00
+get event: 1, get_heading: 168.13, d: 168.13, sum: 338.13
+get event: 1, get_heading: 167.00, d: 167.00, sum: 505.13
+get event: 1, get_heading: 166.00, d: 166.00, sum: 671.13
+get event: 1, get_heading: 164.25, d: 164.25, sum: 835.38
+avg_heading, normalized: 167.08
+angle: 2.80, turn time: 40
+get event: 1, get_heading: 162.63, d: 162.63, sum: 162.63
+get event: 1, get_heading: 162.75, d: 162.75, sum: 325.38
+get event: 1, get_heading: 163.06, d: 163.06, sum: 488.44
+get event: 1, get_heading: 163.44, d: 163.44, sum: 651.88
+get event: 1, get_heading: 164.06, d: 164.06, sum: 815.94
+avg_heading, normalized: 163.19
+angle: 6.69, turn time: 47
+get event: 1, get_heading: 164.06, d: 164.06, sum: 164.06
+get event: 1, get_heading: 164.31, d: 164.31, sum: 328.38
+get event: 1, get_heading: 164.94, d: 164.94, sum: 493.31
+get event: 1, get_heading: 166.06, d: 166.06, sum: 659.38
+get event: 1, get_heading: 166.38, d: 166.38, sum: 825.75
+avg_heading, normalized: 165.15
+angle: 4.73, turn time: 40
+get event: 1, get_heading: 166.38, d: 166.38, sum: 166.38
+get event: 1, get_heading: 166.50, d: 166.50, sum: 332.88
+get event: 1, get_heading: 166.81, d: 166.81, sum: 499.69
+get event: 1, get_heading: 167.81, d: 167.81, sum: 667.50
+get event: 1, get_heading: 168.13, d: 168.13, sum: 835.63
+avg_heading, normalized: 167.13
+angle: 2.75, turn time: 40
+get event: 1, get_heading: 168.25, d: 168.25, sum: 168.25
+get event: 1, get_heading: 168.31, d: 168.31, sum: 336.56
+get event: 1, get_heading: 168.69, d: 168.69, sum: 505.25
+get event: 1, get_heading: 169.63, d: 169.63, sum: 674.88
+get event: 1, get_heading: 170.00, d: 170.00, sum: 844.88
+avg_heading, normalized: 168.98
+angle: 0.90, turn time: 40
+reached target angle
+move time: 1932
+!! IN_MOTION, move 23
+get event: 1, get_heading: 170.00, d: 170.00, sum: 170.00
+get event: 1, get_heading: 170.00, d: 170.00, sum: 340.00
+get event: 1, get_heading: 170.00, d: 170.00, sum: 510.00
+get event: 1, get_heading: 170.00, d: 170.00, sum: 680.00
+get event: 1, get_heading: 170.00, d: 170.00, sum: 850.00
+avg_heading, normalized: 170.00
+direction: 169.88, heading: 170.00
+elapsed: 39083, moves left: 12, est moves time: 20.40, time diff: 5.52
+got move delay: 459
+>> FORWARD
+adjusting angle
+get event: 1, get_heading: 170.00, d: 170.00, sum: 170.00
+get event: 1, get_heading: 170.00, d: 170.00, sum: 340.00
+get event: 1, get_heading: 170.06, d: 170.06, sum: 510.06
+get event: 1, get_heading: 170.06, d: 170.06, sum: 680.13
+get event: 1, get_heading: 170.06, d: 170.06, sum: 850.19
+avg_heading, normalized: 170.04
+angle: -0.16, turn time: -40
+reached target angle
+getting right distance
+duration: 3, status: SignalFail, range: 534, peak signal rate: 0.01, ambient_count: 0.02
+getting left distance
+duration: 4, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+distance left: 9999.00, right: 9999.00
+move forward time: 1225
+got accel: 1.16, max: 0.10
+got accel: 1.25, max: 0.10
+got accel: 1.23, max: 0.10
+got accel: 0.97, max: 0.10
+got accel: 0.62, max: 0.10
+got accel: 1.17, max: 0.10
+got accel: 0.32, max: 0.10
+got accel: 0.77, max: 0.10
+got accel: 0.45, max: 0.10
+got accel: 0.14, max: 0.10
+got accel: 0.29, max: 0.10
+got accel: 0.48, max: 0.10
+got accel: 0.26, max: 0.10
+got accel: 0.31, max: 0.10
+got accel: 0.37, max: 0.10
+got accel: 0.31, max: 0.10
+got accel: 0.36, max: 0.10
+got accel: 0.33, max: 0.10
+got accel: 0.35, max: 0.10
+got accel: 0.34, max: 0.10
+move time: 2930
+!! IN_MOTION, move 24
+get event: 1, get_heading: 169.38, d: 169.38, sum: 169.38
+get event: 1, get_heading: 169.38, d: 169.38, sum: 338.75
+get event: 1, get_heading: 169.38, d: 169.38, sum: 508.13
+get event: 1, get_heading: 169.38, d: 169.38, sum: 677.50
+get event: 1, get_heading: 169.38, d: 169.38, sum: 846.88
+avg_heading, normalized: 169.38
+direction: 169.88, heading: 169.38
+elapsed: 42016, moves left: 11, est moves time: 18.70, time diff: 4.28
+got move delay: 389
+>> NORTH
+adjusting angle
+get event: 1, get_heading: 169.38, d: 169.38, sum: 169.38
+get event: 1, get_heading: 169.38, d: 169.38, sum: 338.75
+get event: 1, get_heading: 169.38, d: 169.38, sum: 508.13
+get event: 1, get_heading: 169.38, d: 169.38, sum: 677.50
+get event: 1, get_heading: 169.38, d: 169.38, sum: 846.88
+avg_heading, normalized: 169.38
+angle: 90.50, turn time: 642
+get event: 1, get_heading: 246.56, d: 246.56, sum: 246.56
+get event: 1, get_heading: 248.19, d: 248.19, sum: 494.75
+get event: 1, get_heading: 249.69, d: 249.69, sum: 744.44
+get event: 1, get_heading: 252.69, d: 252.69, sum: 997.13
+get event: 1, get_heading: 255.19, d: 255.19, sum: 1252.31
+avg_heading, normalized: 250.46
+angle: 9.41, turn time: 66
+get event: 1, get_heading: 261.19, d: 261.19, sum: 261.19
+get event: 1, get_heading: 262.13, d: 262.13, sum: 523.31
+get event: 1, get_heading: 263.13, d: 263.13, sum: 786.44
+get event: 1, get_heading: 264.88, d: 264.88, sum: 1051.31
+get event: 1, get_heading: 265.69, d: 265.69, sum: 1317.00
+avg_heading, normalized: 263.40
+angle: -3.52, turn time: -40
+get event: 1, get_heading: 267.94, d: 267.94, sum: 267.94
+get event: 1, get_heading: 267.88, d: 267.88, sum: 535.81
+get event: 1, get_heading: 267.63, d: 267.63, sum: 803.44
+get event: 1, get_heading: 267.13, d: 267.13, sum: 1070.56
+get event: 1, get_heading: 266.31, d: 266.31, sum: 1336.88
+avg_heading, normalized: 267.38
+angle: -7.50, turn time: -53
+get event: 1, get_heading: 266.31, d: 266.31, sum: 266.31
+get event: 1, get_heading: 265.94, d: 265.94, sum: 532.25
+get event: 1, get_heading: 265.44, d: 265.44, sum: 797.69
+get event: 1, get_heading: 264.19, d: 264.19, sum: 1061.88
+get event: 1, get_heading: 263.75, d: 263.75, sum: 1325.63
+avg_heading, normalized: 265.13
+angle: -5.25, turn time: -40
+get event: 1, get_heading: 263.63, d: 263.63, sum: 263.63
+get event: 1, get_heading: 263.56, d: 263.56, sum: 527.19
+get event: 1, get_heading: 263.13, d: 263.13, sum: 790.31
+get event: 1, get_heading: 262.63, d: 262.63, sum: 1052.94
+get event: 1, get_heading: 262.31, d: 262.31, sum: 1315.25
+avg_heading, normalized: 263.05
+angle: -3.17, turn time: -40
+get event: 1, get_heading: 262.19, d: 262.19, sum: 262.19
+get event: 1, get_heading: 261.75, d: 261.75, sum: 523.94
+get event: 1, get_heading: 261.25, d: 261.25, sum: 785.19
+get event: 1, get_heading: 260.81, d: 260.81, sum: 1046.00
+get event: 1, get_heading: 260.50, d: 260.50, sum: 1306.50
+avg_heading, normalized: 261.30
+angle: -1.42, turn time: -40
+get event: 1, get_heading: 260.56, d: 260.56, sum: 260.56
+get event: 1, get_heading: 260.13, d: 260.13, sum: 520.69
+get event: 1, get_heading: 259.56, d: 259.56, sum: 780.25
+get event: 1, get_heading: 258.69, d: 258.69, sum: 1038.94
+get event: 1, get_heading: 258.50, d: 258.50, sum: 1297.44
+avg_heading, normalized: 259.49
+angle: 0.39, turn time: 40
+reached target angle
+move time: 1990
+!! IN_MOTION, move 25
+get event: 1, get_heading: 258.56, d: 258.56, sum: 258.56
+get event: 1, get_heading: 258.56, d: 258.56, sum: 517.13
+get event: 1, get_heading: 258.56, d: 258.56, sum: 775.69
+get event: 1, get_heading: 258.56, d: 258.56, sum: 1034.25
+get event: 1, get_heading: 258.56, d: 258.56, sum: 1292.81
+avg_heading, normalized: 258.56
+direction: 259.88, heading: 258.56
+elapsed: 44009, moves left: 10, est moves time: 17.00, time diff: 3.99
+got move delay: 399
+>> FORWARD
+adjusting angle
+get event: 1, get_heading: 258.56, d: 258.56, sum: 258.56
+get event: 1, get_heading: 258.56, d: 258.56, sum: 517.13
+get event: 1, get_heading: 258.56, d: 258.56, sum: 775.69
+get event: 1, get_heading: 258.56, d: 258.56, sum: 1034.25
+get event: 1, get_heading: 258.56, d: 258.56, sum: 1292.81
+avg_heading, normalized: 258.56
+angle: 1.31, turn time: 40
+get event: 1, get_heading: 258.56, d: 258.56, sum: 258.56
+get event: 1, get_heading: 258.75, d: 258.75, sum: 517.31
+get event: 1, get_heading: 259.19, d: 259.19, sum: 776.50
+get event: 1, get_heading: 260.25, d: 260.25, sum: 1036.75
+get event: 1, get_heading: 260.63, d: 260.63, sum: 1297.38
+avg_heading, normalized: 259.48
+angle: 0.40, turn time: 40
+reached target angle
+getting right distance
+duration: 3, status: SignalFail, range: 340, peak signal rate: 0.16, ambient_count: 0.23
+getting left distance
+duration: 4, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+distance left: 9999.00, right: 9999.00
+move forward time: 1225
+got accel: 0.01, max: 0.10
+at rest!
+move time: 1924
+!! IN_MOTION, move 26
+get event: 1, get_heading: 261.50, d: 261.50, sum: 261.50
+get event: 1, get_heading: 261.50, d: 261.50, sum: 523.00
+get event: 1, get_heading: 261.50, d: 261.50, sum: 784.50
+get event: 1, get_heading: 261.50, d: 261.50, sum: 1046.00
+get event: 1, get_heading: 261.50, d: 261.50, sum: 1307.50
+avg_heading, normalized: 261.50
+direction: 259.88, heading: 261.50
+elapsed: 45936, moves left: 9, est moves time: 15.30, time diff: 3.76
+got move delay: 418
+>> EAST
+adjusting angle
+get event: 1, get_heading: 261.50, d: 261.50, sum: 261.50
+get event: 1, get_heading: 261.50, d: 261.50, sum: 523.00
+get event: 1, get_heading: 261.50, d: 261.50, sum: 784.50
+get event: 1, get_heading: 261.50, d: 261.50, sum: 1046.00
+get event: 1, get_heading: 261.50, d: 261.50, sum: 1307.50
+avg_heading, normalized: 261.50
+angle: 88.37, turn time: 627
+get event: 1, get_heading: 337.19, d: -22.81, sum: -22.81
+get event: 1, get_heading: 338.81, d: -21.19, sum: -44.00
+get event: 1, get_heading: 340.38, d: -19.62, sum: -63.63
+get event: 1, get_heading: 343.44, d: -16.56, sum: -80.19
+get event: 1, get_heading: 344.81, d: -15.19, sum: -95.37
+avg_heading, normalized: 340.92
+angle: 8.95, turn time: 63
+get event: 1, get_heading: 351.56, d: -8.44, sum: -8.44
+get event: 1, get_heading: 353.50, d: -6.50, sum: -14.94
+get event: 1, get_heading: 354.44, d: -5.56, sum: -20.50
+get event: 1, get_heading: 355.44, d: -4.56, sum: -25.06
+get event: 1, get_heading: 357.25, d: -2.75, sum: -27.81
+avg_heading, normalized: 354.44
+angle: -4.56, turn time: -40
+get event: 1, get_heading: 359.19, d: -0.81, sum: -0.81
+get event: 1, get_heading: 359.00, d: -1.00, sum: -1.81
+get event: 1, get_heading: 358.69, d: -1.31, sum: -3.13
+get event: 1, get_heading: 357.88, d: -2.13, sum: -5.25
+get event: 1, get_heading: 357.75, d: -2.25, sum: -7.50
+avg_heading, normalized: 358.50
+angle: -8.63, turn time: -61
+get event: 1, get_heading: 357.44, d: -2.56, sum: -2.56
+get event: 1, get_heading: 356.88, d: -3.13, sum: -5.69
+get event: 1, get_heading: 356.25, d: -3.75, sum: -9.44
+get event: 1, get_heading: 355.19, d: -4.81, sum: -14.25
+get event: 1, get_heading: 354.81, d: -5.19, sum: -19.44
+avg_heading, normalized: 356.11
+angle: -6.24, turn time: -44
+get event: 1, get_heading: 354.38, d: -5.63, sum: -5.63
+get event: 1, get_heading: 354.06, d: -5.94, sum: -11.56
+get event: 1, get_heading: 353.63, d: -6.38, sum: -17.94
+get event: 1, get_heading: 352.75, d: -7.25, sum: -25.19
+get event: 1, get_heading: 352.50, d: -7.50, sum: -32.69
+avg_heading, normalized: 353.46
+angle: -3.59, turn time: -40
+get event: 1, get_heading: 352.56, d: -7.44, sum: -7.44
+get event: 1, get_heading: 352.38, d: -7.63, sum: -15.06
+get event: 1, get_heading: 352.06, d: -7.94, sum: -23.00
+get event: 1, get_heading: 351.13, d: -8.88, sum: -31.87
+get event: 1, get_heading: 350.88, d: -9.13, sum: -41.00
+avg_heading, normalized: 351.80
+angle: -1.92, turn time: -40
+get event: 1, get_heading: 351.00, d: -9.00, sum: -9.00
+get event: 1, get_heading: 350.94, d: -9.06, sum: -18.06
+get event: 1, get_heading: 350.69, d: -9.31, sum: -27.37
+get event: 1, get_heading: 349.63, d: -10.38, sum: -37.75
+get event: 1, get_heading: 349.13, d: -10.88, sum: -48.63
+avg_heading, normalized: 350.27
+angle: -0.40, turn time: -40
+reached target angle
+move time: 2007
+!! IN_MOTION, move 27
+get event: 1, get_heading: 349.19, d: -10.81, sum: -10.81
+get event: 1, get_heading: 349.19, d: -10.81, sum: -21.62
+get event: 1, get_heading: 349.19, d: -10.81, sum: -32.44
+get event: 1, get_heading: 349.19, d: -10.81, sum: -43.25
+get event: 1, get_heading: 349.19, d: -10.81, sum: -54.06
+avg_heading, normalized: 349.19
+direction: 349.88, heading: 349.19
+elapsed: 47947, moves left: 8, est moves time: 13.60, time diff: 3.45
+got move delay: 431
+>> ADJUST
+adjusting distance
+target distance: 102
+getting right distance
+duration: 4, status: RangeValid, range: 117, peak signal rate: 58.03, ambient_count: 0.55
+getting left distance
+duration: 4, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+getting right distance
+duration: 4, status: RangeValid, range: 117, peak signal rate: 58.34, ambient_count: 0.55
+getting left distance
+duration: 4, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+getting right distance
+duration: 43, status: RangeValid, range: 123, peak signal rate: 20.83, ambient_count: 0.16
+getting left distance
+duration: 5, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+getting right distance
+duration: 76, status: RangeValid, range: 121, peak signal rate: 19.28, ambient_count: 0.16
+getting left distance
+duration: 3, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+getting right distance
+duration: 72, status: RangeValid, range: 122, peak signal rate: 19.34, ambient_count: 0.16
+getting left distance
+duration: 4, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+distance left: 9999.00, right: 120.00
+Cannot adjust grid distance, too far
+adjusting angle
+get event: 1, get_heading: 349.19, d: -10.81, sum: -10.81
+get event: 1, get_heading: 349.19, d: -10.81, sum: -21.62
+get event: 1, get_heading: 349.19, d: -10.81, sum: -32.44
+get event: 1, get_heading: 349.19, d: -10.81, sum: -43.25
+get event: 1, get_heading: 349.19, d: -10.81, sum: -54.06
+avg_heading, normalized: 349.19
+angle: 0.69, turn time: 40
+reached target angle
+move time: 914
+!! IN_MOTION, move 28
+get event: 1, get_heading: 349.13, d: -10.88, sum: -10.88
+get event: 1, get_heading: 349.13, d: -10.88, sum: -21.75
+get event: 1, get_heading: 349.13, d: -10.88, sum: -32.63
+get event: 1, get_heading: 349.13, d: -10.88, sum: -43.50
+get event: 1, get_heading: 349.13, d: -10.88, sum: -54.38
+avg_heading, normalized: 349.13
+direction: 349.88, heading: 349.13
+elapsed: 48864, moves left: 7, est moves time: 11.90, time diff: 4.24
+got move delay: 605
+>> SOUTH
+adjusting angle
+get event: 1, get_heading: 349.13, d: -10.88, sum: -10.88
+get event: 1, get_heading: 349.13, d: -10.88, sum: -21.75
+get event: 1, get_heading: 349.13, d: -10.88, sum: -32.63
+get event: 1, get_heading: 349.13, d: -10.88, sum: -43.50
+get event: 1, get_heading: 349.13, d: -10.88, sum: -54.38
+avg_heading, normalized: 349.13
+angle: 90.75, turn time: 644
+get event: 1, get_heading: 65.69, d: 65.69, sum: 65.69
+get event: 1, get_heading: 67.37, d: 67.37, sum: 133.06
+get event: 1, get_heading: 70.56, d: 70.56, sum: 203.63
+get event: 1, get_heading: 72.06, d: 72.06, sum: 275.69
+get event: 1, get_heading: 75.00, d: 75.00, sum: 350.69
+avg_heading, normalized: 70.14
+angle: 9.74, turn time: 69
+get event: 1, get_heading: 81.62, d: 81.62, sum: 81.62
+get event: 1, get_heading: 83.56, d: 83.56, sum: 165.19
+get event: 1, get_heading: 84.50, d: 84.50, sum: 249.69
+get event: 1, get_heading: 85.62, d: 85.62, sum: 335.31
+get event: 1, get_heading: 87.44, d: 87.44, sum: 422.75
+avg_heading, normalized: 84.55
+angle: -4.68, turn time: -40
+get event: 1, get_heading: 89.44, d: 89.44, sum: 89.44
+get event: 1, get_heading: 89.44, d: 89.44, sum: 178.88
+get event: 1, get_heading: 89.12, d: 89.12, sum: 268.00
+get event: 1, get_heading: 88.19, d: 88.19, sum: 356.19
+get event: 1, get_heading: 88.00, d: 88.00, sum: 444.19
+avg_heading, normalized: 88.84
+angle: -8.96, turn time: -63
+get event: 1, get_heading: 87.69, d: 87.69, sum: 87.69
+get event: 1, get_heading: 87.19, d: 87.19, sum: 174.88
+get event: 1, get_heading: 86.69, d: 86.69, sum: 261.56
+get event: 1, get_heading: 85.50, d: 85.50, sum: 347.06
+get event: 1, get_heading: 85.00, d: 85.00, sum: 432.06
+avg_heading, normalized: 86.41
+angle: -6.54, turn time: -46
+get event: 1, get_heading: 84.44, d: 84.44, sum: 84.44
+get event: 1, get_heading: 84.25, d: 84.25, sum: 168.69
+get event: 1, get_heading: 83.81, d: 83.81, sum: 252.50
+get event: 1, get_heading: 82.75, d: 82.75, sum: 335.25
+get event: 1, get_heading: 82.44, d: 82.44, sum: 417.69
+avg_heading, normalized: 83.54
+angle: -3.66, turn time: -40
+get event: 1, get_heading: 82.25, d: 82.25, sum: 82.25
+get event: 1, get_heading: 82.06, d: 82.06, sum: 164.31
+get event: 1, get_heading: 81.75, d: 81.75, sum: 246.06
+get event: 1, get_heading: 80.87, d: 80.87, sum: 326.94
+get event: 1, get_heading: 80.56, d: 80.56, sum: 407.50
+avg_heading, normalized: 81.50
+angle: -1.63, turn time: -40
+get event: 1, get_heading: 80.56, d: 80.56, sum: 80.56
+get event: 1, get_heading: 80.50, d: 80.50, sum: 161.06
+get event: 1, get_heading: 79.94, d: 79.94, sum: 241.00
+get event: 1, get_heading: 79.50, d: 79.50, sum: 320.50
+get event: 1, get_heading: 79.19, d: 79.19, sum: 399.69
+avg_heading, normalized: 79.94
+angle: -0.06, turn time: 0
+reached target angle
+move time: 2222
+!! IN_MOTION, move 29
+get event: 1, get_heading: 78.94, d: 78.94, sum: 78.94
+get event: 1, get_heading: 78.94, d: 78.94, sum: 157.88
+get event: 1, get_heading: 78.94, d: 78.94, sum: 236.81
+get event: 1, get_heading: 78.94, d: 78.94, sum: 315.75
+get event: 1, get_heading: 78.94, d: 78.94, sum: 394.69
+avg_heading, normalized: 78.94
+direction: 79.87, heading: 78.94
+elapsed: 51086, moves left: 6, est moves time: 10.20, time diff: 3.71
+got move delay: 619
+>> FORWARD
+adjusting angle
+get event: 1, get_heading: 78.94, d: 78.94, sum: 78.94
+get event: 1, get_heading: 78.94, d: 78.94, sum: 157.88
+get event: 1, get_heading: 78.94, d: 78.94, sum: 236.81
+get event: 1, get_heading: 78.94, d: 78.94, sum: 315.75
+get event: 1, get_heading: 78.94, d: 78.94, sum: 394.69
+avg_heading, normalized: 78.94
+angle: 0.94, turn time: 40
+reached target angle
+getting right distance
+duration: 3, status: SignalFail, range: 751, peak signal rate: 0.03, ambient_count: 0.12
+getting left distance
+duration: 3, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+distance left: 9999.00, right: 9999.00
+move forward time: 1225
+got accel: 0.17, max: 0.10
+got accel: 2.09, max: 0.10
+got accel: 0.50, max: 0.10
+got accel: 2.17, max: 0.10
+got accel: 1.77, max: 0.10
+got accel: 1.13, max: 0.10
+got accel: 0.41, max: 0.10
+got accel: 0.79, max: 0.10
+got accel: 0.02, max: 0.10
+at rest!
+move time: 2452
+!! IN_MOTION, move 30
+get event: 1, get_heading: 79.69, d: 79.69, sum: 79.69
+get event: 1, get_heading: 79.69, d: 79.69, sum: 159.38
+get event: 1, get_heading: 79.69, d: 79.69, sum: 239.06
+get event: 1, get_heading: 79.69, d: 79.69, sum: 318.75
+get event: 1, get_heading: 79.69, d: 79.69, sum: 398.44
+avg_heading, normalized: 79.69
+direction: 79.87, heading: 79.69
+elapsed: 53546, moves left: 5, est moves time: 8.50, time diff: 2.95
+got move delay: 590
+>> WEST
+adjusting angle
+get event: 1, get_heading: 79.69, d: 79.69, sum: 79.69
+get event: 1, get_heading: 79.69, d: 79.69, sum: 159.38
+get event: 1, get_heading: 79.69, d: 79.69, sum: 239.06
+get event: 1, get_heading: 79.69, d: 79.69, sum: 318.75
+get event: 1, get_heading: 79.69, d: 79.69, sum: 398.44
+avg_heading, normalized: 79.69
+angle: 90.19, turn time: 640
+get event: 1, get_heading: 156.94, d: 156.94, sum: 156.94
+get event: 1, get_heading: 160.13, d: 160.13, sum: 317.06
+get event: 1, get_heading: 161.81, d: 161.81, sum: 478.88
+get event: 1, get_heading: 163.44, d: 163.44, sum: 642.31
+get event: 1, get_heading: 166.19, d: 166.19, sum: 808.50
+avg_heading, normalized: 161.70
+angle: 8.18, turn time: 58
+get event: 1, get_heading: 171.75, d: 171.75, sum: 171.75
+get event: 1, get_heading: 173.56, d: 173.56, sum: 345.31
+get event: 1, get_heading: 174.50, d: 174.50, sum: 519.81
+get event: 1, get_heading: 175.38, d: 175.38, sum: 695.19
+get event: 1, get_heading: 177.06, d: 177.06, sum: 872.25
+avg_heading, normalized: 174.45
+angle: -4.57, turn time: -40
+get event: 1, get_heading: 179.25, d: 179.25, sum: 179.25
+get event: 1, get_heading: 178.94, d: 178.94, sum: 358.19
+get event: 1, get_heading: 178.25, d: 178.25, sum: 536.44
+get event: 1, get_heading: 177.94, d: 177.94, sum: 714.38
+get event: 1, get_heading: 177.81, d: 177.81, sum: 892.19
+avg_heading, normalized: 178.44
+angle: -8.56, turn time: -60
+get event: 1, get_heading: 177.50, d: 177.50, sum: 177.50
+get event: 1, get_heading: 177.13, d: 177.13, sum: 354.63
+get event: 1, get_heading: 176.00, d: 176.00, sum: 530.63
+get event: 1, get_heading: 175.00, d: 175.00, sum: 705.63
+get event: 1, get_heading: 174.69, d: 174.69, sum: 880.31
+avg_heading, normalized: 176.06
+angle: -6.19, turn time: -43
+get event: 1, get_heading: 174.63, d: 174.63, sum: 174.63
+get event: 1, get_heading: 174.56, d: 174.56, sum: 349.19
+get event: 1, get_heading: 173.69, d: 173.69, sum: 522.88
+get event: 1, get_heading: 173.13, d: 173.13, sum: 696.00
+get event: 1, get_heading: 172.25, d: 172.25, sum: 868.25
+avg_heading, normalized: 173.65
+angle: -3.77, turn time: -40
+get event: 1, get_heading: 172.19, d: 172.19, sum: 172.19
+get event: 1, get_heading: 172.13, d: 172.13, sum: 344.31
+get event: 1, get_heading: 172.00, d: 172.00, sum: 516.31
+get event: 1, get_heading: 171.25, d: 171.25, sum: 687.56
+get event: 1, get_heading: 171.06, d: 171.06, sum: 858.63
+avg_heading, normalized: 171.73
+angle: -1.85, turn time: -40
+get event: 1, get_heading: 171.25, d: 171.25, sum: 171.25
+get event: 1, get_heading: 171.06, d: 171.06, sum: 342.31
+get event: 1, get_heading: 170.81, d: 170.81, sum: 513.13
+get event: 1, get_heading: 170.00, d: 170.00, sum: 683.13
+get event: 1, get_heading: 169.88, d: 169.88, sum: 853.00
+avg_heading, normalized: 170.60
+angle: -0.73, turn time: -40
+reached target angle
+move time: 2197
+!! IN_MOTION, move 31
+get event: 1, get_heading: 169.88, d: 169.88, sum: 169.88
+get event: 1, get_heading: 169.88, d: 169.88, sum: 339.75
+get event: 1, get_heading: 169.88, d: 169.88, sum: 509.63
+get event: 1, get_heading: 169.88, d: 169.88, sum: 679.50
+get event: 1, get_heading: 169.88, d: 169.88, sum: 849.38
+avg_heading, normalized: 169.88
+direction: 169.88, heading: 169.88
+elapsed: 55745, moves left: 4, est moves time: 6.80, time diff: 2.46
+got move delay: 613
+>> FORWARD
+adjusting angle
+get event: 1, get_heading: 169.88, d: 169.88, sum: 169.88
+get event: 1, get_heading: 169.88, d: 169.88, sum: 339.75
+get event: 1, get_heading: 169.88, d: 169.88, sum: 509.63
+get event: 1, get_heading: 169.88, d: 169.88, sum: 679.50
+get event: 1, get_heading: 169.88, d: 169.88, sum: 849.38
+avg_heading, normalized: 169.88
+angle: 0.00, turn time: 0
+reached target angle
+getting right distance
+duration: 3, status: SignalFail, range: 1089, peak signal rate: 0.00, ambient_count: 0.17
+getting left distance
+duration: 3, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+distance left: 9999.00, right: 9999.00
+move forward time: 1225
+got accel: 0.40, max: 0.10
+got accel: 0.54, max: 0.10
+got accel: 0.93, max: 0.10
+got accel: 1.63, max: 0.10
+got accel: 1.16, max: 0.10
+got accel: 1.03, max: 0.10
+got accel: 0.59, max: 0.10
+got accel: 0.59, max: 0.10
+got accel: 0.08, max: 0.10
+at rest!
+move time: 2485
+!! IN_MOTION, move 32
+get event: 1, get_heading: 168.13, d: 168.13, sum: 168.13
+get event: 1, get_heading: 168.13, d: 168.13, sum: 336.25
+get event: 1, get_heading: 168.13, d: 168.13, sum: 504.38
+get event: 1, get_heading: 168.13, d: 168.13, sum: 672.50
+get event: 1, get_heading: 168.13, d: 168.13, sum: 840.63
+avg_heading, normalized: 168.13
+direction: 169.88, heading: 168.13
+elapsed: 58234, moves left: 3, est moves time: 5.10, time diff: 1.67
+got move delay: 555
+>> NORTH
+adjusting angle
+get event: 1, get_heading: 168.13, d: 168.13, sum: 168.13
+get event: 1, get_heading: 168.13, d: 168.13, sum: 336.25
+get event: 1, get_heading: 168.13, d: 168.13, sum: 504.38
+get event: 1, get_heading: 168.13, d: 168.13, sum: 672.50
+get event: 1, get_heading: 168.13, d: 168.13, sum: 840.63
+avg_heading, normalized: 168.13
+angle: 91.75, turn time: 651
+get event: 1, get_heading: 248.06, d: 248.06, sum: 248.06
+get event: 1, get_heading: 249.63, d: 249.63, sum: 497.69
+get event: 1, get_heading: 251.13, d: 251.13, sum: 748.81
+get event: 1, get_heading: 253.94, d: 253.94, sum: 1002.75
+get event: 1, get_heading: 255.13, d: 255.13, sum: 1257.88
+avg_heading, normalized: 251.58
+angle: 8.30, turn time: 58
+get event: 1, get_heading: 260.50, d: 260.50, sum: 260.50
+get event: 1, get_heading: 262.31, d: 262.31, sum: 522.81
+get event: 1, get_heading: 264.19, d: 264.19, sum: 787.00
+get event: 1, get_heading: 265.06, d: 265.06, sum: 1052.06
+get event: 1, get_heading: 265.88, d: 265.88, sum: 1317.94
+avg_heading, normalized: 263.59
+angle: -3.71, turn time: -40
+get event: 1, get_heading: 267.00, d: 267.00, sum: 267.00
+get event: 1, get_heading: 266.81, d: 266.81, sum: 533.81
+get event: 1, get_heading: 266.44, d: 266.44, sum: 800.25
+get event: 1, get_heading: 265.25, d: 265.25, sum: 1065.50
+get event: 1, get_heading: 264.94, d: 264.94, sum: 1330.44
+avg_heading, normalized: 266.09
+angle: -6.21, turn time: -44
+get event: 1, get_heading: 264.94, d: 264.94, sum: 264.94
+get event: 1, get_heading: 264.56, d: 264.56, sum: 529.50
+get event: 1, get_heading: 264.13, d: 264.13, sum: 793.63
+get event: 1, get_heading: 263.19, d: 263.19, sum: 1056.81
+get event: 1, get_heading: 263.00, d: 263.00, sum: 1319.81
+avg_heading, normalized: 263.96
+angle: -4.09, turn time: -40
+get event: 1, get_heading: 263.13, d: 263.13, sum: 263.13
+get event: 1, get_heading: 262.88, d: 262.88, sum: 526.00
+get event: 1, get_heading: 261.94, d: 261.94, sum: 787.94
+get event: 1, get_heading: 261.44, d: 261.44, sum: 1049.38
+get event: 1, get_heading: 261.13, d: 261.13, sum: 1310.50
+avg_heading, normalized: 262.10
+angle: -2.23, turn time: -40
+get event: 1, get_heading: 261.25, d: 261.25, sum: 261.25
+get event: 1, get_heading: 261.13, d: 261.13, sum: 522.38
+get event: 1, get_heading: 260.31, d: 260.31, sum: 782.69
+get event: 1, get_heading: 259.75, d: 259.75, sum: 1042.44
+get event: 1, get_heading: 259.19, d: 259.19, sum: 1301.63
+avg_heading, normalized: 260.33
+angle: -0.45, turn time: -40
+reached target angle
+move time: 2030
+!! IN_MOTION, move 33
+get event: 1, get_heading: 259.38, d: 259.38, sum: 259.38
+get event: 1, get_heading: 259.38, d: 259.38, sum: 518.75
+get event: 1, get_heading: 259.38, d: 259.38, sum: 778.13
+get event: 1, get_heading: 259.38, d: 259.38, sum: 1037.50
+get event: 1, get_heading: 259.38, d: 259.38, sum: 1296.88
+avg_heading, normalized: 259.38
+direction: 259.88, heading: 259.38
+elapsed: 60266, moves left: 2, est moves time: 3.40, time diff: 1.33
+got move delay: 667
+>> ADJUST
+adjusting distance
+target distance: 102
+getting right distance
+duration: 4, status: RangeValid, range: 60, peak signal rate: 113.09, ambient_count: 0.70
+getting left distance
+duration: 4, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+getting right distance
+duration: 58, status: RangeValid, range: 82, peak signal rate: 23.37, ambient_count: 0.09
+getting left distance
+duration: 4, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+getting right distance
+duration: 73, status: RangeValid, range: 85, peak signal rate: 18.30, ambient_count: 0.09
+getting left distance
+duration: 4, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+getting right distance
+duration: 76, status: RangeValid, range: 87, peak signal rate: 18.28, ambient_count: 0.09
+getting left distance
+duration: 3, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+getting right distance
+duration: 73, status: RangeValid, range: 85, peak signal rate: 18.38, ambient_count: 0.09
+getting left distance
+duration: 4, status: HardwareFail, range: 64351, peak signal rate: 511.99, ambient_count: 511.99
+distance left: 9999.00, right: 79.80
+Cannot adjust grid distance, too far
+adjusting angle
+get event: 1, get_heading: 259.31, d: 259.31, sum: 259.31
+get event: 1, get_heading: 259.31, d: 259.31, sum: 518.63
+get event: 1, get_heading: 259.31, d: 259.31, sum: 777.94
+get event: 1, get_heading: 259.31, d: 259.31, sum: 1037.25
+get event: 1, get_heading: 259.31, d: 259.31, sum: 1296.56
+avg_heading, normalized: 259.31
+angle: 0.56, turn time: 40
+reached target angle
+move time: 1223
+!! IN_MOTION, move 34
+get event: 1, get_heading: 259.31, d: 259.31, sum: 259.31
+get event: 1, get_heading: 259.31, d: 259.31, sum: 518.63
+get event: 1, get_heading: 259.31, d: 259.31, sum: 777.94
+get event: 1, get_heading: 259.31, d: 259.31, sum: 1037.25
+get event: 1, get_heading: 259.31, d: 259.31, sum: 1296.56
+avg_heading, normalized: 259.31
+direction: 259.88, heading: 259.31
+elapsed: 61569, moves left: 1, est moves time: 1.70, time diff: 1.73
+got move delay: 1730
+>> BACKWARD_TO_TARGET
+got accel: 1.25, max: 0.10
+got accel: 2.40, max: 0.10
+got accel: 2.19, max: 0.10
+got accel: 0.72, max: 0.10
+got accel: 2.23, max: 0.10
+got accel: 0.52, max: 0.10
+got accel: 0.11, max: 0.10
+got accel: 0.32, max: 0.10
+got accel: 0.27, max: 0.10
+got accel: 0.23, max: 0.10
+got accel: 0.22, max: 0.10
+got accel: 0.26, max: 0.10
+got accel: 0.21, max: 0.10
+got accel: 0.27, max: 0.10
+got accel: 0.22, max: 0.10
+got accel: 0.26, max: 0.10
+got accel: 0.22, max: 0.10
+got accel: 0.24, max: 0.10
+got accel: 0.25, max: 0.10
+got accel: 0.24, max: 0.10
+move time: 3283
+>> FINISH
+final time: 64705
