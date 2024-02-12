@@ -1,0 +1,310 @@
+Frank OS, version 0.1.108
+init sensors
+Initializing left sensor...
+Initializing right sensor...
+!! START
+!! WAIT_FOR_READY
+!! READY
+getting right distance
+duration: 7, status: SignalFail, range: 219, peak signal rate: 0.18, ambient_count: 0.12
+getting left distance
+duration: 7, status: SignalFail, range: 282, peak signal rate: 0.10, ambient_count: 0.11
+zero accel, x: 0.05, y: -0.17, z: 9.75
+using program A
+got base direction: 181.63
+
+!! IN_MOTION, move 0
+direction: 181.63, heading: 181.63
+got time diff: -2.76
+got move delay: 100
+>> GO_IN
+
+!! IN_MOTION, move 1
+direction: 181.63, heading: 182.10
+got time diff: -2.23
+got move delay: 100
+>> FORWARD
+adjusting angle
+angle: 0.25, turn time: 40
+getting right distance
+duration: 4, status: SignalFail, range: 56, peak signal rate: 0.24, ambient_count: 0.09
+getting left distance
+duration: 3, status: SignalFail, range: 823, peak signal rate: 0.16, ambient_count: 0.10
+distance left: 999.00, right: 999.00
+distance left: 999.00, right 999.00
+move time 1200
+adjusting angle
+angle: 1.68, turn time: 40
+angle: 0.75, turn time: 40
+
+!! IN_MOTION, move 2
+direction: 181.63, heading: 185.16
+got time diff: -2.25
+got move delay: 100
+>> FORWARD
+adjusting angle
+angle: -4.77, turn time: -40
+angle: -2.01, turn time: -40
+angle: -0.95, turn time: -40
+getting right distance
+duration: 4, status: SignalFail, range: 0, peak signal rate: 0.19, ambient_count: 0.11
+getting left distance
+duration: 4, status: SignalFail, range: 327, peak signal rate: 0.14, ambient_count: 0.09
+distance left: 999.00, right: 999.00
+distance left: 999.00, right 999.00
+move time 1200
+adjusting angle
+angle: -0.51, turn time: -40
+
+!! IN_MOTION, move 3
+direction: 181.63, heading: 181.55
+got time diff: -2.37
+got move delay: 100
+>> FORWARD
+adjusting angle
+angle: -0.85, turn time: -40
+getting right distance
+duration: 4, status: OutOfBoundsFail, range: 1909, peak signal rate: 0.36, ambient_count: 0.09
+getting left distance
+duration: 4, status: SignalFail, range: 1313, peak signal rate: 0.17, ambient_count: 0.09
+distance left: 999.00, right: 999.00
+distance left: 999.00, right 999.00
+move time 1200
+adjusting angle
+angle: -0.45, turn time: -40
+
+!! IN_MOTION, move 4
+direction: 181.63, heading: 181.76
+got time diff: -2.29
+got move delay: 100
+>> WEST
+adjusting angle
+angle: -108.29, turn time: -768
+angle: 21.66, turn time: 153
+angle: -3.62, turn time: -40
+angle: -2.63, turn time: -40
+angle: -1.09, turn time: -40
+angle: 0.47, turn time: 40
+
+!! IN_MOTION, move 5
+direction: 91.62, heading: 108.51
+got time diff: -2.26
+got move delay: 100
+>> FORWARD
+adjusting angle
+angle: 0.84, turn time: 40
+getting right distance
+duration: 4, status: OutOfBoundsFail, range: 1362, peak signal rate: 0.03, ambient_count: 0.15
+getting left distance
+duration: 4, status: OutOfBoundsFail, range: 1421, peak signal rate: 0.02, ambient_count: 0.15
+distance left: 999.00, right: 999.00
+distance left: 999.00, right 999.00
+move time 1200
+adjusting angle
+angle: 1.47, turn time: 40
+angle: 0.50, turn time: 40
+
+!! IN_MOTION, move 6
+direction: 91.62, heading: 95.54
+got time diff: -2.28
+got move delay: 100
+>> FORWARD
+adjusting angle
+angle: -4.35, turn time: -40
+angle: -2.74, turn time: -40
+angle: -1.56, turn time: -40
+angle: -0.11, turn time: 0
+getting right distance
+duration: 4, status: SignalFail, range: 1139, peak signal rate: 0.16, ambient_count: 0.16
+getting left distance
+duration: 4, status: SignalFail, range: 1151, peak signal rate: 0.25, ambient_count: 0.16
+distance left: 999.00, right: 999.00
+distance left: 999.00, right 999.00
+move time 1200
+adjusting angle
+angle: 0.75, turn time: 40
+
+!! IN_MOTION, move 7
+direction: 91.62, heading: 90.69
+got time diff: -2.50
+got move delay: 100
+>> FORWARD
+adjusting angle
+angle: 0.80, turn time: 40
+getting right distance
+duration: 4, status: SignalFail, range: 729, peak signal rate: 0.24, ambient_count: 0.34
+getting left distance
+duration: 4, status: SignalFail, range: 708, peak signal rate: 0.39, ambient_count: 0.36
+distance left: 999.00, right: 999.00
+distance left: 999.00, right 999.00
+move time 1200
+adjusting angle
+angle: 1.19, turn time: 40
+angle: 0.32, turn time: 40
+
+!! IN_MOTION, move 8
+direction: 91.62, heading: 94.94
+got time diff: -2.51
+got move delay: 100
+>> SOUTH
+adjusting angle
+angle: -93.76, turn time: -665
+angle: 2.40, turn time: 40
+angle: -9.31, turn time: -66
+angle: -5.99, turn time: -42
+angle: -4.59, turn time: -40
+angle: -3.01, turn time: -40
+angle: -1.45, turn time: -40
+angle: 0.25, turn time: 40
+
+!! IN_MOTION, move 9
+direction: 1.63, heading: 0.89
+got time diff: -16.90
+got move delay: 100
+>> FORWARD
+adjusting angle
+angle: -0.54, turn time: -40
+getting right distance
+duration: 4, status: OutOfBoundsFail, range: 0, peak signal rate: 0.37, ambient_count: 0.80
+getting left distance
+duration: 4, status: OutOfBoundsFail, range: 0, peak signal rate: 0.27, ambient_count: 1.40
+distance left: 999.00, right: 999.00
+distance left: 999.00, right 999.00
+move time 1200
+adjusting angle
+angle: 1.91, turn time: 40
+angle: -143.13, turn time: -1016
+angle: 152.01, turn time: 1079
+angle: -104.35, turn time: -740
+angle: 91.80, turn time: 651
+angle: -11.96, turn time: -84
+angle: 2.92, turn time: 40
+angle: -71.50, turn time: -507
+angle: 69.22, turn time: 491
+angle: -1.46, turn time: -40
+
+!! IN_MOTION, move 10
+direction: 1.63, heading: 358.21
+got time diff: -22.00
+got move delay: 100
+>> FORWARD
+adjusting angle
+angle: 2.01, turn time: 40
+angle: 2.51, turn time: 40
+angle: 145.19, turn time: 1030
+angle: -160.99, turn time: -1143
+angle: 30.32, turn time: 215
+angle: -14.90, turn time: -105
+angle: -7.88, turn time: -55
+angle: -5.12, turn time: -40
+angle: -3.58, turn time: -40
+angle: -2.68, turn time: -40
+getting right distance
+duration: 4, status: RangeValid, range: 151, peak signal rate: 1.59, ambient_count: 0.33
+getting left distance
+duration: 4, status: OutOfBoundsFail, range: 1843, peak signal rate: 0.20, ambient_count: 0.31
+distance left: 999.00, right: 151.00
+distance left: 999.00, right 151.00
+obstacle detected at 51.00
+move time 122
+adjusting angle
+angle: -1.94, turn time: -40
+angle: -0.45, turn time: -40
+
+!! IN_MOTION, move 11
+direction: 1.63, heading: 0.44
+got time diff: -24.21
+got move delay: 100
+>> FORWARD
+adjusting angle
+angle: -0.01, turn time: 0
+getting right distance
+duration: 4, status: SignalFail, range: 7, peak signal rate: 0.78, ambient_count: 0.30
+getting left distance
+duration: 3, status: OutOfBoundsFail, range: 1897, peak signal rate: 0.43, ambient_count: 0.37
+distance left: 999.00, right: 999.00
+distance left: 999.00, right 999.00
+move time 1200
+adjusting angle
+angle: 0.39, turn time: 40
+
+!! IN_MOTION, move 12
+direction: 1.63, heading: 0.75
+got time diff: -24.13
+got move delay: 100
+>> EAST
+adjusting angle
+angle: -143.41, turn time: -1018
+angle: 63.68, turn time: 452
+angle: -14.37, turn time: -102
+angle: -3.05, turn time: -40
+angle: -2.68, turn time: -40
+angle: -1.11, turn time: -40
+angle: 0.16, turn time: 40
+
+!! IN_MOTION, move 13
+direction: 271.63, heading: 324.96
+got time diff: -24.81
+got move delay: 100
+>> FORWARD
+adjusting angle
+angle: 0.17, turn time: 40
+getting right distance
+duration: 4, status: SignalFail, range: 356, peak signal rate: 0.08, ambient_count: 0.44
+getting left distance
+duration: 3, status: SignalFail, range: 275, peak signal rate: 0.30, ambient_count: 0.40
+distance left: 999.00, right: 999.00
+distance left: 999.00, right 999.00
+move time 1200
+adjusting angle
+angle: 0.80, turn time: 40
+
+!! IN_MOTION, move 14
+direction: 271.63, heading: 269.92
+got time diff: -24.73
+got move delay: 100
+>> FORWARD
+adjusting angle
+angle: 1.20, turn time: 40
+angle: 0.82, turn time: 40
+getting right distance
+duration: 4, status: SignalFail, range: 0, peak signal rate: 0.12, ambient_count: 0.16
+getting left distance
+duration: 5, status: SignalFail, range: 0, peak signal rate: 0.16, ambient_count: 0.14
+distance left: 999.00, right: 999.00
+distance left: 999.00, right 999.00
+move time 1200
+adjusting angle
+angle: 0.59, turn time: 40
+
+!! IN_MOTION, move 15
+direction: 271.63, heading: 270.54
+got time diff: -24.76
+got move delay: 100
+>> FORWARD
+adjusting angle
+angle: 0.74, turn time: 40
+getting right distance
+duration: 3, status: SignalFail, range: 0, peak signal rate: 0.14, ambient_count: 0.16
+getting left distance
+duration: 4, status: OutOfBoundsFail, range: 0, peak signal rate: 0.33, ambient_count: 0.12
+distance left: 999.00, right: 999.00
+distance left: 999.00, right 999.00
+move time 1200
+adjusting angle
+angle: 1.52, turn time: 40
+angle: 0.99, turn time: 40
+
+!! IN_MOTION, move 16
+direction: 271.63, heading: 274.19
+got time diff: -24.78
+got move delay: 100
+>> NORTH
+adjusting angle
+angle: -92.76, turn time: -658
+angle: 0.10, turn time: 0
+!! IN_MOTION, move 17
+direction: 181.63, heading: 190.75
+got time diff: -24.13
+got move delay: 100
+>> STOP
