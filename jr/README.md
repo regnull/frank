@@ -5,3 +5,11 @@
 (MicroPython)[https://docs.micropython.org/en/latest/]
 
 (Pololu MicroPython custom builds)[https://github.com/pololu/micropython-build]
+
+## Make Stuff
+
+make sync - to sync up the program to Frank
+
+make repl - to connect to Frank
+
+to exit, Ctrl-A, K then y
