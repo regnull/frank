@@ -5,3 +5,5 @@
 (MicroPython)[https://docs.micropython.org/en/latest/]
 
 (Pololu MicroPython custom builds)[https://github.com/pololu/micropython-build]
+
+(Pololu GitHub repo)[https://github.com/pololu/zumo-2040-robot]
