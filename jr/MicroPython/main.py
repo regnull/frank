@@ -2,11 +2,10 @@
 # printing them to the USB serial port.
 
 from zumo_2040_robot import robot
+import machine
 from bno055 import *
 import time
-import machine
-
-proximity_sensors = robot.ProximitySensors()
+from program import parse_program
 
 print("Starting...")
 
@@ -15,16 +14,12 @@ imu = BNO055(i2c)
 
 display = robot.Display()
 
+# Parse the program file
+time_goal, commands = parse_program('prog_a.json')
 calibrated = False
 while True:
     time.sleep(1)
     display.fill(0)
-
-    proximity_sensors.read()
-    reading_front_left = proximity_sensors.front_counts_with_left_leds()
-    reading_front_right = proximity_sensors.front_counts_with_right_leds()
-
-    print(reading_front_left, reading_front_right)
 
     if not calibrated:
         calibrated = imu.calibrated()
@@ -34,6 +29,4 @@ while True:
         ), 0, 0)
     euler = imu.euler()
     display.text('hd {:4.0f}'.format(euler[0]), 0, 10)
-    display.text('left {}'.format(reading_front_left), 0, 20)
-    display.text('right {}'.format(reading_front_right), 0, 30)
     display.show()
