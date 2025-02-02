@@ -1,6 +1,6 @@
 import re
 
-commands = [
+frank_commands = [
     "GO_IN",
     "GI",
     "FORWARD",
@@ -44,7 +44,9 @@ class Program:
     commands = []
 
     with open(file_name, 'r') as file:
+      line_number = 0
       for line in file:
+        line_number += 1
         line = line.strip()
 
         # 1. Ignore comment lines and blank lines
@@ -57,11 +59,16 @@ class Program:
           # Simple pattern allowing optional spaces around '=' and capturing digits
           match = re.match('^TIME_GOAL[ \t]*=[ \t]*([0-9]+)[ \t]*$', line)
           if match:
+              time_goal_str = match.group(1)
               # Extract numeric value
               try:
-                  time_goal = int(match.group(1))
+                  time_goal = int(time_goal_str)
               except ValueError:
-                  raise ValueError("TIME_GOAL must be an integer: {}".format(line))
+                  raise ValueError(f"bad time goal: {time_goal_str}, line: {line_number}")
+              if time_goal < 20:
+                time_goal = 20
+              if time_goal > 240:
+                time_goal = 240
           else:
               raise ValueError("TIME_GOAL must appear before any commands, "
                               "in the form 'TIME_GOAL = <number>'.")
@@ -70,6 +77,8 @@ class Program:
           for cmd in split_cmds:
             cmd = cmd.strip()
             if cmd:
+              if cmd not in frank_commands:
+                raise ValueError(f"Bad cmd: {cmd} at line: {line_number}")
               commands.append(cmd)
 
     # Final checks
@@ -84,9 +93,6 @@ class Program:
 
     self.time_goal = float(time_goal)
     self.commands = commands
-    for command in self.commands:
-      if command not in commands:
-        raise ValueError("Unknown command: ", command)
 
   def reset(self):
     self.current_command = 0

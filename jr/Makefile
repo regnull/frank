@@ -1,6 +1,7 @@
 .PHONY: sync
 .PHONY: repl
-
+.PHONY: clear_logs
+.PHONY: log
 sync:
 	rsync -av  --progress --checksum --exclude .git MicroPython/ /Volumes/MicroPython/
 
@@ -14,3 +15,9 @@ repl:
 		screen $$DEVICE 115200; \
 	fi
 
+clear_logs:
+	rm -f /Volumes/MicroPython/log/*.log
+
+log:
+	@last_log=$(shell ls /Volumes/MicroPython/log/*.log | sort -V | tail -n 1); \
+	cat $$last_log

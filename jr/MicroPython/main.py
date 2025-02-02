@@ -1,13 +1,12 @@
-# Runs all the IMU sensors, displaying values on the screen and
-# printing them to the USB serial port.
-
 from zumo_2040_robot import robot
 import machine
 from bno055 import *
 import time
 from program import Program
-import sys
 from vl53l4cd import VL53L4CD
+from flog import Log
+
+log = Log("log/run")
 
 rotations_per_mm = 10.45
 angle_correction_factor = 0.02
@@ -24,19 +23,25 @@ imu = BNO055(i2c)
 # Distance sensor
 vl53 = VL53L4CD(i2c)
 
+north_heading = 0.0
 heading = 0.0
-speed = 2000
+speed = 1000
 
 def correct_angle(angle: float):
-    if angle > 180.0:
+    while angle > 180.0:
         angle -= 360.0
-    elif angle < -180.0:
+    while angle < -180.0:
         angle += 360.0
     return angle
 
 def prints(s: str):
+    ypos = 0
     display.fill(0)
-    display.text(s, 0, 0)
+    while len(s) > 16:
+        display.text(s[:16], 0, ypos)
+        s = s[16:]
+        ypos += 10
+    display.text(s, 0, ypos)
     display.show()
 
 def printa(s: any):
@@ -46,6 +51,7 @@ def printa(s: any):
     display.show()
 
 def move(distance: float, speed: int):
+    log.print(f"move, distance: {distance}, speed: {speed}")
     # Make sure the speed and distance have the same sign.
     if distance < 0 and speed > 0:
         speed = -speed
@@ -57,8 +63,9 @@ def move(distance: float, speed: int):
 
     # Compute goal rotations.
     goal_rotations = distance * rotations_per_mm
+    log.print(f"goal_rotations: {goal_rotations}")
     zero_counts = encoders.get_counts()
-
+    log.print(f"zero_counts: {zero_counts}")
     motors.set_speeds(speed, speed)
     while True:
         c = encoders.get_counts()
@@ -95,19 +102,56 @@ def move(distance: float, speed: int):
 
         time.sleep_ms(10)
     motors.set_speeds(0, 0)
+    log.print("move finished, actual heading: {}".format(imu.euler()[0]))
+    count_left = encoders.get_counts()[0] - zero_counts[0]
+    count_right = encoders.get_counts()[1] - zero_counts[1]
+    log.print(f"count_left: {count_left}, count_right: {count_right}")
+
+def face(desired_heading: float):
+    global heading
     
+    log.print("Face, desired_heading: {:4.1f}".format(desired_heading))
+    log.print(f"Actual heading: {imu.euler()}")
+    angle = correct_angle(imu.euler()[0] - desired_heading)
+    initial_angle = angle
+
+    log.print("Angle: {:4.1f}".format(angle))
+
+    if angle > 0:
+        motors.set_speeds(-speed, speed)
+    else:
+        motors.set_speeds(speed, -speed)
+
+    while True:
+        actual_heading = imu.euler()[0]
+        angle = correct_angle(actual_heading - desired_heading)
+
+        printa([
+            "act: {:4.1f}".format(actual_heading),
+            "ang: {:4.1f}".format(angle),
+            "ian: {:4.1f}".format(initial_angle),
+            "hdn: {:4.1f}".format(desired_heading),
+        ])
+
+        if angle * initial_angle < 0:
+            break
+
+        time.sleep_ms(10)
+    motors.set_speeds(0, 0)
+    heading = desired_heading
+    log.print(f"Turn finished, actual heading: {imu.euler()}")
+
 def go_in():
-    move(grid_size/2 - dowel_to_middle, speed)
+    move(grid_size/2 + dowel_to_middle, speed)
     
 def forward():
     move(grid_size, speed)
     
 def adjust():
-    print("Adjusting...")
     dist = vl53.get_distance() * 10
-    print(f"Distance: {dist} cm")
     desired_distance = grid_size / 2 - sensor_to_middle
     delta = dist - desired_distance
+    log.print(f"Distance: {dist} mm, delta: {delta} mm")
     move(delta, 1000)
 
 def backward():
@@ -133,20 +177,19 @@ def delay():
     time.sleep_ms(1000)
 
 def north():
-    face(0.0)
+    face(north_heading)
     
 def east():
-    face(90.0)
+    face(north_heading + 90.0)
     
 def south():
-    face(180.0)
+    face(north_heading + 180.0)
     
 def west():
-    face(270.0)
+    face(north_heading + 270.0)
     
 def stop():
-    # TODO: Implement this
-    pass
+    log.print("stop")
 
 command_map = {
     'GO_IN': go_in,
@@ -165,72 +208,10 @@ command_map = {
     'STOP': stop,
 }
 
-def face(desired_heading: float):
-    global heading
-    
-    prints("Face")
-    angle = correct_angle(imu.euler()[0] - desired_heading)
-    initial_angle = angle
-
-    prints("Angle: {:4.1f}".format(angle))
-
-    if angle > 0:
-        motors.set_speeds(-1000, 1000)
-    else:
-        motors.set_speeds(1000, -1000)
-
-    while True:
-        actual_heading = imu.euler()[0]
-        angle = correct_angle(actual_heading - desired_heading)
-
-        printa([
-            "act: {:4.1f}".format(actual_heading),
-            "ang: {:4.1f}".format(angle),
-            "ian: {:4.1f}".format(initial_angle),
-            "hdn: {:4.1f}".format(desired_heading),
-        ])
-
-        if angle * initial_angle < 0:
-            # prints("Angle reached")
-            break
-
-        # prints("Angle: {:4.1f}".format(angle))
-
-        time.sleep_ms(10)
-    motors.set_speeds(0, 0)
-    heading = desired_heading
-
 def main():
-    '''
-    vl53.inter_measurement = 0 # makes sensor run in "continuous mode" (default)
-    vl53.timing_budget = 20 # spend 20ms on each measurement
-
-    print("VL53L4CD Simple Test.")
-    print("--------------------")
-    model_id, module_type = vl53.model_info
-    print("Model ID: 0x{:0X}".format(model_id))
-    print("Module Type: 0x{:0X}".format(module_type))
-    print("Timing Budget: {}".format(vl53.timing_budget))
-    print("Inter-Measurement: {}".format(vl53.inter_measurement))
-    print("--------------------")
-
-    vl53.start_ranging()
-
-    while True:
-        ### OLD
-        # while not vl53.data_ready:
-        #     pass
-        # vl53.clear_interrupt()
-        # print("Distance: {} cm".format(vl53.distance))
-
-        ### NEW (convenience method):
-        dist = vl53.get_distance()
-        print(f"Distance: {dist} cm")
-    return
-    '''
-    
-    
     global heading
+
+    log.print("Starting...")
 
     for i in range(6):
         rgb_leds.set_brightness(1, i)
@@ -243,23 +224,28 @@ def main():
     program = Program()
     program.load('program.frank')
     
+    log.print("Program loaded")
+    log.print(f"Commands: {program.commands}")
+    
     # Initialize the distance sensor
     vl53.inter_measurement = 0 # makes sensor run in "continuous mode" (default)
     vl53.timing_budget = 20 # spend 20ms on each measurement
     vl53.start_ranging()
-
+    log.print("Distance sensor initialized")
+    
     rgb_leds.set(0, [0, 255, 0])
     rgb_leds.show()
 
-    display.fill(0)
-    display.text("Ready", 0, 0)
-    display.show()
-
+    printa(["Ready to start", "tgoal: {}".format(program.time_goal), 'Press B to start'])
+    log.print("Ready to start")
+    
     button_b = robot.ButtonB()
 
     # Wait for the user to start the program
+    log.print("Waiting for button press...")
     while not button_b.is_pressed():
         time.sleep_ms(10)
+    log.print("Button pressed, starting the countdown")
 
     # Pause and show some fun lights
     start_time = time.ticks_us()
@@ -274,28 +260,38 @@ def main():
     rgb_leds.set(1, [0, 0, 0])
     rgb_leds.show()
     
-    prints("Starting...")    
+    log.print("Time to go!")
     heading = imu.euler()[0]
+    north_heading = heading
     program.reset()
     while program.has_more_commands():
         cmd = program.next_command()
-        prints("cmd: {}".format(cmd))
+        log.print(f"cmd: {cmd}")
         time.sleep_ms(1000)
         command_map[cmd]()
         time.sleep_ms(1000)
         
+    log.print("Finished")
     for i in range(6):
-        rgb_leds.set(i, [255, 0, 0])
+        rgb_leds.set(i, [0, 255, 0])
     rgb_leds.show()
+    log.close()
 
 if __name__ == "__main__":
     try: 
         main()
     except Exception as e:
-        file = open("error.txt", "w")
-        sys.print_exception(e, file)
-        file.close()
-        rgb_leds.set(1, [255, 0, 0])
-        rgb_leds.show()
+        log.print("Error")
+        log.print_exception(e)
+        prints(str(e))
+        for i in range(10):
+            for i in range(6):
+                rgb_leds.set(i, [255, 0, 0])
+                rgb_leds.show()
+                time.sleep_ms(500)
+            for i in range(6):
+                rgb_leds.set(i, [0, 0, 0])
+                rgb_leds.show()
+                time.sleep_ms(500)
 
         raise e
