@@ -1,4 +1,4 @@
-import json
+import re
 
 commands = [
     "GO_IN",
@@ -13,11 +13,6 @@ commands = [
     "L",
     "TURN_RIGHT",
     "R",
-    "LEFT_SHIFT",
-    "LS",
-    "RIGHT_SHIFT",
-    "RS",
-    "TEST_MOVE",
     "FORWARD_TO_TARGET",
     "FT",
     "BACKWARD_TO_TARGET",
@@ -35,73 +30,115 @@ commands = [
     "STOP"
 ]
 
-def parse_program(program):
-  with open(program, 'r') as f:
-    p = json.load(f)
-    time_goal = p['time_goal']
+class Program:
+  def __init__(self):
+    self.time_goal = 0
+    self.commands = []
+    self.current_command = 0
+      
+  def load(self, file_name):
+    self.current_command = 0
+    self.commands = []
+    
+    time_goal = None
     commands = []
-    for command in p['commands']:
-      c = command.split(',')
-      for cmd in c:
-        commands.append(cmd.strip())
 
-    for command in commands:
+    with open(file_name, 'r') as file:
+      for line in file:
+        line = line.strip()
+
+        # 1. Ignore comment lines and blank lines
+        if not line or line.startswith('#'):
+            continue
+
+        # If we haven't yet found the TIME_GOAL, the next non-comment, non-blank line
+        # must match something like: TIME_GOAL   =   60
+        if time_goal is None:
+          # Simple pattern allowing optional spaces around '=' and capturing digits
+          match = re.match('^TIME_GOAL[ \t]*=[ \t]*([0-9]+)[ \t]*$', line)
+          if match:
+              # Extract numeric value
+              try:
+                  time_goal = int(match.group(1))
+              except ValueError:
+                  raise ValueError("TIME_GOAL must be an integer: {}".format(line))
+          else:
+              raise ValueError("TIME_GOAL must appear before any commands, "
+                              "in the form 'TIME_GOAL = <number>'.")
+        else:
+          split_cmds = line.split(',')
+          for cmd in split_cmds:
+            cmd = cmd.strip()
+            if cmd:
+              commands.append(cmd)
+
+    # Final checks
+    if time_goal is None:
+        raise ValueError("Missing TIME_GOAL line in the input file.")
+
+    if not commands:
+        raise ValueError("No commands found after TIME_GOAL.")
+      
+    if commands[-1] != "STOP":
+      commands.append("STOP")
+
+    self.time_goal = float(time_goal)
+    self.commands = commands
+    for command in self.commands:
       if command not in commands:
         raise ValueError("Unknown command: ", command)
 
-    return time_goal, commands
+  def reset(self):
+    self.current_command = 0
 
-'''
-if(s == "GO_IN" || s == "GI") {
-    return GO_IN;
-  }
-  if(s == "FORWARD" || s == "F") {
-    return FORWARD;
-  }
-  if(s == "ADJUST" || s == "A") {
-    return ADJUST;
-  }
-  if(s == "BACKWARD" || s == "B") {
-    return BACKWARD;
-  } 
-  if(s == "TURN_LEFT" || s == "L") {
-    return TURN_LEFT;
-  }
-  if(s == "TURN_RIGHT" || s == "R") {
-    return TURN_RIGHT;
-  }
-  if(s == "LEFT_SHIFT" || s == "LS") {
-    return LEFT_SHIFT;
-  }
-  if(s == "RIGHT_SHIFT" || s == "RS") {
-    return RIGHT_SHIFT;
-  }
-  if(s == "TEST_MOVE") {
-    return TEST_MOVE;
-  }
-  if(s == "FORWARD_TO_TARGET" || s == "FT") {
-    return FORWARD_TO_TARGET;
-  }
-  if(s == "BACKWARD_TO_TARGET" || s == "BT") {
-    return BACKWARD_TO_TARGET;
-  }
-  if(s == "DELAY" || s == "D") {
-    return DELAY;
-  }
-  if(s == "NORTH" || s == "N") {
-    return NORTH;
-  }
-  if(s == "EAST" || s == "E") {
-    return EAST;
-  }
-  if(s == "SOUTH" || s == "S") {
-    return SOUTH;
-  }
-  if(s == "WEST" || s == "W") {
-    return WEST;
-  }
-  if( s == "STOP") {
-    return STOP;
-  }
-'''
+  def next_command(self):
+    if self.current_command >= len(self.commands):
+      return None
+    
+    cmd = self.commands[self.current_command]
+    self.current_command += 1
+    return self._translate_command(cmd)
 
+  def has_more_commands(self):
+    return self.current_command < len(self.commands)
+  
+  def _translate_command(self, cmd):
+    '''Always translate commands to the full command name'''
+    
+    if cmd == 'GI':
+      return 'GO_IN'
+    elif cmd == 'F':
+      return 'FORWARD'
+    elif cmd == 'A':
+      return 'ADJUST'
+    elif cmd == 'B':
+      return 'BACKWARD'
+    elif cmd == 'L':
+      return 'TURN_LEFT'
+    elif cmd == 'R':
+      return 'TURN_RIGHT'
+    elif cmd == 'FT':
+      return 'FORWARD_TO_TARGET'
+    elif cmd == 'BT':
+      return 'BACKWARD_TO_TARGET'
+    elif cmd == 'D':
+      return 'DELAY'
+    elif cmd == 'N':
+      return 'NORTH'
+    elif cmd == 'E':
+      return 'EAST'
+    elif cmd == 'S':
+      return 'SOUTH'
+    elif cmd == 'W':
+      return 'WEST'
+    elif cmd == 'STOP':
+      return 'STOP'
+    return cmd
+
+def main():
+  program = Program()
+  program.load('/Users/regnull/work/frank/jr/MicroPython/program.frank')
+  print(program.commands)
+
+if __name__ == "__main__":
+  main()
