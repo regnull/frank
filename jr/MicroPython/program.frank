@@ -1,0 +1,31 @@
+# Don't forget to set the time goal!
+TIME_GOAL = 60
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+# Commands
+
+A
+
+# F
+# W
+# F
+# S
+# F
+# E
+# F
+# STOP
+
+# Reference
+# GO_IN or GI: Go in to the grid.
+# FORWARD or F: Move forward.
+# ADJUST or A: Adjust to the middle of the grid.
+# BACKWARD or B: Move backward.
+# TURN_LEFT or L: Turn left.
+# TURN_RIGHT or R: Turn right.
+# FORWARD_TO_TARGET or FT: Move forward to the target.
+# BACKWARD_TO_TARGET or BT: Move backward to the target.
+# NORTH or N: Face north.
+# EAST or E: Face east.
+# SOUTH or S: Face south.
+# WEST or W: Face west.
+# STOP: Stop the robot.
