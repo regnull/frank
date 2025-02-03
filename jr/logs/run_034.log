@@ -1,0 +1,155 @@
+1502 Starting...
+1700 Program loaded
+1816 Commands: ['GO_IN', 'F', 'A', 'E', 'F', 'N', 'F', 'W', 'F', 'A', 'N', 'F', 'W', 'F', 'S', 'F', 'A', 'W', 'F', 'S', 'F', 'E', 'F', 'A', 'STOP']
+1971 Distance sensor initialized
+2084 Ready to start
+2201 Waiting for button press...
+5526 Button pressed, starting the countdown
+7648 Time to go!
+
+7765 cmd: GO_IN
+7884 move, distance: 306.0, speed: 2000
+8001 goal_rotations: 3197.7
+8116 zero_counts: (0, 0)
+11123 move finished, actual heading: 357.75
+11240 count_left: 3188, count_right: 3240
+
+11856 cmd: FORWARD
+11978 move, distance: 500, speed: 2000
+12097 goal_rotations: 5225.0
+12219 zero_counts: (3188, 3240)
+16726 move finished, actual heading: 358.3125
+16844 count_left: 5185, count_right: 5287
+
+17460 cmd: ADJUST
+17603 Distance: 187.0 mm, delta: -13.0 mm
+17723 move, distance: -13.0, speed: 1000
+17842 goal_rotations: -135.85
+17962 zero_counts: (8373, 8527)
+18099 move finished, actual heading: 358.25
+18214 count_left: 6, count_right: 6
+
+18832 cmd: EAST
+18948 Face, desired_heading: 447.7
+19069 Actual heading: (358.25, -5.625, 3.5625)
+19187 Angle: -89.4
+21435 Turn finished, actual heading: (88.4375, -2.75, 1.1875)
+22055 cmd: FORWARD
+22171 move, distance: 500, speed: 2000
+22293 goal_rotations: 5225.0
+22410 zero_counts: (9202, 7650)
+27000 move finished, actual heading: 89.625
+27120 count_left: 5174, count_right: 5303
+27738 cmd: NORTH
+27856 Face, desired_heading: 357.7
+27972 Actual heading: (89.6875, -5.0625, 2.0625)
+28092 Angle: 92.0
+30278 Turn finished, actual heading: (356.5625, -6.6875, 2.25)
+30895 cmd: FORWARD
+31008 move, distance: 500, speed: 2000
+31128 goal_rotations: 5225.0
+31243 zero_counts: (13447, 13838)
+35867 move finished, actual heading: 355.5
+35984 count_left: 5201, count_right: 5268
+36603 cmd: WEST
+36722 Face, desired_heading: 627.7
+36842 Actual heading: (355.625, -5.0625, 3.1875)
+36960 Angle: 87.9
+38976 Turn finished, actual heading: (266.875, -7.5, 2.375)
+39593 cmd: FORWARD
+39713 move, distance: 500, speed: 2000
+39831 goal_rotations: 5225.0
+39950 zero_counts: (17763, 19980)
+44455 move finished, actual heading: 265.3125
+44574 count_left: 5207, count_right: 5290
+
+45191 cmd: ADJUST
+45334 Distance: 111.0 mm, delta: -89.0 mm
+45455 move, distance: -89.0, speed: 1000
+45577 goal_rotations: -930.05
+45697 zero_counts: (22970, 25270)
+45839 move finished, actual heading: 265.3125
+45960 count_left: 5, count_right: 5
+46579 cmd: NORTH
+46698 Face, desired_heading: 357.7
+46823 Actual heading: (265.3125, -6.8125, 3.1875)
+46943 Angle: -92.4
+49370 Turn finished, actual heading: (358.875, -3.25, 2.125)
+49987 cmd: FORWARD
+50107 move, distance: 500, speed: 2000
+50228 goal_rotations: 5225.0
+50349 zero_counts: (23890, 24333)
+54995 move finished, actual heading: 359.9375
+55117 count_left: 5178, count_right: 5297
+55733 cmd: WEST
+55854 Face, desired_heading: 627.7
+55975 Actual heading: (0.0625, -3.9375, 2.875)
+56096 Angle: 92.4
+58270 Turn finished, actual heading: (267.0625, -8.1875, 2.875)
+58889 cmd: FORWARD
+59005 move, distance: 500, speed: 2000
+59125 goal_rotations: 5225.0
+59240 zero_counts: (28164, 30528)
+63793 move finished, actual heading: 265.375
+63912 count_left: 5192, count_right: 5284
+64531 cmd: SOUTH
+64651 Face, desired_heading: 537.7
+64769 Actual heading: (265.4375, -7.25, 3.8125)
+64894 Angle: 87.8
+66975 Turn finished, actual heading: (176.5625, -8.5, 0.4375)
+67597 cmd: FORWARD
+67717 move, distance: 500, speed: 2000
+67837 goal_rotations: 5225.0
+67958 zero_counts: (32535, 36735)
+72502 move finished, actual heading: 174.6875
+72621 count_left: 5185, count_right: 5293
+73241 cmd: ADJUST
+73386 Distance: 64.0 mm, delta: -136.0 mm
+73505 move, distance: -136.0, speed: 1000
+73628 goal_rotations: -1421.2
+73748 zero_counts: (37720, 42028)
+73890 move finished, actual heading: 174.75
+74007 count_left: 4, count_right: 4
+74628 cmd: WEST
+74747 Face, desired_heading: 627.7
+74869 Actual heading: (174.8125, -6.4375, 1.5625)
+74989 Angle: -92.9
+77317 Turn finished, actual heading: (268.9375, -5.625, 2.25)
+77932 cmd: FORWARD
+78052 move, distance: 500, speed: 2000
+78172 goal_rotations: 5225.0
+78293 zero_counts: (38660, 41132)
+82981 move finished, actual heading: 270.3125
+83100 count_left: 5180, count_right: 5299
+83718 cmd: SOUTH
+83838 Face, desired_heading: 537.7
+83959 Actual heading: (270.375, -5.3125, 3.0)
+84082 Angle: 92.7
+86199 Turn finished, actual heading: (176.875, -7.75, 1.375)
+86820 cmd: FORWARD
+86938 move, distance: 500, speed: 2000
+87060 goal_rotations: 5225.0
+87183 zero_counts: (42917, 47360)
+91755 move finished, actual heading: 175.1875
+91875 count_left: 5197, count_right: 5276
+92495 cmd: EAST
+92617 Face, desired_heading: 447.7
+92743 Actual heading: (175.25, -6.0, 2.1875)
+92866 Angle: 87.6
+94840 Turn finished, actual heading: (86.125, -7.0, 1.3125)
+95461 cmd: FORWARD
+95584 move, distance: 500, speed: 2000
+95707 goal_rotations: 5225.0
+95830 zero_counts: (47231, 53493)
+100448 move finished, actual heading: 84.8125
+100568 count_left: 5213, count_right: 5260
+101190 cmd: ADJUST
+101336 Distance: 228.0 mm, delta: 28.0 mm
+101458 move, distance: 28.0, speed: 1000
+101584 goal_rotations: 292.6
+101705 zero_counts: (52444, 58753)
+102417 move finished, actual heading: 84.6875
+102539 count_left: 299, count_right: 304
+103161 cmd: STOP
+103285 stop
+103909 Finished

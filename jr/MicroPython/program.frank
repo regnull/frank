@@ -1,29 +1,75 @@
 # Don't forget to set the time goal!
-TIME_GOAL = 60
+TIME_GOAL = 30
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 # Commands
 
 GO_IN
-F
 E
 F
 N
 F
 W
 F
+F
+A
+S
+F
+W
+F
+A
+N
+F
+F
+A
+E
+F
+F
+F
 N
 F
 W
 F
 S
-F
-W
+A
+E
 F
 S
 F
 E
 F
+N
+F
+W
+A
+S
+F
+A
+W
+F
+S
+F
+F
+E
+F
+N
+F
+A
+S
+F
+W
+F
+N
+F
+W
+F
+F
+A
+N
+F
+F
+W
+BT
 
 
 

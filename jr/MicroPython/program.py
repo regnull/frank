@@ -30,6 +30,33 @@ frank_commands = [
     "STOP"
 ]
 
+def collapse_commands(cmd_list):
+    if not cmd_list:
+        return []
+
+    collapsed = []
+    current_cmd = cmd_list[0]
+    count = 1
+
+    for cmd in cmd_list[1:]:
+        if cmd == current_cmd:
+            count += 1
+        else:
+            if count > 1  and count <= 4 and current_cmd in ['FORWARD', 'BACKWARD']:
+                collapsed.append(f"{count}{current_cmd}")
+            else:
+                collapsed.append(current_cmd)
+            current_cmd = cmd
+            count = 1
+
+    # Append the last accumulated command
+    if count > 1:
+        collapsed.append(f"{count}{current_cmd}")
+    else:
+        collapsed.append(current_cmd)
+
+    return collapsed
+
 class Program:
   def __init__(self):
     self.time_goal = 0
@@ -92,8 +119,9 @@ class Program:
       commands.append("STOP")
 
     self.time_goal = float(time_goal)
-    self.commands = commands
-
+    commands = [self._translate_command(cmd) for cmd in commands]
+    self.commands = collapse_commands(commands)
+    
   def reset(self):
     self.current_command = 0
 
@@ -107,6 +135,9 @@ class Program:
 
   def has_more_commands(self):
     return self.current_command < len(self.commands)
+  
+  def remaining_commands(self):
+    return self.commands[self.current_command:]
   
   def _translate_command(self, cmd):
     '''Always translate commands to the full command name'''
