@@ -15,4 +15,3 @@ make sync - to sync up the program to Frank
 make repl - to connect to Frank
 
 to exit, Ctrl-A, K then y
->>>>>>> b03c438cf0d66c8483ab768fcf6b2509ee34145a
