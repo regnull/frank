@@ -38,6 +38,7 @@ avg_adjust_time = 0.5
 avg_stop_time = 0.2
 min_speed = 1000
 max_speed = 6000
+board_width = 37
 
 def compute_speed(time_goal: float, commands: list[str]):
     fixed_delay = 0.0
@@ -103,15 +104,20 @@ def move(distance: float, speed: int):
     global heading
     
     log.print(f"move, distance: {distance}, speed: {speed}")
+    
+    # If the distance is small, go slowly.
+    if math.fabs(distance) < 50.0:
+        if speed > 0:
+            speed = 1000
+        else:
+            speed = -1000
+    
     # Make sure the speed and distance have the same sign.
     if distance < 0 and speed > 0:
         speed = -speed
     elif distance > 0 and speed < 0:
         speed = -speed
     
-    # This is our heading.
-    # heading = imu.euler()[0]
-
     # Compute goal rotations.
     goal_rotations = distance * rotations_per_mm
     log.print(f"goal_rotations: {goal_rotations}")
@@ -134,6 +140,9 @@ def move(distance: float, speed: int):
         if speed > 1000.0 and not speed_adjusted and math.fabs(distance_left) < 50.0:
             speed_adjusted = True
             speed = 1000
+        if speed < 0 and not speed_adjusted and math.fabs(distance_left) < 50.0:
+            speed_adjusted = True
+            speed = -1000
 
         actual_heading = imu.euler()[0]
         drift = actual_heading - heading
@@ -172,7 +181,7 @@ def move(distance: float, speed: int):
 def face(desired_heading: float, attempt: int = 1):
     global heading
     
-    if attempt > 3:
+    if attempt > 1:
         return
     
     start_time = time.ticks_ms()
@@ -246,7 +255,7 @@ def forward4():
     
 def adjust():
     dist = vl53.get_distance() * 10
-    desired_distance = grid_size / 2 - sensor_to_middle
+    desired_distance = grid_size / 2 - sensor_to_middle - board_width / 2
     delta = dist - desired_distance
     log.print(f"Distance: {dist} mm, delta: {delta} mm")
     move(delta, 1000)
@@ -277,7 +286,7 @@ def forward_to_target():
     move(grid_size - dowel_to_middle, speed)
     
 def backward_to_target():
-    move(-dowel_to_middle, -speed)
+    move(-dowel_to_middle, -1000)
     
 def delay():
     time.sleep_ms(1000)

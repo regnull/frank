@@ -5,71 +5,11 @@ TIME_GOAL = 30
 # Commands
 
 GO_IN
-E
-F
-N
-F
-W
-F
-F
-A
-S
-F
-W
-F
-A
-N
-F
-F
-A
-E
-F
-F
-F
-N
-F
-W
-F
-S
-A
-E
-F
-S
-F
-E
-F
-N
-F
-W
-A
-S
-F
-A
-W
-F
-S
-F
-F
-E
-F
-N
-F
-A
-S
-F
-W
-F
-N
-F
-W
-F
-F
-A
-N
-F
-F
-W
-BT
+E, F, F, N, F
+E, F, N, F, F
+B, W, F, A, N, F, W, F, F, A, S, F, F, W, F, N, F, F
+B, B, E, F, F, A, N, F, A
+B, W, F, S, F, W, F, A, BT, STOP
 
 
 
