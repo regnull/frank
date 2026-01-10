@@ -4,7 +4,9 @@ TIME_GOAL = 30
 
 # Commands
 
+# GO_IN
 AL
+# BT
 STOP
 
 # ****** Reference ******
@@ -22,6 +24,7 @@ STOP
 # Reference
 # GO_IN or GI: Go in to the grid.
 # FORWARD or F: Move forward.
+# HALF_FORWARD or HF: Half grid forward
 # ADJUST or A: Adjust to the middle of the grid.
 # BACKWARD or B: Move backward.
 # TURN_LEFT or L: Turn left.
@@ -33,3 +36,5 @@ STOP
 # SOUTH or S: Face south.
 # WEST or W: Face west.
 # STOP: Stop the robot.
+# ARC_LEFT or AL: 90% turn left
+# ARC_RIGHT or AR: 90% turn right
