@@ -18,6 +18,8 @@ motors = robot.Motors()
 encoders = robot.Encoders()
 display = robot.Display()
 mm_per_sec = 51.4 # At 1000 speed.
+width = 84 # Width of the robot, in millimeters.
+arc_slip_factor = 0.95
 
 i2c = machine.I2C(id=0, sda=machine.Pin(4), scl=machine.Pin(5), freq=400_000)
 
@@ -177,6 +179,118 @@ def move(distance: float, speed: int):
     avg_count = (count_left + count_right) / 2.0
     log.print(f"count_left: {count_left}, count_right: {count_right}, avg_count: {avg_count}")
     log.print(f"distance: {avg_count / rotations_per_mm} mm")
+    
+def arc(radius: float, right_turn: bool, speed: int):
+    global heading
+    current_heading = heading
+    
+    if right_turn:
+        target_heading = correct_angle(heading + 90.0)
+    else:
+        target_heading = correct_angle(heading - 90.0)
+    
+    log.print(f"arc, radius: {radius}, right_turn: {right_turn}, speed: {speed}")
+    
+    # Compute goal rotations.
+    distance = math.pi * radius  / 2.0 / arc_slip_factor
+    goal_rotations = distance * rotations_per_mm
+    log.print(f"goal_rotations: {goal_rotations}")
+    zero_counts = encoders.get_counts()
+    log.print(f"zero_counts: {zero_counts}")
+    
+    if right_turn:
+        distance_left = (radius + width / 2) * math.pi / 2.0
+        distance_right = (radius - width / 2) * math.pi / 2.0
+    else:
+        distance_left = (radius - width / 2) * math.pi / 2.0
+        distance_right = (radius + width / 2) * math.pi / 2.0
+        
+    print(f"distance_left: {distance_left}, distance_right: {distance_right}")
+        
+    speed_left = speed * distance_left / distance
+    speed_right = speed * distance_right / distance
+    
+    motors.set_speeds(speed_left, speed_right)
+    speed_adjusted = False
+    while True:
+        c = encoders.get_counts()
+        counts = (c[0] - zero_counts[0] + c[1] - zero_counts[1]) / 2.0
+        
+        distance_traveled = counts / rotations_per_mm
+        
+        log.print(f"distance_traveled: {distance_traveled}")
+        
+        angle_traveled = distance_traveled / radius * 180.0 / math.pi
+        
+        log.print(f"angle_traveled: {angle_traveled}")
+        
+        if right_turn:
+            desired_heading = heading + angle_traveled
+        else:  
+            desired_heading = heading - angle_traveled
+            
+        desired_heading = correct_angle(desired_heading)
+        
+        log.print(f"desired_heading: {desired_heading}")
+        
+        actual_heading = correct_angle(imu.euler()[0])
+        
+        # Check if we have finished the arc.
+        # if right_turn:
+        #     if actual_heading > target_heading:
+        #         break
+        # else:
+        #     if actual_heading < target_heading:
+        #         break
+                
+        if counts > goal_rotations:
+            log.print(f"speed: {speed}, counts: {counts}, goal_rotations: {goal_rotations}")
+            break
+        
+        distance_left = (goal_rotations - counts) / rotations_per_mm
+        # Go slower if we're close to the goal.
+        if not speed_adjusted and math.fabs(distance_left) < 50.0:
+            speed_adjusted = True
+            speed = 1000
+
+        actual_heading = correct_angle(imu.euler()[0])
+        log.print(f"actual_heading: {actual_heading}")
+        drift = actual_heading - desired_heading
+
+        if drift > 180.0:
+            drift -= 360.0
+        elif drift < -180.0:
+            drift += 360.0
+
+        log.print(f"drift: {drift}")
+        correction = drift * angle_correction_factor * speed
+        
+        motors.set_speeds(speed - correction, speed + correction)
+
+        print(drift)
+
+        display.fill(0)
+        display.text("dst: {:4.1f}".format(distance_traveled), 0, 0)
+        display.text("ang: {:4.1f}".format(angle_traveled), 0, 10)
+        display.text("hdg: {:4.1f}".format(current_heading), 0, 20)
+        display.show()
+
+        time.sleep_ms(10)
+        
+    if right_turn:
+        heading = correct_angle(heading + 90.0)
+    else:
+        heading = correct_angle(heading - 90.0)
+        
+    motors.set_speeds(0, 0)
+    time.sleep_ms(100) # Allow it to settle.
+    log.print("move finished, actual heading: {}".format(imu.euler()[0]))
+    count_left = encoders.get_counts()[0] - zero_counts[0]
+    count_right = encoders.get_counts()[1] - zero_counts[1]
+    avg_count = (count_left + count_right) / 2.0
+    log.print(f"count_left: {count_left}, count_right: {count_right}, avg_count: {avg_count}")
+    log.print(f"distance: {avg_count / rotations_per_mm} mm")
+
 
 def face(desired_heading: float, attempt: int = 1):
     global heading
@@ -243,6 +357,9 @@ def go_in():
     
 def forward():
     move(grid_size, speed)
+    
+def half_forward():
+    move(grid_size / 2, speed)
 
 def forward2():
     move(grid_size * 2, speed)
@@ -306,9 +423,16 @@ def west():
 def stop():
     log.print("stop")
 
+def arc_left():
+    arc(grid_size / 2, False, speed)
+
+def arc_right():
+    arc(grid_size / 2, True, speed)
+
 command_map = {
     'GO_IN': go_in,
     'FORWARD': forward,
+    'HALF_FORWARD': half_forward,
     '2FORWARD': forward2,
     '3FORWARD': forward3,
     '4FORWARD': forward4,
@@ -326,6 +450,8 @@ command_map = {
     'EAST': east,
     'SOUTH': south,
     'WEST': west,
+    'ARC_LEFT': arc_left,
+    'ARC_RIGHT': arc_right,
     'STOP': stop,
 }
 
@@ -365,7 +491,7 @@ def main():
 
     # Wait for the user to start the program
     log.print("Waiting for button press...")
-    speed = compute_speed(program.time_goal, program.commands)
+    # speed = compute_speed(program.time_goal, program.commands)
     while not button_b.is_pressed():
         actual_heading = imu.euler()[0]
         printa([
@@ -401,7 +527,7 @@ def main():
         log.print(f"cmd: {cmd}")
         elapsed_time = (time.ticks_ms() - start_time) / 1000.0 # In seconds.
         command_map[cmd]()
-        speed = compute_speed(program.time_goal - elapsed_time, program.remaining_commands())
+        # speed = compute_speed(program.time_goal - elapsed_time, program.remaining_commands())
         log.print(f"new speed: {speed}")
         
     log.print("Finished")

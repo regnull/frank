@@ -2,6 +2,7 @@
 .PHONY: repl
 .PHONY: clear_logs
 .PHONY: log
+
 sync:
 	rsync -av  --progress --checksum --exclude .git MicroPython/ /Volumes/MicroPython/
 

@@ -5,6 +5,8 @@ frank_commands = [
     "GI",
     "FORWARD",
     "F",
+    "HALF_FORWARD",
+    "HF",
     "ADJUST",
     "A",
     "BACKWARD",
@@ -27,6 +29,10 @@ frank_commands = [
     "S",
     "WEST",
     "W",
+    "ARC_LEFT",
+    "AL",
+    "ARC_RIGHT",
+    "AR",
     "STOP"
 ]
 
@@ -42,7 +48,7 @@ def collapse_commands(cmd_list):
         if cmd == current_cmd:
             count += 1
         else:
-            if count > 1  and count <= 4 and current_cmd in ['FORWARD', 'BACKWARD']:
+            if count > 1 and count <= 4 and current_cmd in ['FORWARD', 'BACKWARD']:
                 collapsed.append(f"{count}{current_cmd}")
             else:
                 collapsed.append(current_cmd)
@@ -146,6 +152,8 @@ class Program:
       return 'GO_IN'
     elif cmd == 'F':
       return 'FORWARD'
+    elif cmd == 'HF':
+      return 'HALF_FORWARD'
     elif cmd == 'A':
       return 'ADJUST'
     elif cmd == 'B':
@@ -170,6 +178,10 @@ class Program:
       return 'WEST'
     elif cmd == 'STOP':
       return 'STOP'
+    elif cmd == 'AL':
+      return 'ARC_LEFT'
+    elif cmd == 'AR':
+      return 'ARC_RIGHT'
     return cmd
 
 def main():

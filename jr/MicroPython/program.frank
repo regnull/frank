@@ -4,17 +4,14 @@ TIME_GOAL = 30
 
 # Commands
 
-GO_IN
-E, F, F, N, F
-E, F, N, F, F
-B, W, F, A, N, F, W, F, F, A, S, F, F, W, F, N, F, F
-B, B, E, F, F, A, N, F, A
-B, W, F, S, F, W, F, A, BT, STOP
+F,
+A,
+S,
+F,
+STOP
 
-
-
-
-
+# ****** Reference ******
+# DO NOT MODIFY THE LINES BELOW
 
 # F
 # W
