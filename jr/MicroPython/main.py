@@ -19,7 +19,7 @@ encoders = robot.Encoders()
 display = robot.Display()
 mm_per_sec = 51.4 # At 1000 speed.
 width = 84 # Width of the robot, in millimeters.
-arc_slip_factor = 0.95
+arc_slip_factor = 0.90
 
 i2c = machine.I2C(id=0, sda=machine.Pin(4), scl=machine.Pin(5), freq=400_000)
 
@@ -32,7 +32,8 @@ vl53 = VL53L4CD(i2c)
 
 north_heading = 0.0
 heading = 0.0
-speed = 3000
+#speed = 3000
+speed = 1000
 turn_speed = 3000
 command_pause = 100
 avg_turn_time = 2 
@@ -182,6 +183,7 @@ def move(distance: float, speed: int):
     
 def arc(radius: float, right_turn: bool, speed: int):
     global heading
+    radius = radius * 0.825
     current_heading = heading
     
     if right_turn:
@@ -191,24 +193,26 @@ def arc(radius: float, right_turn: bool, speed: int):
     
     log.print(f"arc, radius: {radius}, right_turn: {right_turn}, speed: {speed}")
     
-    # Compute goal rotations.
-    distance = math.pi * radius  / 2.0 / arc_slip_factor
-    goal_rotations = distance * rotations_per_mm
-    log.print(f"goal_rotations: {goal_rotations}")
-    zero_counts = encoders.get_counts()
-    log.print(f"zero_counts: {zero_counts}")
-    
+    # Compute wheel distances for 90-degree arc.
     if right_turn:
         distance_left = (radius + width / 2) * math.pi / 2.0
         distance_right = (radius - width / 2) * math.pi / 2.0
     else:
         distance_left = (radius - width / 2) * math.pi / 2.0
         distance_right = (radius + width / 2) * math.pi / 2.0
+    
+    # Average distance for goal tracking (with slip factor compensation).
+    distance_avg = (distance_left + distance_right) / 2.0 / arc_slip_factor
+    goal_rotations = distance_avg * rotations_per_mm
+    log.print(f"goal_rotations: {goal_rotations}")
+    zero_counts = encoders.get_counts()
+    log.print(f"zero_counts: {zero_counts}")
         
     print(f"distance_left: {distance_left}, distance_right: {distance_right}")
         
-    speed_left = speed * distance_left / distance
-    speed_right = speed * distance_right / distance
+    # Scale speeds proportionally to wheel distances.
+    speed_left = speed * distance_left / distance_avg
+    speed_right = speed * distance_right / distance_avg
     
     motors.set_speeds(speed_left, speed_right)
     speed_adjusted = False
@@ -224,10 +228,11 @@ def arc(radius: float, right_turn: bool, speed: int):
         
         log.print(f"angle_traveled: {angle_traveled}")
         
+        # Use current_heading (captured at start) instead of global heading.
         if right_turn:
-            desired_heading = heading + angle_traveled
+            desired_heading = current_heading + angle_traveled
         else:  
-            desired_heading = heading - angle_traveled
+            desired_heading = current_heading - angle_traveled
             
         desired_heading = correct_angle(desired_heading)
         
@@ -247,11 +252,14 @@ def arc(radius: float, right_turn: bool, speed: int):
             log.print(f"speed: {speed}, counts: {counts}, goal_rotations: {goal_rotations}")
             break
         
-        distance_left = (goal_rotations - counts) / rotations_per_mm
+        distance_remaining = (goal_rotations - counts) / rotations_per_mm
         # Go slower if we're close to the goal.
-        if not speed_adjusted and math.fabs(distance_left) < 50.0:
+        if not speed_adjusted and math.fabs(distance_remaining) < 50.0:
             speed_adjusted = True
             speed = 1000
+            # Recalculate wheel speeds when base speed changes.
+            speed_left = speed * distance_left / distance_avg
+            speed_right = speed * distance_right / distance_avg
 
         actual_heading = correct_angle(imu.euler()[0])
         log.print(f"actual_heading: {actual_heading}")
@@ -263,9 +271,10 @@ def arc(radius: float, right_turn: bool, speed: int):
             drift += 360.0
 
         log.print(f"drift: {drift}")
+        # Apply correction to individual wheel speeds, not base speed.
         correction = drift * angle_correction_factor * speed
         
-        motors.set_speeds(speed - correction, speed + correction)
+        motors.set_speeds(speed_left - correction, speed_right + correction)
 
         print(drift)
 

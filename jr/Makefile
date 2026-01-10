@@ -2,9 +2,13 @@
 .PHONY: repl
 .PHONY: clear_logs
 .PHONY: log
+.PHONY: eject
 
 sync:
 	rsync -av  --progress --checksum --exclude .git MicroPython/ /Volumes/MicroPython/
+
+eject:
+	diskutil eject "/Volumes/MicroPython"
 
 repl:
 	@DEVICE=$(shell ls /dev/tty.* | grep usbmodem); \

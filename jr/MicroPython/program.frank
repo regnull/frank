@@ -4,10 +4,7 @@ TIME_GOAL = 30
 
 # Commands
 
-F,
-A,
-S,
-F,
+AL
 STOP
 
 # ****** Reference ******
