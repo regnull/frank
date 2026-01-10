@@ -1,14 +1,14 @@
 # Don't forget to set the time goal!
-TIME_GOAL = 30
+TIME_GOAL = 20
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 # Commands
 
-# GO_IN
-AL
-# BT
+GO_IN,
+A,
 STOP
 
+# REMEMBER TO SAVE!!!!! COMMAND S
 # ****** Reference ******
 # DO NOT MODIFY THE LINES BELOW
 

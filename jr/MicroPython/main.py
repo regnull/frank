@@ -10,8 +10,8 @@ log = Log("log/run")
 
 rotations_per_mm = 10.45
 angle_correction_factor = 0.02
-dowel_to_middle = 56
-sensor_to_middle = 50
+dowel_to_middle = 60
+sensor_to_middle = 60
 grid_size = 500
 rgb_leds = robot.RGBLEDs()
 motors = robot.Motors()
