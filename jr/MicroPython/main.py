@@ -32,8 +32,7 @@ vl53 = VL53L4CD(i2c)
 
 north_heading = 0.0
 heading = 0.0
-#speed = 3000
-speed = 1000
+speed = 3000
 turn_speed = 3000
 command_pause = 100
 avg_turn_time = 2 
@@ -500,7 +499,7 @@ def main():
 
     # Wait for the user to start the program
     log.print("Waiting for button press...")
-    # speed = compute_speed(program.time_goal, program.commands)
+    speed = compute_speed(program.time_goal, program.commands)
     while not button_b.is_pressed():
         actual_heading = imu.euler()[0]
         printa([
@@ -536,7 +535,7 @@ def main():
         log.print(f"cmd: {cmd}")
         elapsed_time = (time.ticks_ms() - start_time) / 1000.0 # In seconds.
         command_map[cmd]()
-        # speed = compute_speed(program.time_goal - elapsed_time, program.remaining_commands())
+        speed = compute_speed(program.time_goal - elapsed_time, program.remaining_commands())
         log.print(f"new speed: {speed}")
         
     log.print("Finished")
