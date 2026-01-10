@@ -48,18 +48,23 @@ def collapse_commands(cmd_list):
         if cmd == current_cmd:
             count += 1
         else:
+            # Only collapse FORWARD and BACKWARD commands
             if count > 1 and count <= 4 and current_cmd in ['FORWARD', 'BACKWARD']:
                 collapsed.append(f"{count}{current_cmd}")
             else:
-                collapsed.append(current_cmd)
+                # For other commands, append each instance separately
+                for _ in range(count):
+                    collapsed.append(current_cmd)
             current_cmd = cmd
             count = 1
 
     # Append the last accumulated command
-    if count > 1:
+    if count > 1 and count <= 4 and current_cmd in ['FORWARD', 'BACKWARD']:
         collapsed.append(f"{count}{current_cmd}")
     else:
-        collapsed.append(current_cmd)
+        # For other commands, append each instance separately
+        for _ in range(count):
+            collapsed.append(current_cmd)
 
     return collapsed
 
