@@ -56,6 +56,9 @@ def compute_speed(time_goal: float, commands: list[str]):
         elif cmd == 'FORWARD' or cmd == 'BACKWARD':
             distance += grid_size
             fixed_delay += avg_stop_time
+        elif cmd == 'HALF_FORWARD' or cmd == 'HALF_BACKWARD':
+            distance += grid_size / 2
+            fixed_delay += avg_stop_time
         elif cmd == '2FORWARD' or cmd == '2BACKWARD':
             distance += grid_size * 2
             fixed_delay += avg_stop_time
@@ -64,6 +67,9 @@ def compute_speed(time_goal: float, commands: list[str]):
             fixed_delay += avg_stop_time
         elif cmd == '4FORWARD' or cmd == '4BACKWARD':
             distance += grid_size * 4
+            fixed_delay += avg_stop_time
+        elif cmd == 'ARC_LEFT' or cmd == 'ARC_RIGHT':
+            distance += grid_size / 2 * math.pi / 2.0
             fixed_delay += avg_stop_time
     fixed_delay += (len(commands) - 1) * command_pause / 1000.0
     travel_time = time_goal - fixed_delay
