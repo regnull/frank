@@ -8,7 +8,10 @@ from flog import Log
 import math
 log = Log("log/run")
 
+speed_adjustment_enabled = True
+
 rotations_per_mm = 10.45
+overshoot_counts = 10  # Encoder counts to compensate for coasting after motor stop.
 angle_correction_factor = 0.02
 dowel_to_middle = 56
 sensor_to_middle = 50
@@ -32,7 +35,7 @@ vl53 = VL53L4CD(i2c)
 
 north_heading = 0.0
 heading = 0.0
-speed = 3000
+speed = 2000
 turn_speed = 3000
 command_pause = 100
 avg_turn_time = 2 
@@ -43,6 +46,12 @@ max_speed = 6000
 board_width = 37
 
 def compute_speed(time_goal: float, commands: list[str]):
+    global speed_adjustment_enabled
+    global speed
+    
+    if not speed_adjustment_enabled:
+        return speed
+    
     fixed_delay = 0.0
     distance = 0.0
     for cmd in commands:
@@ -56,7 +65,7 @@ def compute_speed(time_goal: float, commands: list[str]):
         elif cmd == 'FORWARD' or cmd == 'BACKWARD':
             distance += grid_size
             fixed_delay += avg_stop_time
-        elif cmd == 'HALF_FORWARD' or cmd == 'HALF_BACKWARD':
+        elif cmd == 'HALF_FORWARD':
             distance += grid_size / 2
             fixed_delay += avg_stop_time
         elif cmd == '2FORWARD' or cmd == '2BACKWARD':
@@ -126,8 +135,11 @@ def move(distance: float, speed: int):
     elif distance > 0 and speed < 0:
         speed = -speed
     
-    # Compute goal rotations.
-    goal_rotations = distance * rotations_per_mm
+    # Compute goal rotations, compensating for overshoot.
+    if distance > 0:
+        goal_rotations = distance * rotations_per_mm - overshoot_counts
+    else:
+        goal_rotations = distance * rotations_per_mm + overshoot_counts
     log.print(f"goal_rotations: {goal_rotations}")
     zero_counts = encoders.get_counts()
     log.print(f"zero_counts: {zero_counts}")
@@ -137,9 +149,11 @@ def move(distance: float, speed: int):
         c = encoders.get_counts()
         counts = (c[0] - zero_counts[0] + c[1] - zero_counts[1]) / 2.0
         if speed > 0 and counts > goal_rotations:
+            motors.set_speeds(0, 0)
             log.print(f"speed: {speed}, counts: {counts}, goal_rotations: {goal_rotations}")
             break
         elif speed < 0 and counts < goal_rotations:
+            motors.set_speeds(0, 0)
             log.print(f"speed: {speed}, counts: {counts}, goal_rotations: {goal_rotations}")
             break
         
@@ -148,7 +162,7 @@ def move(distance: float, speed: int):
         if speed > 1000.0 and not speed_adjusted and math.fabs(distance_left) < 50.0:
             speed_adjusted = True
             speed = 1000
-        if speed < 0 and not speed_adjusted and math.fabs(distance_left) < 50.0:
+        if speed < -1000.0 and not speed_adjusted and math.fabs(distance_left) < 50.0:
             speed_adjusted = True
             speed = -1000
 
@@ -177,7 +191,7 @@ def move(distance: float, speed: int):
         display.show()
 
         time.sleep_ms(10)
-    motors.set_speeds(0, 0)
+    # motors.set_speeds(0, 0)
     time.sleep_ms(100) # Allow it to settle.
     log.print("move finished, actual heading: {}".format(imu.euler()[0]))
     count_left = encoders.get_counts()[0] - zero_counts[0]
@@ -187,6 +201,8 @@ def move(distance: float, speed: int):
     log.print(f"distance: {avg_count / rotations_per_mm} mm")
     
 def arc(radius: float, right_turn: bool, speed: int):
+    # Arc can be done only with positive speed. We don't handle negative speeds here.
+    
     global heading
     radius = radius * 0.825
     current_heading = heading
@@ -208,7 +224,8 @@ def arc(radius: float, right_turn: bool, speed: int):
     
     # Average distance for goal tracking (with slip factor compensation).
     distance_avg = (distance_left + distance_right) / 2.0 / arc_slip_factor
-    goal_rotations = distance_avg * rotations_per_mm
+    # Arc is always forward, so subtract overshoot compensation.
+    goal_rotations = distance_avg * rotations_per_mm - overshoot_counts
     log.print(f"goal_rotations: {goal_rotations}")
     zero_counts = encoders.get_counts()
     log.print(f"zero_counts: {zero_counts}")
@@ -243,7 +260,7 @@ def arc(radius: float, right_turn: bool, speed: int):
         
         log.print(f"desired_heading: {desired_heading}")
         
-        actual_heading = correct_angle(imu.euler()[0])
+        # actual_heading = correct_angle(imu.euler()[0])
         
         # Check if we have finished the arc.
         # if right_turn:
@@ -254,6 +271,7 @@ def arc(radius: float, right_turn: bool, speed: int):
         #         break
                 
         if counts > goal_rotations:
+            motors.set_speeds(0, 0)
             log.print(f"speed: {speed}, counts: {counts}, goal_rotations: {goal_rotations}")
             break
         
@@ -296,7 +314,7 @@ def arc(radius: float, right_turn: bool, speed: int):
     else:
         heading = correct_angle(heading - 90.0)
         
-    motors.set_speeds(0, 0)
+    # motors.set_speeds(0, 0)
     time.sleep_ms(100) # Allow it to settle.
     log.print("move finished, actual heading: {}".format(imu.euler()[0]))
     count_left = encoders.get_counts()[0] - zero_counts[0]
@@ -385,11 +403,19 @@ def forward4():
     move(grid_size * 4, speed)
     
 def adjust():
-    dist = vl53.get_distance() * 10
+    log.print(f"Adjusting distance, attempt: {i}")
+    dist = vl53.get_distance() * 10.0
     desired_distance = grid_size / 2 - sensor_to_middle - board_width / 2
     delta = dist - desired_distance
+    printa([
+        "Adjusting", 
+        "dist: {:4.1f}".format(dist), 
+        'ddist: {:4.1f}'.format(desired_distance),
+        'delta: {:4.1f}'.format(delta)])
+    
     log.print(f"Distance: {dist} mm, delta: {delta} mm")
     move(delta, 1000)
+    time.sleep_ms(100)
 
 def backward():
     move(-grid_size, speed)
@@ -404,11 +430,13 @@ def backward4():
     move(-grid_size * 4, speed)
     
 def turn_left():
+    global heading
     heading -= 90.0
     heading = correct_angle(heading)
     face(heading)
     
 def turn_right():
+    global heading
     heading += 90.0
     heading = correct_angle(heading)
     face(heading)
@@ -492,7 +520,7 @@ def main():
     
     # Initialize the distance sensor
     vl53.inter_measurement = 0 # makes sensor run in "continuous mode" (default)
-    vl53.timing_budget = 20 # spend 20ms on each measurement
+    vl53.timing_budget = 50 # spend 20ms on each measurement
     vl53.start_ranging()
     log.print("Distance sensor initialized")
     
@@ -500,6 +528,17 @@ def main():
     rgb_leds.show()
 
     log.print("Ready to start")
+    
+    # while True:
+    #     dist = vl53.get_distance() * 10.0
+    #     desired_distance = grid_size / 2 - sensor_to_middle - board_width / 2
+    #     delta = dist - desired_distance
+    #     printa([
+    #         "Adjusting", 
+    #         "dist: {:4.1f}".format(dist), 
+    #         'ddist: {:4.1f}'.format(desired_distance),
+    #         'delta: {:4.1f}'.format(delta)])
+    #     time.sleep_ms(100)
     
     button_b = robot.ButtonB()
 

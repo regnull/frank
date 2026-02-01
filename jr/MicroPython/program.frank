@@ -1,12 +1,24 @@
 # Don't forget to set the time goal!
-TIME_GOAL = 30
+TIME_GOAL = 120
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 # Commands
 
-# GO_IN
-AL
-# BT
+GO_IN
+A, E, A, W, F, N, F, E, F
+A, S, A, N, F, E, F, S, F
+A, W, A, E, F, S, F, W, F
+A, N, A, S, F, W, F, N, F
+
+A, E, A, W, F, N, F, E, F
+A, S, A, N, F, E, F, S, F
+A, W, A, E, F, S, F, W, F
+A, N, A, S, F, W, F, N, F
+
+A, E, A, W, F, N, F, E, F
+A, S, A, N, F, E, F, S, F
+A, W, A, E, F, S, F, W, F
+A, N, A, S, F, W, F, N, F
 STOP
 
 # ****** Reference ******
