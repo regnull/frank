@@ -403,7 +403,6 @@ def forward4():
     move(grid_size * 4, speed)
     
 def adjust():
-    log.print(f"Adjusting distance, attempt: {i}")
     dist = vl53.get_distance() * 10.0
     desired_distance = grid_size / 2 - sensor_to_middle - board_width / 2
     delta = dist - desired_distance
@@ -547,10 +546,12 @@ def main():
     speed = compute_speed(program.time_goal, program.commands)
     while not button_b.is_pressed():
         actual_heading = imu.euler()[0]
+        dist = vl53.get_distance() * 10.0
         printa([
             "Ready to start", 
             "tgoal: {}".format(program.time_goal), 
             'hdng: {:4.1f}'.format(actual_heading),
+            'dist: {:4.1f}'.format(dist),
             'spd: {:4.1f}'.format(speed),
             'Press B to start'])
 
