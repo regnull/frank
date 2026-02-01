@@ -1,9 +1,14 @@
 # Don't forget to set the time goal!
+<<<<<<< HEAD
 TIME_GOAL = 120
+=======
+TIME_GOAL = 20
+>>>>>>> 87e497ab983185b8ad4a52503a840886a25fffb7
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 # Commands
 
+<<<<<<< HEAD
 GO_IN
 A, E, A, W, F, N, F, E, F
 A, S, A, N, F, E, F, S, F
@@ -19,8 +24,13 @@ A, E, A, W, F, N, F, E, F
 A, S, A, N, F, E, F, S, F
 A, W, A, E, F, S, F, W, F
 A, N, A, S, F, W, F, N, F
+=======
+GO_IN,
+A,
+>>>>>>> 87e497ab983185b8ad4a52503a840886a25fffb7
 STOP
 
+# REMEMBER TO SAVE!!!!! COMMAND S
 # ****** Reference ******
 # DO NOT MODIFY THE LINES BELOW
 
