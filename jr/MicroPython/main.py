@@ -44,6 +44,7 @@ avg_stop_time = 0.1
 min_speed = 1000
 max_speed = 6000
 board_width = 37
+speed_correction_factor = 0.97
 
 def compute_speed(time_goal: float, commands: list[str]):
     global speed_adjustment_enabled
@@ -92,7 +93,7 @@ def compute_speed(time_goal: float, commands: list[str]):
     elif speed > max_speed:
         speed = max_speed
     log.print(f"speed: {speed}, distance: {distance}, travel_time: {travel_time}, fixed_delay: {fixed_delay}")
-    return speed
+    return speed * speed_correction_factor
 
 def correct_angle(angle: float):
     while angle > 180.0:
