@@ -22,7 +22,7 @@ encoders = robot.Encoders()
 display = robot.Display()
 mm_per_sec = 51.4 # At 1000 speed.
 width = 84 # Width of the robot, in millimeters.
-arc_slip_factor = 0.90
+arc_slip_factor = 0.85
 
 i2c = machine.I2C(id=0, sda=machine.Pin(4), scl=machine.Pin(5), freq=400_000)
 
@@ -44,7 +44,7 @@ avg_stop_time = 0.1
 min_speed = 1000
 max_speed = 6000
 board_width = 37
-speed_correction_factor = 0.97
+speed_correction_factor = 0.92
 
 def compute_speed(time_goal: float, commands: list[str]):
     global speed_adjustment_enabled
@@ -405,7 +405,7 @@ def forward4():
     
 def adjust():
     dist = vl53.get_distance() * 10.0
-    desired_distance = grid_size / 2 - sensor_to_middle - board_width / 2
+    desired_distance = grid_size / 2 - sensor_to_middle - board_width / 2 + 15
     delta = dist - desired_distance
     printa([
         "Adjusting", 
